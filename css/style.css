@@ -251,6 +251,14 @@ textarea.comments {
 	font-size: 14px;
 }
 
+textarea.settings {
+	height: 150px;
+	width: 100%;
+	margin-bottom: 10px;
+	font-size: 14px;
+	font-family: 'Oswald', sans-serif;
+}
+
 #character_limit {
 	display: inline;
 	margin: 0px;
@@ -326,6 +334,13 @@ input.submit_button {
 	justify-content: center;
 }
 
+.flex_container_oneline {
+	width: 100%;
+	display: flex;
+	wrap: nowrap;
+	justify-content: space-between;
+}
+
 .flex_container_dialog {
 	width: 100%;
 	height: 100%;
@@ -391,7 +406,7 @@ input.submit_button {
 
 .settings_group {
 	width: 400px;
-	margin: 10px auto;
+	margin: 0px auto;
 	/*background: rgba(255,0,0,.5);*/
 }
 
@@ -407,6 +422,11 @@ button, input.bold_button, form.bold_form {
 input[type="text"].wide, input[type="password"].wide {
 	height: 24px;
 	width: 100%;
+}
+
+input[type="text"].half_wide {
+	height: 24px;
+	width: 49%;
 }
 
 input[type="submit"].wide {

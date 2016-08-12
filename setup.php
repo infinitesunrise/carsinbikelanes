@@ -4,12 +4,20 @@ require 'scripts/PasswordHash.php';
 
 //VALUES PASSED FROM SETUP FORM
 $username = $_POST["username"];
-$password = $_POST["password"];
+$password1 = $_POST["password1"];
+$password2 = $_POST["password2"];
+$email = $_POST["email"];
 $hostname = $_POST["hostname"];
 $sqluser = $_POST["sqluser"];
 $sqlpass = $_POST["sqlpass"];
 $database = $_POST["database"];
 $api_key = $_POST["api_key"];
+
+//CHECK THAT PASSWORDS WERE CORRECTLY TYPED
+if ($password1 !=== $password2){
+	die("Passwords entered do not match!");
+	die("Passwords entered do not match!");
+}
 
 //CREATE MYSQL CONNECTION
 $connection = new mysqli($hostname, $sqluser, $sqlpass);
@@ -75,7 +83,9 @@ if ($connection->query($query) === TRUE) {
 //CREATE MYSQL LOGINS TABLE
 $query = "CREATE TABLE cibl_users (
 username CHAR(30) NOT NULL,
-hash CHAR(60) NOT NULL
+hash CHAR(60) NOT NULL,
+admin BOOLEAN NOT NULL,
+email CHAR(255)
 )";
 if ($connection->query($query) === TRUE) {
     echo "Logins table populated successfully.<br>";
@@ -87,7 +97,7 @@ if ($connection->query($query) === TRUE) {
 //SAVE ADMIN CREDENTIALS
 $hasher = new PasswordHash(8, false);
 $hash = $hasher->HashPassword($password);
-$query = "INSERT INTO `cibl_users` (`username`, `hash`) VALUES ('" . $username . "', '" . $hash . "');";
+$query = "INSERT INTO cibl_users VALUES ('" . $username . "', '" . $hash . "', TRUE, '" . $email . "');";
 if ($connection->query($query) === TRUE) {
     echo "Admin credentials saved.<br>";
 } else {
@@ -104,16 +114,16 @@ $text = "<?php\n\n" .
 "// CONFIGURATION\n" .
 "//----------------------------------------------//\n\n" .
 "//MySQL\n" .
-"\$hostname = \"" . $hostname . "\";\n" .
-"\$username = \"" . $sqluser . "\";\n" .
-"\$password = \"" . $sqlpass . "\";\n" .
+"\$sqlhost = \"" . $hostname . "\";\n" .
+"\$sqluser = \"" . $sqluser . "\";\n" .
+"\$sqlpass = \"" . $sqlpass . "\";\n" .
 "\$database = \"" . $database . "\";\n\n" .
 "//Mapbox\n" .
 "\$api_key = \"" . $api_key . "\";\n\n" .
 "//Preferences\n" .
 "\$max_view = 50;\n\n" .
 "//----------------------------------------------//\n\n" .
-"\$connection = mysqli_connect(\$hostname,\$username,\$password,\$database);\n\n" .
+"\$connection = mysqli_connect(\$sqlhost,\$sqluser,\$sqlpass,\$database);\n\n" .
 "?>";
 
 fwrite($config_file, $text);

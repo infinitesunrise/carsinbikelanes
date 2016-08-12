@@ -88,7 +88,9 @@ Please fill in the following fields to configure your site.</p>
 <div class="settings_group">
 <h3>Administrator:</h3>
 <span>username: </span><input type="text" name="username" placeholder="username"/><br>
-<span>password: </span><input type="password" name="password"/><br>
+<span>password: </span><input type="password" name="password1"/><br>
+<span>type it again: </span><input type="password" name="password2"/><br>
+<span>email (optional): </span><input type="text" name="email"/><br>
 </div>
 
 <div class="settings_group">
@@ -101,7 +103,7 @@ Please fill in the following fields to configure your site.</p>
 </div>
 
 <div class="settings_group">
-<h3>Mapbox:</h3>
+<h3>Map Service:</h3>
 <span>api key: </span><input type="text" name="api_key" placeholder="paste API key here"/><br>
 <p class="tinytext">Currently CIBL only utilizes Mapbox for map display. 
 Sign up for a Mapbox account <a href="https://www.mapbox.com/signup/">here</a>, 
