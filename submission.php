@@ -1,6 +1,6 @@
 <?php
 
-include 'config.php';
+require 'admin/config.php';
 
 //VERIFY ATTACHMENT
 if (empty($_FILES["image_submission"]["name"])){
@@ -31,7 +31,7 @@ if(isset($_POST["submit"])) {
     	error("badimage");
     }
 }
-//VERIFY COORDINATES ARE AROUND NYC
+//VERIFY COORDINATES WITHIN PROJECT AREA
 if ( $_POST["lat"] > 40.9168 || $_POST["lat"] < 40.490617 || $_POST["lng"] > -73.6619 || $_POST["lng"] < -74.2655 ){
 	if ( $_POST["lat"] > 40.9168 ){
 		echo $_POST["lat"] . " > 40.9168<br>";
@@ -51,26 +51,26 @@ if ( $_POST["lat"] > 40.9168 || $_POST["lat"] < 40.490617 || $_POST["lng"] > -73
 //VERIFY FOLDER TO UPLOAD INTO OR CREATE IT
 $today = getdate();
 //IMAGES DIRECTORY
-if (!file_exists( "images/" . $today[year] )){
-	mkdir("images/" . $today[year] . "/"); }
-if (!file_exists( "images/" . $today[year] . "/" . $today[mon] )){
-	mkdir("images/" . $today[year] . "/" . $today[mon] . "/"); }
-if (!file_exists( "images/" . $today[year] . "/" . $today[mon] . "/" . $today[mday] )){
-	mkdir("images/" . $today[year] . "/" . $today[mon] . "/" . $today[mday] . "/"); }
+if (!file_exists( "images/" . $today['year'] )){
+	mkdir("images/" . $today['year'] . "/"); }
+if (!file_exists( "images/" . $today['year'] . "/" . $today['mon'] )){
+	mkdir("images/" . $today['year'] . "/" . $today['mon'] . "/"); }
+if (!file_exists( "images/" . $today['year'] . "/" . $today['mon'] . "/" . $today['mday'] )){
+	mkdir("images/" . $today['year'] . "/" . $today['mon'] . "/" . $today['mday'] . "/"); }
 //THUMBS DIRECTORY
-if (!file_exists( "thumbs/" . $today[year] )){
-	mkdir("thumbs/" . $today[year] . "/"); }
-if (!file_exists( "thumbs/" . $today[year] . "/" . $today[mon] )){
-	mkdir("thumbs/" . $today[year] . "/" . $today[mon] . "/"); }
-if (!file_exists( "thumbs/" . $today[year] . "/" . $today[mon] . "/" . $today[mday] )){
-	mkdir("thumbs/" . $today[year] . "/" . $today[mon] . "/" . $today[mday] . "/"); }
+if (!file_exists( "thumbs/" . $today['year'] )){
+	mkdir("thumbs/" . $today['year'] . "/"); }
+if (!file_exists( "thumbs/" . $today['year'] . "/" . $today['mon'] )){
+	mkdir("thumbs/" . $today['year'] . "/" . $today['mon'] . "/"); }
+if (!file_exists( "thumbs/" . $today['year'] . "/" . $today['mon'] . "/" . $today['mday'] )){
+	mkdir("thumbs/" . $today['year'] . "/" . $today['mon'] . "/" . $today['mday'] . "/"); }
 
 //DETERMINE TARGET FILE NAME
-$target_dir = $today[year] . "/" . $today[mon] . "/" . $today[mday] . "/";
-//$target_increment = mysqli_fetch_array(mysqli_query($connection, "SELECT COUNT( * ) FROM bikelane"))[0] + 1;
-$target_increment = mysqli_fetch_array(mysqli_query($connection, "SELECT MAX(increment) AS increment FROM bikelane"))[0] + 1;
+$target_dir = $today['year'] . "/" . $today['mon'] . "/" . $today['mday'] . "/";
+//$target_increment = mysqli_fetch_array(mysqli_query($connection, "SELECT COUNT( * ) FROM cibl_data"))[0] + 1;
+$target_increment = mysqli_fetch_array(mysqli_query($connection, "SELECT MAX(increment) AS increment FROM cibl_queue"))[0] + 1;
 $target_extension = pathinfo(basename($_FILES["image_submission"]["name"]), PATHINFO_EXTENSION);
-$target_file = $target_dir . $target_increment . "." . $target_extension;
+$target_file = $target_dir . "queue_" . $target_increment . "." . $target_extension;
 $target_image = "images/" . $target_file;
 $target_thumb = "thumbs/" . $target_file;
 
@@ -95,7 +95,7 @@ $street2 = mysqli_real_escape_string($connection, $_POST["street2"]);
 $description_string = mysqli_real_escape_string($connection, $_POST["description"]);
 
 //INSERT NEW RECORD INTO DATABASE
-$row_added = "INSERT INTO bikelane (url, plate, state, date_occurrence, gps_lat, gps_long, street1, street2, description)
+$row_added = "INSERT INTO cibl_queue (url, plate, state, date_occurrence, gps_lat, gps_long, street1, street2, description)
 	VALUES ('" . $target_file . "', '" .
 			$plate . "', '" .
 			$_POST["state"] . "', '" .
@@ -170,7 +170,7 @@ function error($type) {
 	}
 	if ($type == "badlocation"){
 		echo "\n <h2>Error:</h2>";
-		echo "\n <p class=\"submit_detail\">The location marked isn't in New York City.</p>";
+		echo "\n <p class=\"submit_detail\">No location marked within project area, please mark a valid location on the map.</p>";
 		echo "\n <div id=\"error_back\"><span>Back</span></div>";
 	}
 	if ($type == "mysql"){

@@ -1,6 +1,6 @@
 <?php
 
-include 'config.php';
+require 'admin/config.php';
 
 //VERIFY ATTACHMENT
 if (empty($_FILES["image_submission"]["name"])){

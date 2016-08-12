@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+<?php require 'auth.php'; ?>
+
 <html>
 <head>
 
 <!-- main stylesheet -->
-<link rel="stylesheet" type="text/css" href="../style.css" />
+<link rel="stylesheet" type="text/css" href="../css/style.css" />
 
 <!-- jquery -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
@@ -12,73 +13,24 @@
 <!-- google fonts -->
 <link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
 
-<!-- admin-specific css -->
-<style type="text/css">
-body {
-	overflow: scroll;
-}
-
-.moderation_queue_table {
-	display: inline-block;
-	margin: 10px 10px 10px 100px;
-	border: 2px solid black;
-}
-
-.moderation_queue_row {
-	width: 100%;
-	border: 2px solid black;
-}
-
-.moderation_queue_cell {
-	vertical-align: top;
-	display: inline-block;
-}
-
-.moderation_queue_cell_details {
-	display: inline-block;
-	width: 450px;
-}
-
-button {
-	font-size: 32px;
-	font-family: "Oswald",sans-serif;
-	width: 200px;
-	margin: 10px;
-}
-
-img {
-	margin: 10px;
-}
-</style>
-
 <script type="text/javascript">
 
 var zoomToggles = new Map();
 
 function toggleImg(link,id) {
-	if (zoomToggles.has(id)){
-		if (zoomToggles.get(id)){
-			var newImg = "../thumbs/" + link;
-			var newHtml = "<img src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
-			$("#" + id + "").empty();
-			$("#" + id + "").html(newHtml);
-			zoomToggles.set(id, false);
-		}
-		else {
-			var newImg = "../images/" + link;
-			var newHtml = "<img src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
-			$("#" + id + "").empty();
-			$("#" + id + "").html(newHtml);
-			zoomToggles.set(id, true);
-		}
+	if (zoomToggles.has(id) && (zoomToggles.get(id))){
+		var newImg = "../thumbs/" + link;
+		var newHtml = "<img class='review' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
+		$("#" + id + "").empty();
+		$("#" + id + "").html(newHtml);
+		zoomToggles.set(id, false);
 	}
 	else {
 		var newImg = "../images/" + link;
-		var newHtml = "<img src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
+		var newHtml = "<img class='review' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
 		$("#" + id + "").empty();
 		$("#" + id + "").html(newHtml);
 		zoomToggles.set(id, true);
-
 	}
 }
 
@@ -91,80 +43,97 @@ function deny(id){
 }
 
 </script>
-
 </head>
-<body>
-
-Hint: You may want to password-protect the /admin directory that this page lives in.
+<body class='non_map'>
 
 <?php
 
-include("../config.php");
+require('config.php');
 
 if (isset($_GET["accept"])) {
-	$accept_query = "UPDATE " . $table . " SET approved = 1 WHERE increment = " . $_GET["accept"];
-	$entries = mysqli_query($connection, $accept_query);
+	try {
+		//MOVE SUBMISSION TO MAIN TABLE, DELETE QUEUE SUBMISSION, UPDATE IMAGE NAMES AND URLS
+		$connection->beginTransaction();
+		$connection->query('INSERT INTO cibl_data 
+							SELECT * FROM cibl_queue 
+							WHERE increment = ' . $_GET["accept"]);
+		$id = $connection->insert_id();
+		$old_url = mysqli_fetch_array($connection->query(
+							'SELECT url 
+							FROM cibl_queue 
+							WHERE increment = ' . $_GET["accept"]))[0];
+		$new_url = pathinfo($old_url)['dirname'] . '/' . $id . '.' . pathinfo($old_url)['extension'];
+		$connection->query('UPDATE cibl_data SET url=\'' . $new_url . '\' WHERE increment=' . $id);
+		$connection->query('DELETE FROM cibl_queue
+							WHERE increment = ' . $_GET["accept"]);
+		rename('../thumbs/' . $old_url, '../thumbs/' . $new_url);
+		rename('../images/' . $old_url, '../images/' . $new_url);
+		$connection->commit();
+	}
+	catch (Exception $e) {
+		error_log('MySQL transaction exception: ' . $e);
+		$connection->rollback();
+	}
 }
 
 if (isset($_GET["deny"])) {
-	$file_query = "SELECT url FROM " . $table . " WHERE increment = " . $_GET["deny"];
-	$file_result = mysqli_query($connection, $file_query);
-	while ($row = mysqli_fetch_array($file_result)){
-		$file_thumb = "../thumbs/" . $row[0];
-		$file_image = "../images/" . $row[0];
-		unlink($file_thumb);
-		unlink($file_image);
-	}	
-	$delete_query = "DELETE FROM " . $table . " WHERE increment = " . $_GET["deny"];
-	$entries = mysqli_query($connection, $delete_query);
+	//DELETE QUEUED SUBMISSION AND ASSOCIATED FILES
+	$url = mysqli_fetch_array($connection->query(
+							'SELECT url 
+							FROM cibl_queue 
+							WHERE increment = ' . $_GET["deny"]))[0];					
+	$file_thumb = "../thumbs/" . $url;
+	$file_image = "../images/" . $url;
+	unlink($file_thumb);
+	unlink($file_image);
+	$connection->query('DELETE FROM cibl_queue 
+						WHERE increment = ' . $_GET["deny"]);
 }
 
-$full_query =
-"SELECT *
-FROM `" . $table . "` 
-WHERE approved = 0 
-ORDER BY date_added ASC
-LIMIT " . $max_view . "
-OFFSET 0";
+$entries = $connection->query(
+	'SELECT *
+	FROM cibl_queue
+	ORDER BY date_added ASC
+	LIMIT ' . $max_view . '
+	OFFSET 0');
 
-$entries = mysqli_query($connection, $full_query);
-
-echo "\n <div class=\"moderation_queue_table\">\n";
+echo "\n <div class='flex_container_scroll'>";
+echo "\n <div class='moderation_queue'>";
+include 'nav.php';
 
 while ($row = mysqli_fetch_array($entries)){
+	echo "\n\n <div class='moderation_queue_row'>";
+	echo "\n <div class='moderation_queue_buttons'>";
+	echo "\n <button class='bold_button' onclick='javascript:accept(" . $row[0] . ");'>ACCEPT</button> <br>";
+	echo "\n <button class='bold_button' onclick='javascript:deny(" . $row[0] . ");'>DENY</button>";
+	echo "\n </div>";
+	echo "\n <div id='" . $row[0] . "'>";
+	echo "\n <img class='review' src='../thumbs/" . $row[1] . "' onclick=\"javascript:toggleImg('" . $row[1] . "', " . $row[0] . ");\"/>";
+	echo "\n </div>";
+	echo "\n <div class='moderation_queue_details'>";
+	echo "\n <h2>#" . $row[0] . ": " . $row[2] . "</h2>";
 
-echo "\n <div class=\"moderation_queue_row\">";
-echo "\n <div class=\"moderation_queue_cell\">";
-echo "\n <button onclick='javascript:accept(" . $row[0] . ");'>ACCEPT</button> <br>";
-echo "\n <button onclick='javascript:deny(" . $row[0] . ");'>DENY</button>";
-echo "\n </div>";
+	$datetime = new DateTime($row[4]);
 
-echo "\n <div class=\"moderation_queue_cell\" id=\"" . $row[0] . "\">";
-echo "\n <img src=\"../thumbs/" . $row[2] . "\" onclick=\"javascript:toggleImg('" . $row[2] . "', " . $row[0] . ");\"/>";
-echo "\n </div>";
+	echo "\n <p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ ";
 
-echo "\n <div class=\"moderation_queue_cell_details\">";
-echo "\n <h2>#" . $row[0] . ": " . $row[3] . "</h2>";
-$datetime = new DateTime($row[5]);
-echo "\n <p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ ";
-if ($row[9] !== ''){
-	echo strtoupper($row[9]);
-	if ($row[10] !== ''){
-		echo " & " . strtoupper($row[10]);
+	if ($row[8] !== ''){
+		echo strtoupper($row[8]);
+		if ($row[9] !== ''){
+			echo " & " . strtoupper($row[9]);
+		}
+	} else { 
+		echo $row[6] . " / " . $row[7];
 	}
-}
-else { 
-	echo $row[7] . " / " . $row[8];
-}
-echo "</p>";
-echo "\n <p class='entry_comment'>" . nl2br($row[11]) . "</p>";
-echo "\n </div>";
-echo "\n </div>";
-echo "\n";
-echo "\n";
+
+	echo "</p>";
+	echo "\n <p class='entry_comment'>" . nl2br($row[10]) . "</p>";
+	echo "\n </div>";
+	echo "\n </div>";
 }
 
 echo "\n\n</div>";
+echo "</div>";
 
 ?>
 

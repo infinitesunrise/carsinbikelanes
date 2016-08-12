@@ -4,6 +4,11 @@ html, body {
     overflow: hidden;
 }
 
+body.non_map {
+    background-color:rgb(150, 150, 150);
+    overflow: scroll;
+}
+
 #body_map {
 	margin: 0px;
 	padding: 0px;
@@ -28,6 +33,13 @@ h2 {
 	margin-top: 0px;
 	margin-bottom: -10px;
 	font-size: 42px;
+	font-family: 'Oswald', sans-serif;
+}
+
+h3 {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	font-size: 24px;
 	font-family: 'Oswald', sans-serif;
 }
 
@@ -306,4 +318,98 @@ input.submit_button {
 
 #body_map .leaflet-left {
 	left: 585px;
+}
+
+.flex_container_scroll {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.flex_container_dialog {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.flex_container_dialog_float {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 999;
+}
+
+.flex_container_nav {
+	background-color:rgba(255, 255, 255, 0.9);
+	width: 100%;
+	padding: 10px;
+	margin: 10px;
+	display: flex;
+	justify-content: center;
+}
+
+.setup_centered {
+	background-color:rgba(255, 255, 255, 0.9);
+	width: 600px;
+	padding: 10px;
+	margin: 10px;
+}
+
+.moderation_queue {
+	min-width: 600px;
+	padding: 0px;
+	margin: 10px;
+}
+
+.moderation_queue_row {
+	background-color:rgba(255, 255, 255, 0.9);
+	width: 100%;
+	min-height: 50px;
+	padding: 10px;
+	margin: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+}
+
+.moderation_queue_buttons {
+	width: 150px;
+}
+
+.settings_group {
+	width: 400px;
+	margin: 30px auto;
+}
+
+button, input.bold_button, form.bold_form {
+	height: 36px;
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 18px;
+	font-family: 'Oswald', sans-serif;
+}
+
+input[type="text"].wide, input[type="password"].wide {
+	height: 24px;
+	width: 100%;
+}
+
+input[type="submit"].wide {
+	height: 36px;
+	width: 100%;
+	margin-top: 20px;
+	font-size: 18px;
+	font-family: 'Oswald', sans-serif;
+}
+
+img.review {
+	margin: 10px;
 }
