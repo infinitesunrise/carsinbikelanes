@@ -132,6 +132,12 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </div>";
 }
 
+if (count($row) == 0){
+	echo "\n\n <div class='moderation_queue_row'>";
+	echo "\n <h2>No new submissions.</h2>";
+	echo "\n </div>";
+}
+
 echo "\n\n</div>";
 echo "</div>";
 

@@ -365,10 +365,16 @@ input.submit_button {
 .moderation_queue {
 	min-width: 600px;
 	padding: 0px;
-	margin: 10px;
+	margin: 0px;
 }
 
-.moderation_queue_row {
+.settings_container {
+	width: 600px;
+	padding: 0px;
+	margin: 0px;
+}
+
+.moderation_queue_row, .settings_box {
 	background-color:rgba(255, 255, 255, 0.9);
 	width: 100%;
 	min-height: 50px;
@@ -385,7 +391,8 @@ input.submit_button {
 
 .settings_group {
 	width: 400px;
-	margin: 30px auto;
+	margin: 10px auto;
+	/*background: rgba(255,0,0,.5);*/
 }
 
 button, input.bold_button, form.bold_form {
@@ -412,4 +419,16 @@ input[type="submit"].wide {
 
 img.review {
 	margin: 10px;
+}
+
+.centered_form {
+	margin: 0 auto;
+}
+
+p.tinytext {
+	word-wrap: break-word;
+	text-align: left;
+	margin-top: 3px;
+	font-size: 12px;
+	font-family: 'Oswald', sans-serif;
 }
