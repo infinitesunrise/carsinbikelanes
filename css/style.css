@@ -370,6 +370,34 @@ input.submit_button {
 	justify-content: center;
 }
 
+.user_list_row {
+	width: 100%;
+	padding: 0px;
+	margin: 2px;
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	font-size: 18px;
+	font-family: 'Oswald', sans-serif;
+}
+
+.user_list_name {
+	width: 100px;
+}
+
+.user_list_admin {
+	width: 80px;
+}
+
+.user_list_email {
+	width: 170px;
+}
+
+.user_list_delete {
+	width: 50px;
+	text-align: right;
+}
+
 .setup_centered {
 	background-color:rgba(255, 255, 255, 0.9);
 	width: 600px;

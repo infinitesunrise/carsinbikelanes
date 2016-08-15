@@ -14,10 +14,12 @@ $database = $_POST["database"];
 $api_key = $_POST["api_key"];
 
 //CHECK THAT PASSWORDS WERE CORRECTLY TYPED
-if ($password1 !=== $password2){
+$password = "";
+if ($password1 !== $password2){
 	die("Passwords entered do not match!");
-	die("Passwords entered do not match!");
+	echo "Passwords entered do not match!";
 }
+else { $password = $password1; }
 
 //CREATE MYSQL CONNECTION
 $connection = new mysqli($hostname, $sqluser, $sqlpass);
@@ -117,13 +119,23 @@ $text = "<?php\n\n" .
 "\$sqlhost = \"" . $hostname . "\";\n" .
 "\$sqluser = \"" . $sqluser . "\";\n" .
 "\$sqlpass = \"" . $sqlpass . "\";\n" .
-"\$database = \"" . $database . "\";\n\n" .
+"\$database = \"" . $database . "\";\n" .
+"\$connection = mysqli_connect(\$sqlhost,\$sqluser,\$sqlpass,\$database);\n\n" .
+"//----------------------------------------------//\n\n" .
 "//Mapbox\n" .
 "\$api_key = \"" . $api_key . "\";\n\n" .
-"//Preferences\n" .
-"\$max_view = 50;\n\n" .
 "//----------------------------------------------//\n\n" .
-"\$connection = mysqli_connect(\$sqlhost,\$sqluser,\$sqlpass,\$database);\n\n" .
+"//Preferences\n" .
+"\$max_view = 50;\n" .
+"\$north_bounds = 40.490617;\n" .
+"\$south_bounds = 40.9168;\n" .
+"\$east_bounds = -73.6619;\n" .
+"\$west_bounds = -74.2655;\n" .
+"\$center_lat = 40.711;\n" .
+"\$center_long = -74.055;\n\n" .
+"//----------------------------------------------//\n\n" .
+"//About Text\n" .
+"\$about_text = 'This text can be edited on the settings page.';\n\n" .
 "?>";
 
 fwrite($config_file, $text);

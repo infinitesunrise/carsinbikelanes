@@ -16,7 +16,10 @@ if (!isset($_SESSION['login']) && isset($_POST['username']) && isset($_POST['pas
 	$row = mysqli_fetch_assoc($result);
 	$hash = $row['hash'];
 	$check = $hasher->CheckPassword($password, $hash);
-	if ($check) { $_SESSION['login'] = true; }
+	if ($check) {
+		$_SESSION['login'] = true;
+		$_SESSION['username'] = $username;
+	}
 	else { header('Location: login.php'); }
 }
 else if (!isset($_SESSION['login'])) {

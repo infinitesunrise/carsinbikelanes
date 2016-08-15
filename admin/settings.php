@@ -14,7 +14,7 @@ require 'config.php';
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <!-- google fonts -->
-<link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href="http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One" rel="stylesheet" type="text/css"/>
 
 </head>
 <body class="non_map">
@@ -31,11 +31,21 @@ require 'config.php';
 </div> -->
 
 <?php
-if (isset($_POST['$error_message'])){
-	echo "<div class='settings_box'>\n";
+if (isset($_GET['message'])){
+	$message = $_GET['message'];
+	echo "<div class='settings_box' style='background-color: green'>\n";
 	echo "<div class='settings_group'>\n";
-	echo "<h3>Error!</h3>";
-	echo "<p>" . $error_message . "</p>\n";
+	echo "<h3>Success:</h3>";
+	echo "<p>" . $message . "</p>\n";
+	echo "</div>";
+	echo "</div>";
+}
+if (isset($_GET['error'])){
+	$error = $_GET['error'];
+	echo "<div class='settings_box' style='background-color: red'>\n";
+	echo "<div class='settings_group'>\n";
+	echo "<h3>Error:</h3>";
+	echo "<p>" . $error . "</p>\n";
 	echo "</div>";
 	echo "</div>";
 }
@@ -44,11 +54,12 @@ if (isset($_POST['$error_message'])){
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>Reset Password:</h3>
-<form>
-<span>old password: </span><input type='text' class='wide' name='oldpass' /><br>
-<span>new password: </span><input type='text' class='wide' name='newpass1' /><br>
-<span>type it again: </span><input type='text' class='wide' name='newpass2' /><br>
-<input type='submit' class='wide' name='submit_password_change' value='Reset Password'/>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='reset_password' value='true'>
+<span>old password: </span><input type='password' class='wide' name='oldpass' /><br>
+<span>new password: </span><input type='password' class='wide' name='newpass1' /><br>
+<span>type it again: </span><input type='password' class='wide' name='newpass2' /><br>
+<input type='submit' class='wide' name='reset_password' value='Reset Password'/>
 </form>
 </div>
 </div>
@@ -56,28 +67,66 @@ if (isset($_POST['$error_message'])){
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>New User:</h3>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='new_user' value='true'>
 <span>username: </span><input type='text' class='wide' name='newusername' /><br>
-<span>password: </span><input type='text' class='wide' name='newpassword1' /><br>
-<span>type it again: </span><input type='text' class='wide' name='newpassword2' /><br>
+<span>password: </span><input type='text' class='wide' name='newpass1' /><br>
+<span>type it again: </span><input type='text' class='wide' name='newpass2' /><br>
+<span>email: </span><input type='text' class='wide' name='email' /><br>
+<input type='submit' class='wide' name='create_user' value='Create User'/>
+</form>
 </div>
 </div>
 
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>Users:</h3>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='update_users' value='true'>
+<p class="tinytext">
+Note: Users do not have access to this settings page unless their admin box below is checked. 
+Non-admin users only have access to the submission queue.</p>
+<div class="user_list_row">
+<div class='user_list_name'>NAME</div>
+<div class='user_list_admin'>ADMIN</div>
+<div class='user_list_email'>EMAIL</div>
+<div class='user_list_delete'>DELETE</div>
+</div>
+<?php
+$altbg = TRUE;
+$query = "SELECT * FROM cibl_users";
+$user_list = mysqli_query($connection, $query);
+while ($row = mysqli_fetch_array($user_list)) {
+	if ($altbg) { echo '<div class="user_list_row" style="background-color:rgba(0,0,0,0.2)">'; }
+	else { echo '<div class="user_list_row" style="background-color:rgba(0,0,0,0.1)">'; }
+	echo "<div class='user_list_name'>" . $row[0] . "</div>";
+	echo "<div class='user_list_admin'>";
+	if ($row[2] == TRUE) { echo "<input type='checkbox' name='admin[]' checked='checked'/>"; }
+	else { echo "<input type='checkbox' name='admin_update[]'/>"; }
+	echo "</div>";
+	echo "<div class='user_list_email'>" . $row[3] . "</div>";
+	echo "<div class='user_list_delete'><input type='checkbox' name='delete[]'/></div>";
+	echo "</div>\n";
+	$altbg = !$altbg;
+}
+?>
+<input type='submit' class='wide' name='update_users' value='Update Users'/>
+</form>
 </div>
 </div>
 
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>Project Bounds:</h3>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='update_coords' value='true'>
 <p class="tinytext">GPS coordinates representing the maximum north, south, east and west boundaries for user submissions. 
 Submissions outside of these bounds will be rejected with an error message.</p>
 <?php
-echo "<span>north: </span><input type='text' class='wide' name='north' value='" . $north . "'/><br>\n";
-echo "<span>south: </span><input type='text' class='wide' name='south' value='" . $south . "'/><br>\n";
-echo "<span>east: </span><input type='text' class='wide' name='east' value='" . $east . "'/><br>\n";
-echo "<span>west: </span><input type='text' class='wide' name='west' value='" . $west . "'/><br>\n";
+echo "<span>north: </span><input type='text' class='wide' name='north' value='" . $north_bounds . "'/><br>\n";
+echo "<span>south: </span><input type='text' class='wide' name='south' value='" . $south_bounds . "'/><br>\n";
+echo "<span>east: </span><input type='text' class='wide' name='east' value='" . $east_bounds . "'/><br>\n";
+echo "<span>west: </span><input type='text' class='wide' name='west' value='" . $west_bounds . "'/><br>\n";
 echo "<br>\n";
 echo "<span>center map at: </span>\n";
 echo "<br>\n";
@@ -87,16 +136,22 @@ echo "<div style='width:10px'></div>";
 echo "<input type='text' class='wide' name='center_long' value='" . $center_long . "'/>\n";
 echo "</div>";
 ?>
+<input type='submit' class='wide' name='update_coords' value='Update Coordinates'/>
+</form>
 </div>
 </div>
 
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>About Text:</h3>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='update_about' value='true'>
 <p class="tinytext">Text to display when the "about" link on the main page is clicked. HTML is OK, but try not to go too nuts.</p>
 <?php
-echo "<textarea class='settings' name='abouttext' value='" . $abouttext . "'></textarea><br>\n";
+echo "<textarea class='settings' name='about_text'>" . $about_text . "</textarea><br>\n";
 ?>
+<input type='submit' class='wide' name='update_about' value='Update About Box'/>
+</form>
 </div>
 </div>
 
