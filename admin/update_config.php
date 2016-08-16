@@ -6,6 +6,7 @@ require 'config.php';
 if (isset($_POST['reset_password'])){ update_password($connection); }
 if (isset($_POST['new_user'])){ new_user($connection); }
 if (isset($_POST['update_users'])){ update_users($connection); }
+if (isset($_POST['update_coords'])){ update_coords(); }
 
 function update_password($connection) {
 	$oldpass = $_POST['oldpass'];
@@ -101,6 +102,10 @@ function update_users($connection){
 		}
 		$index++;
 	}
+}
+
+function update_coords(){
+	
 }
 
 function return_message($message){

@@ -126,12 +126,32 @@ while ($row = mysqli_fetch_array($user_list)) {
 <input type='hidden' name='update_coords' value='true'>
 <p class="tinytext">GPS coordinates representing the maximum north, south, east and west boundaries for user submissions. 
 Submissions outside of these bounds will be rejected with an error message.</p>
+
 <?php
-echo "<span>north: </span><input type='text' class='wide' name='north' value='" . $north_bounds . "'/><br>\n";
-echo "<span>south: </span><input type='text' class='wide' name='south' value='" . $south_bounds . "'/><br>\n";
-echo "<span>east: </span><input type='text' class='wide' name='east' value='" . $east_bounds . "'/><br>\n";
-echo "<span>west: </span><input type='text' class='wide' name='west' value='" . $west_bounds . "'/><br>\n";
-echo "<br>\n";
+echo "<div class='flex_container_oneline'>\n";
+echo "<span class='left-align'>north: </span>";
+echo "<div style='width:10px'></div>";
+echo "<span class='left-align'>south: </span>";
+echo "</div>";
+
+echo "<div class='flex_container_oneline'>\n";
+echo "<input type='text' class='wide' name='north' value='" . $north_bounds . "'/><br>\n";
+echo "<div style='width:10px'></div>";
+echo "<input type='text' class='wide' name='south' value='" . $south_bounds . "'/><br>\n";
+echo "</div>\n";
+
+echo "<div class='flex_container_oneline'>\n";
+echo "<span class='left-align'>east: </span>";
+echo "<div style='width:10px'></div>";
+echo "<span class='left-align'>west: </span>";
+echo "</div>";
+
+echo "<div class='flex_container_oneline'>\n";
+echo "<input type='text' class='wide' name='east' value='" . $east_bounds . "'/><br>\n";
+echo "<div style='width:10px'></div>";
+echo "<input type='text' class='wide' name='west' value='" . $west_bounds . "'/><br>\n";
+echo "</div>\n";
+
 echo "<span>center map at: </span>\n";
 echo "<br>\n";
 echo "<div class='flex_container_oneline'>\n";
@@ -140,6 +160,7 @@ echo "<div style='width:10px'></div>";
 echo "<input type='text' class='wide' name='center_long' value='" . $center_long . "'/>\n";
 echo "</div>";
 ?>
+
 <input type='submit' class='wide' name='update_coords' value='Update Coordinates'/>
 </form>
 </div>

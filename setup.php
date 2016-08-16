@@ -1,17 +1,20 @@
 <?php
 
 require 'scripts/PasswordHash.php';
+require 'admin/write_config.php';
 
 //VALUES PASSED FROM SETUP FORM
+$config = array(
+'sqlhost' => $_POST["sqlhost"],
+'sqluser' => $_POST["sqluser"],
+'sqlpass' => $_POST["sqlpass"],
+'database' => $_POST["database"],
+'api_key' => $_POST["api_key"],
+);
 $username = $_POST["username"];
 $password1 = $_POST["password1"];
 $password2 = $_POST["password2"];
 $email = $_POST["email"];
-$hostname = $_POST["hostname"];
-$sqluser = $_POST["sqluser"];
-$sqlpass = $_POST["sqlpass"];
-$database = $_POST["database"];
-$api_key = $_POST["api_key"];
 
 //CHECK THAT PASSWORDS WERE CORRECTLY TYPED
 $password = "";
@@ -22,18 +25,18 @@ if ($password1 !== $password2){
 else { $password = $password1; }
 
 //CREATE MYSQL CONNECTION
-$connection = new mysqli($hostname, $sqluser, $sqlpass);
+$connection = new mysqli($config['sqlhost'], $config['sqluser'], $config['sqlpass']);
 if ($connection->connect_error) {
     die("MySQL connection failed: " . $connection->connect_error);
     echo "MySQL connection failed: " . $connection->connect_error;
 } 
 
 //CREATE MYSQL DATABASE
-$query = "CREATE DATABASE " . $database . " CHARACTER SET utf8 COLLATE utf8_general_ci;";
+$query = "CREATE DATABASE " . $config['database'] . " CHARACTER SET utf8 COLLATE utf8_general_ci;";
 if ($connection->query($query) === TRUE) {
-	$query = "USE " . $database;
+	$query = "USE " . $config['database'];
 	if ($connection->query($query) === TRUE) {
-		echo "Database " . $database . " created successfully.<br>";
+		echo "Database " . $config['database'] . " created successfully.<br>";
 	}
 } else {
 	die("MySQL connection successful but error creating database: " . $connection->error);
@@ -109,46 +112,13 @@ if ($connection->query($query) === TRUE) {
 
 $connection->close();
 
-//CREATE CONFIG FILE
-$config_file = fopen("admin/config.php", "w") or die("PHP Error: Issues creating config file. Are permissions set correctly?");
-$text = "<?php\n\n" .
-"//----------------------------------------------//\n" .
-"// CONFIGURATION\n" .
-"//----------------------------------------------//\n\n" .
-"//MySQL\n" .
-"\$sqlhost = \"" . $hostname . "\";\n" .
-"\$sqluser = \"" . $sqluser . "\";\n" .
-"\$sqlpass = \"" . $sqlpass . "\";\n" .
-"\$database = \"" . $database . "\";\n" .
-"\$connection = mysqli_connect(\$sqlhost,\$sqluser,\$sqlpass,\$database);\n\n" .
-"//----------------------------------------------//\n\n" .
-"//Mapbox\n" .
-"\$api_key = \"" . $api_key . "\";\n\n" .
-"//----------------------------------------------//\n\n" .
-"//Preferences\n" .
-"\$max_view = 50;\n" .
-"\$north_bounds = 40.490617;\n" .
-"\$south_bounds = 40.9168;\n" .
-"\$east_bounds = -73.6619;\n" .
-"\$west_bounds = -74.2655;\n" .
-"\$center_lat = 40.711;\n" .
-"\$center_long = -74.055;\n\n" .
-"//----------------------------------------------//\n\n" .
-"//About Text\n" .
-"\$about_text = 'This text can be edited on the settings page.';\n\n" .
-"?>";
-
-fwrite($config_file, $text);
-fclose($config_file);
-
+//CREATE CONFIG FILE, CREATE EMPTY DIRECTORIES, SWAP SETUP AND MAIN INDEX PAGE
+write_config($config);
 mkdir("images");
 mkdir("thumbs");
-
 rename('index.php', 'index_old.php');
 rename('index_actual.php', 'index.php');
 
 echo "<script>location.href = 'index.php?setup_success_dialog=true';</script>";
-
-echo $text . "<br>";
 
 ?>

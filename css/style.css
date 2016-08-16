@@ -73,6 +73,11 @@ span {
 	font-weight: 400;
 }
 
+span.left-align {
+	text-align: left;
+	width: 100%;
+}
+
 span.form {
 	float: left;
 	width: 150px;
