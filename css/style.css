@@ -377,25 +377,30 @@ input.submit_button {
 	display: flex;
 	flex-wrap: nowrap;
 	justify-content: flex-start;
-	font-size: 18px;
+	font-size: 14px;
 	font-family: 'Oswald', sans-serif;
 }
 
 .user_list_name {
-	width: 100px;
+	width: 120px;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .user_list_admin {
 	width: 80px;
+	text-align: center;
 }
 
 .user_list_email {
-	width: 170px;
+	width: 150px;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .user_list_delete {
 	width: 50px;
-	text-align: right;
+	text-align: center;
 }
 
 .setup_centered {

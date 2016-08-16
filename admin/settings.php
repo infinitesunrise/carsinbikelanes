@@ -72,7 +72,7 @@ if (isset($_GET['error'])){
 <span>username: </span><input type='text' class='wide' name='newusername' /><br>
 <span>password: </span><input type='text' class='wide' name='newpass1' /><br>
 <span>type it again: </span><input type='text' class='wide' name='newpass2' /><br>
-<span>email: </span><input type='text' class='wide' name='email' /><br>
+<span>email (optional): </span><input type='text' class='wide' name='email' /><br>
 <input type='submit' class='wide' name='create_user' value='Create User'/>
 </form>
 </div>
@@ -96,18 +96,22 @@ Non-admin users only have access to the submission queue.</p>
 $altbg = TRUE;
 $query = "SELECT * FROM cibl_users";
 $user_list = mysqli_query($connection, $query);
+$counter = 0;
 while ($row = mysqli_fetch_array($user_list)) {
 	if ($altbg) { echo '<div class="user_list_row" style="background-color:rgba(0,0,0,0.2)">'; }
 	else { echo '<div class="user_list_row" style="background-color:rgba(0,0,0,0.1)">'; }
 	echo "<div class='user_list_name'>" . $row[0] . "</div>";
 	echo "<div class='user_list_admin'>";
-	if ($row[2] == TRUE) { echo "<input type='checkbox' name='admin[]' checked='checked'/>"; }
-	else { echo "<input type='checkbox' name='admin_update[]'/>"; }
+	echo "<input type='hidden' name='admin[" . $counter . "]' />";
+	if ($row[2] == TRUE) { echo "<input type='checkbox' name='admin[" . $counter . "]' checked='checked'/>"; }
+	else { echo "<input type='checkbox' name='admin[" . $counter . "]' />"; }
 	echo "</div>";
 	echo "<div class='user_list_email'>" . $row[3] . "</div>";
-	echo "<div class='user_list_delete'><input type='checkbox' name='delete[]'/></div>";
+	echo "<input type='hidden' name='delete[" . $counter . "]' />";
+	echo "<div class='user_list_delete'><input type='checkbox' name='delete[" . $counter . "]'/></div>";
 	echo "</div>\n";
 	$altbg = !$altbg;
+	$counter++;
 }
 ?>
 <input type='submit' class='wide' name='update_users' value='Update Users'/>
@@ -158,6 +162,8 @@ echo "<textarea class='settings' name='about_text'>" . $about_text . "</textarea
 <div class='settings_box'>
 <div class="settings_group">
 <h3>Map Service:</h3>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='update_map' value='true'>
 <?php
 echo "<span>api key: </span><input type='text' class='wide' name='api_key' value='" . $api_key . "'/><br>\n";
 ?>
@@ -165,18 +171,24 @@ echo "<span>api key: </span><input type='text' class='wide' name='api_key' value
 Sign up for a Mapbox account <a href="https://www.mapbox.com/signup/">here</a>, 
 create an API key in your Mapbox settings, and paste it into the field above. 
 Visit the admin page after setup if you wish to specify a background map other than the Mapbox default.</p>
+<input type='submit' class='wide' name='update_map' value='Update Map'/>
+</form>
 </div>
 </div>
 
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>MySQL:</h3>
+<form action='update_config.php' method='post'>
+<input type='hidden' name='update_database' value='true'>
 <?php
 echo "<span>hostname: </span><input type='text' class='wide' name='hostname' value='" . $sqlhost . "'/><br>\n";
 echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . $sqluser . "'/><br>\n";
 echo "<span>password: </span><input type='text' class='wide' name='sqlpass' value='" . $sqlpass . "'/><br>\n";
 echo "<span>database: </span><input type='text' class='wide' name='database' value='" . $database . "'/><br>\n";
 ?>
+<input type='submit' class='wide' name='update_database' value='Update Database'/>
+</form>
 </div>
 </div>
 
