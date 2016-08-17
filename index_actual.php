@@ -423,14 +423,7 @@ if (isset($_GET['setup_success_dialog'])){
 
 <!-- ABOUT BOX -->
 <div id="about">
-<h2>//CARSINBIKELANES.NYC</h2>
-<p>Despite it's recently gained reputation to the contrary, New York can be a hostile place for cyclists. Our city of nearly 8.5 million people has opted for a network of painted on-street lanes instead of protected and permanent alternatives to support our growing cycling demand. Thus poor enforcement, driver indifference and cultural hostility frequently combine to create one of our most familiar and dangerous indignities: The car, in the bike lane. Inspired by the apparently defunct getoffmybikelane.com, this site exists to document that indignity.</p>
-
-<p>Navigate the map to show the most recent submissions within the field of view, click plate numbers to view repeat offenses, click submissions for full-sized images. Use the "submit" link in the upper right corner to add your own entries to the database, and bookmark us on your phone for quick submissions from the road. More features are planned, and <span id="feedback"><a href="">feedback</a></span> is appreciated.</p>
-
-<p>This site is not a method of legal recourse or replacement for a <a href="http://www1.nyc.gov/311/index.page">311</a> complaint, and is meant only as a channel for advocacy and catharsis. All submissions are reviewed before posting, so please don't bother including any <i>particularly</i> harsh language, defamation or any sort or <i>personal information</i> beyond pictures of cars, in bike lanes. Thanks.</p>
-
-<p>For more NYC cycling info and discussion, check out the <a href="https://www.reddit.com/r/nycbike">/r/nycbike</a> subreddit.</p>
+<?php echo stripslashes(htmlspecialchars_decode($config['about_text'])); ?>
 <div class="bottom_dialog_button" id="toggle_about2">
 <span>BACK</span>
 </div>

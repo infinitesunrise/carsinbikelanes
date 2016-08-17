@@ -2,11 +2,15 @@
 
 require 'auth.php';
 require 'config.php';
+require 'write_config.php';
 
 if (isset($_POST['reset_password'])){ update_password($connection); }
 if (isset($_POST['new_user'])){ new_user($connection); }
 if (isset($_POST['update_users'])){ update_users($connection); }
 if (isset($_POST['update_coords'])){ update_coords(); }
+if (isset($_POST['update_about'])){ update_about(); }
+if (isset($_POST['update_map_api'])){ update_map_api(); }
+if (isset($_POST['update_database'])){ update_database(); }
 
 function update_password($connection) {
 	$oldpass = $_POST['oldpass'];
@@ -105,7 +109,63 @@ function update_users($connection){
 }
 
 function update_coords(){
-	
+	if(isset($_POST['update_coords'])){
+		$new_values = array(
+		'north_bounds' => $_POST['north_bounds'],
+		'south_bounds' => $_POST['south_bounds'],
+		'east_bounds' => $_POST['east_bounds'],
+		'west_bounds' => $_POST['west_bounds'],
+		'center_lat' => $_POST['center_lat'],
+		'center_long' => $_POST['center_long']);
+		
+		if($new_values['north_bounds'] <= 90 &&
+			$new_values['south_bounds'] >= -90 &&
+			$new_values['east_bounds'] <= 180 &&
+			$new_values['west_bounds'] >= -180 &&
+			$new_values['north_bounds'] > $new_values['south_bounds'] &&
+			$new_values['east_bounds'] > $new_values['west_bounds'])
+		{
+			write_config($new_values);
+			return_message("Project bounds updated.");
+		}
+		else { return_error("Unsuitable GPS bounds. 
+		Latitude must be between -90 and 90, longitude must be between -180 and 180. 
+		North must be greater than south and east must be greater than west."); }
+	}
+}
+
+function update_about(){
+	if(isset($_POST['update_about'])){
+		$new_text = addslashes(htmlspecialchars($_POST['about_text']));
+		$new_values = array( 'about_text' => $new_text) ;
+		write_config($new_values);
+		return_message("Updated about box text.");
+	}
+}
+
+function update_map_api(){
+	if(isset($_POST['update_map_api'])){
+		$new_values = array( 'api_key' => $_POST['api_key']);
+		write_config($new_values);
+		return_message("Updated map API.");
+	}
+}
+
+function update_database(){
+	if(isset($_POST['update_database'])){
+		$new_values = array(
+			'sqlhost' => $_POST['sqlhost'],
+			'sqluser' => $_POST['sqluser'],
+			'sqlpass' => $_POST['sqlpass'],
+			'database' => $_POST['database']
+		);
+		$connection = mysqli_connect($new_values['sqlhost'],$new_values['sqluser'],$new_values['sqlpass'],$new_values['database']);
+		if ($connection){
+			write_config($new_values);
+			return_message("Updated MySQL connection details.");
+		}
+		else { return_error("Bad MySQL connection settings, couldn't connect."); }
+	}
 }
 
 function return_message($message){

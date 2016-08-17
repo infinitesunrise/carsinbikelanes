@@ -9,8 +9,8 @@ function write_config($new_config){
 		"database" => "carsinbikelanes",
 		"api_key" => "00000",
 		"max_view" => 50,
-		"north_bounds" => 40.490617,
-		"south_bounds" => 40.9168,
+		"north_bounds" => 40.9168,
+		"south_bounds" => 40.490617,
 		"east_bounds" => -73.6619,
 		"west_bounds" => -74.2655,
 		"center_lat" => 40.711,
@@ -42,7 +42,7 @@ function write_config($new_config){
 	"'west_bounds' => " . $new_config['west_bounds'] . ",\n" .
 	"'center_lat' => " . $new_config['center_lat'] . ",\n" .
 	"'center_long' => " . $new_config['center_long'] . ",\n" .
-	"'about_text' => '" . $new_config['about_text'] . "'\n" .
+	"'about_text' => '" . addslashes(stripslashes($new_config['about_text'])) . "'\n" .
 	");\n\n" .
 	"\$connection = mysqli_connect(\$config['sqlhost'],\$config['sqluser'],\$config['sqlpass'],\$config['database']);\n\n" .
 	"?>";

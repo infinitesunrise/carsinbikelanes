@@ -259,6 +259,7 @@ textarea.comments {
 textarea.settings {
 	height: 150px;
 	width: 100%;
+	resize: vertical;
 	margin-bottom: 10px;
 	font-size: 14px;
 	font-family: 'Oswald', sans-serif;
