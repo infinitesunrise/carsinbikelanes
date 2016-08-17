@@ -7,7 +7,8 @@ function write_config($new_config){
 		"sqluser" => "root",
 		"sqlpass" => "root",
 		"database" => "carsinbikelanes",
-		"api_key" => "00000",
+		"map_service" => "mapbox",
+		"mapbox_api_key" => "00000",
 		"max_view" => 50,
 		"north_bounds" => 40.9168,
 		"south_bounds" => 40.490617,
@@ -15,6 +16,7 @@ function write_config($new_config){
 		"west_bounds" => -74.2655,
 		"center_lat" => 40.711,
 		"center_long" => -74.055,
+		"site_name" => "CARSINBIKELANES",
 		"about_text" => "This text can be edited on the settings page." );
 		
 	if (file_exists('config.php')){
@@ -34,7 +36,8 @@ function write_config($new_config){
 	"'sqluser' => '" . $new_config['sqluser'] . "',\n" .
 	"'sqlpass' => '" . $new_config['sqlpass'] . "',\n" .
 	"'database' => '" . $new_config['database'] . "',\n" .
-	"'api_key' => '" . $new_config['api_key'] . "',\n" .
+	"'map_service' => '" . $new_config['map_service'] . "',\n" .
+	"'mapbox_api_key' => '" . $new_config['mapbox_api_key'] . "',\n" .
 	"'max_view' => " . $new_config['max_view'] . ",\n" .
 	"'north_bounds' => " . $new_config['north_bounds'] . ",\n" .
 	"'south_bounds' => " . $new_config['south_bounds'] . ",\n" .
@@ -42,6 +45,7 @@ function write_config($new_config){
 	"'west_bounds' => " . $new_config['west_bounds'] . ",\n" .
 	"'center_lat' => " . $new_config['center_lat'] . ",\n" .
 	"'center_long' => " . $new_config['center_long'] . ",\n" .
+	"'site_name' => '" . $new_config['site_name'] . "',\n" .
 	"'about_text' => '" . addslashes(stripslashes($new_config['about_text'])) . "'\n" .
 	");\n\n" .
 	"\$connection = mysqli_connect(\$config['sqlhost'],\$config['sqluser'],\$config['sqlpass'],\$config['database']);\n\n" .

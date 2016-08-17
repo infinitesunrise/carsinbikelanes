@@ -49,7 +49,7 @@ single_view_open = false;
 about_view_open = false;
 submit_view_open = false;
 noemail = true;
-L.mapbox.accessToken = <?php echo "'" . $config['api_key'] . "'" ?>;
+//L.mapbox.accessToken = <?php echo "'" . $config['mapbox_api_key'] . "'" ?>;
 
 $(document).ready(function() {
 	initializeMaps();
@@ -81,14 +81,16 @@ $(document).ready(function() {
 });
 
 function initializeMaps() {
-	var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/infinitesunrise.k636mj38/{z}/{x}/{y}.png');
+
+	//var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/infinitesunrise.k636mj38/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaW5maW5pdGVzdW5yaXNlIiwiYSI6ImpkMjJZNDgifQ.XewtOwr2t6wlzCrwKDDArw');
+	var mapboxTiles = L.tileLayer('https://api.mapbox.com/styles/v1/infinitesunrise/cirzdlqk4003tg9kuvav50im5/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaW5maW5pdGVzdW5yaXNlIiwiYSI6ImpkMjJZNDgifQ.XewtOwr2t6wlzCrwKDDArw');
 	var mapboxTiles2 = L.tileLayer('https://{s}.tiles.mapbox.com/v3/infinitesunrise.k6n51add/{z}/{x}/{y}.png');
-	var bikelanes = L.tileLayer('https://{s}.tiles.mapbox.com/v3/infinitesunrise.779ddd76/{z}/{x}/{y}.png');
+	//var bikelanes = L.tileLayer('https://{s}.tiles.mapbox.com/v3/infinitesunrise.779ddd76/{z}/{x}/{y}.png?access_token=pk.efJ1IjoiaW5maW5pdGVzdW5yaXNlIiwiYSI6ImpkMjJZNDgifQ.XewtOwr2t6wlzCrwKDDArw');
 
 	//Set up two maps - Main body map and submission form map
 	body_map = L.map('body_map')
 		.addLayer(mapboxTiles)
-		.addLayer(bikelanes)
+		//.addLayer(bikelanes)
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	markers = L.layerGroup().addTo(body_map);
 
@@ -326,7 +328,7 @@ if (isset($_GET['setup_success_dialog'])){
 <!-- LEFT MENU -->
 <div class="left_menu">
 <div class="left_menu_item">
-<span>//CARSINBIKELANES.NYC</span>
+<span><?php echo $config['site_name']; ?></span>
 </div><br>
 <div class="left_menu_item" id="toggle_submit">
 <span>SUBMIT</span>

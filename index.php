@@ -104,7 +104,7 @@ Please fill in the following fields to configure your site.</p>
 
 <div class="settings_group">
 <h3>Map Service:</h3>
-<span>api key: </span><input type="text" name="api_key" placeholder="paste API key here"/><br>
+<span>api key: </span><input type="text" name="mapbox_api_key" placeholder="paste API key here"/><br>
 <p class="tinytext">Currently CIBL only utilizes Mapbox for map display. 
 Sign up for a Mapbox account <a href="https://www.mapbox.com/signup/">here</a>, 
 create an API key in your Mapbox settings, and paste it into the field above. 

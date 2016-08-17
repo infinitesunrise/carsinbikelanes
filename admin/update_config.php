@@ -7,6 +7,7 @@ require 'write_config.php';
 if (isset($_POST['reset_password'])){ update_password($connection); }
 if (isset($_POST['new_user'])){ new_user($connection); }
 if (isset($_POST['update_users'])){ update_users($connection); }
+if (isset($_POST['update_identity'])){ update_identity(); }
 if (isset($_POST['update_coords'])){ update_coords(); }
 if (isset($_POST['update_about'])){ update_about(); }
 if (isset($_POST['update_map_api'])){ update_map_api(); }
@@ -108,15 +109,26 @@ function update_users($connection){
 	}
 }
 
+function update_identity(){
+	if(isset($_POST['update_identity'])){
+		$new_values = array(
+			'site_name' => $_POST['site_name']
+		);
+		write_config($new_values);
+		return_message("Site identity updated.");
+	}
+}
+
 function update_coords(){
 	if(isset($_POST['update_coords'])){
 		$new_values = array(
-		'north_bounds' => $_POST['north_bounds'],
-		'south_bounds' => $_POST['south_bounds'],
-		'east_bounds' => $_POST['east_bounds'],
-		'west_bounds' => $_POST['west_bounds'],
-		'center_lat' => $_POST['center_lat'],
-		'center_long' => $_POST['center_long']);
+			'north_bounds' => $_POST['north_bounds'],
+			'south_bounds' => $_POST['south_bounds'],
+			'east_bounds' => $_POST['east_bounds'],
+			'west_bounds' => $_POST['west_bounds'],
+			'center_lat' => $_POST['center_lat'],
+			'center_long' => $_POST['center_long']
+		);
 		
 		if($new_values['north_bounds'] <= 90 &&
 			$new_values['south_bounds'] >= -90 &&
@@ -145,7 +157,7 @@ function update_about(){
 
 function update_map_api(){
 	if(isset($_POST['update_map_api'])){
-		$new_values = array( 'api_key' => $_POST['api_key']);
+		$new_values = array( 'mapbox_api_key' => $_POST['mapbox_api_key']);
 		write_config($new_values);
 		return_message("Updated map API.");
 	}
