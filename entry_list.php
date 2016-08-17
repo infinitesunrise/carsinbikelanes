@@ -10,10 +10,10 @@ $north;
 $plate_query = "";
 
 if (isset($_GET["plate"])){
-	$east = -73.6619;
-	$west = -74.2655;
-	$south = 40.490617;
-	$north = 40.9168;
+	$east = $config['east_bounds'];
+	$west = $config['west_bounds'];
+	$south = $config['south_bounds'];
+	$north = $config['north_bounds'];
 	$plate_query = "AND (plate = '" . $_GET["plate"] . "') ";
 }
 else {
@@ -29,18 +29,20 @@ $full_query =
 FROM `cibl_data` 
 " . $gps_query . $plate_query . "
 ORDER BY date_added DESC
-LIMIT " . $max_view . "
+LIMIT " . $config['max_view'] . "
 OFFSET 0";
 
 $entries = mysqli_query($connection, $full_query);
 
-if (count(mysqli_fetch_array($entries)) == 0){
+if (mysqli_num_rows($entries) == 0){
 	echo "\n <div class='column_entry'>";
 	echo "<h3>No records found here.</h3>";
 	echo "\n </div>";
 }
 
 while ($row = mysqli_fetch_array($entries)){
+	error_log($row[0]);
+	
 	echo "\n <div class='column_entry' onClick='zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");'>";
 		
 	echo "\n <div class='column_entry_thumbnail'>";

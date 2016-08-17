@@ -135,9 +135,9 @@ echo "<span class='left-align'>south: </span>";
 echo "</div>";
 
 echo "<div class='flex_container_oneline'>\n";
-echo "<input type='text' class='wide' name='north' value='" . $north_bounds . "'/><br>\n";
+echo "<input type='text' class='wide' name='north' value='" . $config['north_bounds'] . "'/><br>\n";
 echo "<div style='width:10px'></div>";
-echo "<input type='text' class='wide' name='south' value='" . $south_bounds . "'/><br>\n";
+echo "<input type='text' class='wide' name='south' value='" . $config['south_bounds'] . "'/><br>\n";
 echo "</div>\n";
 
 echo "<div class='flex_container_oneline'>\n";
@@ -147,17 +147,17 @@ echo "<span class='left-align'>west: </span>";
 echo "</div>";
 
 echo "<div class='flex_container_oneline'>\n";
-echo "<input type='text' class='wide' name='east' value='" . $east_bounds . "'/><br>\n";
+echo "<input type='text' class='wide' name='east' value='" . $config['east_bounds'] . "'/><br>\n";
 echo "<div style='width:10px'></div>";
-echo "<input type='text' class='wide' name='west' value='" . $west_bounds . "'/><br>\n";
+echo "<input type='text' class='wide' name='west' value='" . $config['west_bounds'] . "'/><br>\n";
 echo "</div>\n";
 
 echo "<span>center map at: </span>\n";
 echo "<br>\n";
 echo "<div class='flex_container_oneline'>\n";
-echo "<input type='text' class='wide' name='center_lat' value='" . $center_lat . "'/>\n";
+echo "<input type='text' class='wide' name='center_lat' value='" . $config['center_lat'] . "'/>\n";
 echo "<div style='width:10px'></div>";
-echo "<input type='text' class='wide' name='center_long' value='" . $center_long . "'/>\n";
+echo "<input type='text' class='wide' name='center_long' value='" . $config['center_long'] . "'/>\n";
 echo "</div>";
 ?>
 
@@ -173,7 +173,7 @@ echo "</div>";
 <input type='hidden' name='update_about' value='true'>
 <p class="tinytext">Text to display when the "about" link on the main page is clicked. HTML is OK, but try not to go too nuts.</p>
 <?php
-echo "<textarea class='settings' name='about_text'>" . $about_text . "</textarea><br>\n";
+echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "</textarea><br>\n";
 ?>
 <input type='submit' class='wide' name='update_about' value='Update About Box'/>
 </form>
@@ -186,7 +186,7 @@ echo "<textarea class='settings' name='about_text'>" . $about_text . "</textarea
 <form action='update_config.php' method='post'>
 <input type='hidden' name='update_map' value='true'>
 <?php
-echo "<span>api key: </span><input type='text' class='wide' name='api_key' value='" . $api_key . "'/><br>\n";
+echo "<span>api key: </span><input type='text' class='wide' name='api_key' value='" . $config['api_key'] . "'/><br>\n";
 ?>
 <p class="tinytext">Currently CIBL only utilizes Mapbox for map display. 
 Sign up for a Mapbox account <a href="https://www.mapbox.com/signup/">here</a>, 
@@ -203,10 +203,10 @@ Visit the admin page after setup if you wish to specify a background map other t
 <form action='update_config.php' method='post'>
 <input type='hidden' name='update_database' value='true'>
 <?php
-echo "<span>hostname: </span><input type='text' class='wide' name='hostname' value='" . $sqlhost . "'/><br>\n";
-echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . $sqluser . "'/><br>\n";
-echo "<span>password: </span><input type='text' class='wide' name='sqlpass' value='" . $sqlpass . "'/><br>\n";
-echo "<span>database: </span><input type='text' class='wide' name='database' value='" . $database . "'/><br>\n";
+echo "<span>hostname: </span><input type='text' class='wide' name='hostname' value='" . $config['sqlhost'] . "'/><br>\n";
+echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . $config['sqluser'] . "'/><br>\n";
+echo "<span>password: </span><input type='text' class='wide' name='sqlpass' value='" . $config['sqlpass'] . "'/><br>\n";
+echo "<span>database: </span><input type='text' class='wide' name='database' value='" . $config['database'] . "'/><br>\n";
 ?>
 <input type='submit' class='wide' name='update_database' value='Update Database'/>
 </form>

@@ -49,7 +49,7 @@ single_view_open = false;
 about_view_open = false;
 submit_view_open = false;
 noemail = true;
-L.mapbox.accessToken = <?php echo "'" . $api_key . "'" ?>;
+L.mapbox.accessToken = <?php echo "'" . $config['api_key'] . "'" ?>;
 
 $(document).ready(function() {
 	initializeMaps();
@@ -89,12 +89,12 @@ function initializeMaps() {
 	body_map = L.map('body_map')
 		.addLayer(mapboxTiles)
 		.addLayer(bikelanes)
-		.setView([40.711, -74.055], 12);
+		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	markers = L.layerGroup().addTo(body_map);
 
 	submit_map = L.map('submit_map')
 		.addLayer(mapboxTiles2)
-		.setView([40.711, -73.982], 14);
+		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 14);
 }
 
 function toggleView(view) {

@@ -53,11 +53,11 @@ require('config.php');
 if (isset($_GET["accept"])) {
 	try {
 		//MOVE SUBMISSION TO MAIN TABLE, DELETE QUEUE SUBMISSION, UPDATE IMAGE NAMES AND URLS
-		$connection->beginTransaction();
+		$connection->begin_transaction();
 		$connection->query('INSERT INTO cibl_data 
 							SELECT * FROM cibl_queue 
 							WHERE increment = ' . $_GET["accept"]);
-		$id = $connection->insert_id();
+		$id = $connection->insert_id;
 		$old_url = mysqli_fetch_array($connection->query(
 							'SELECT url 
 							FROM cibl_queue 
@@ -94,7 +94,7 @@ $entries = $connection->query(
 	'SELECT *
 	FROM cibl_queue
 	ORDER BY date_added ASC
-	LIMIT ' . $max_view . '
+	LIMIT ' . $config['max_view'] . '
 	OFFSET 0');
 
 echo "\n <div class='flex_container_scroll'>";
