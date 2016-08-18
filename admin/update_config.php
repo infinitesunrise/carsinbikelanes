@@ -157,7 +157,7 @@ function update_about(){
 
 function update_map_api(){
 	if(isset($_POST['update_map_api'])){
-		$new_values = array( 'mapbox_api_key' => $_POST['mapbox_api_key']);
+		$new_values = array( 'map_url' => $_POST['map_url']);
 		write_config($new_values);
 		return_message("Updated map API.");
 	}

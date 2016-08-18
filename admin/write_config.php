@@ -7,8 +7,7 @@ function write_config($new_config){
 		"sqluser" => "root",
 		"sqlpass" => "root",
 		"database" => "carsinbikelanes",
-		"map_service" => "mapbox",
-		"mapbox_api_key" => "00000",
+		"map_url" => 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		"max_view" => 50,
 		"north_bounds" => 40.9168,
 		"south_bounds" => 40.490617,
@@ -36,8 +35,7 @@ function write_config($new_config){
 	"'sqluser' => '" . $new_config['sqluser'] . "',\n" .
 	"'sqlpass' => '" . $new_config['sqlpass'] . "',\n" .
 	"'database' => '" . $new_config['database'] . "',\n" .
-	"'map_service' => '" . $new_config['map_service'] . "',\n" .
-	"'mapbox_api_key' => '" . $new_config['mapbox_api_key'] . "',\n" .
+	"'map_url' => '" . $new_config['map_url'] . "',\n" .
 	"'max_view' => " . $new_config['max_view'] . ",\n" .
 	"'north_bounds' => " . $new_config['north_bounds'] . ",\n" .
 	"'south_bounds' => " . $new_config['south_bounds'] . ",\n" .

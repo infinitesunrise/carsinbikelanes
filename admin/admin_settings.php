@@ -142,18 +142,16 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 
 <div class='settings_box'>
 <div class="settings_group">
-<h3>Map Layers</h3>
+<h3>Map Data</h3>
 <form action='update_config.php' method='post'>
 <input type='hidden' name='update_map' value='true'>
 <?php
-echo "<span>api key: </span><input type='text' class='wide' name='mapbox_api_key' value='" . $config['mapbox_api_key'] . "'/><br>\n";
+echo "<span>api url: </span><input type='text' class='wide' name='map_url' value='" . $config['map_url'] . "'/><br>\n";
 ?>
-<p class="tinytext"> CIBL utilizes Leaflet.js
-
-Currently CIBL only utilizes Mapbox for map display. 
-Sign up for a Mapbox account <a href="https://www.mapbox.com/signup/">here</a>, 
-create an API key in your Mapbox settings, and paste it into the field above. 
-Visit the admin page after setup if you wish to specify a background map other than the Mapbox default.</p>
+<p class="tinytext"> CIBL currently utilizes Leaflet.js to display <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiled web maps</a> 
+using an API URL supplied from tile map services. The default map is the unaltered version of OpenStreetMaps. 
+A collection of free tile provider previews and their URLs can be viewed 
+<a href="http://leaflet-extras.github.io/leaflet-providers/preview/index.html">here</a>.</p>
 <input type='submit' class='wide' name='update_map_api' value='Update Map'/>
 </form>
 </div>

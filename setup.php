@@ -8,8 +8,7 @@ $config = array(
 'sqlhost' => $_POST["sqlhost"],
 'sqluser' => $_POST["sqluser"],
 'sqlpass' => $_POST["sqlpass"],
-'database' => $_POST["database"],
-'api_key' => $_POST["api_key"],
+'database' => $_POST["database"]
 );
 $username = $_POST["username"];
 $password1 = $_POST["password1"];
