@@ -1,4 +1,3 @@
-
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>New User</h3>
@@ -140,14 +139,32 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 </div>
 </div>
 
+<script src="../scripts/leaflet-providers.js"></script>
+<script type="text/javascript">
+var providers = L.TileLayer.Provider.providers;
+for (var provider in providers){
+	document.writeln(provider + " </br>");	
+	if (providers[provider].hasOwnProperty("variants")){
+		for (var variant in providers[provider].variants){
+			document.writeln(provider + "." + variant + " </br>");
+		}
+	}
+}
+</script> 
 <div class='settings_box'>
 <div class="settings_group">
 <h3>Map Data</h3>
 <form action='update_config.php' method='post'>
 <input type='hidden' name='update_map' value='true'>
-<?php
-echo "<span>api url: </span><input type='text' class='wide' name='map_url' value='" . $config['map_url'] . "'/><br>\n";
-?>
+<span>tile provider: </span>
+<select name='provider'>
+  <option value="volvo">Volvo</option>
+  <option value="saab">Saab</option>
+  <option value="fiat">Fiat</option>
+  <option value="audi">Audi</option>
+</select>
+<input type='text' class='wide' name='map_url' value='<?php echo $config['map_url']; ?>'/><br>
+<span>api url: </span><input type='text' class='wide' name='map_url' value='<?php echo $config['map_url']; ?>'/><br>
 <p class="tinytext"> CIBL currently utilizes Leaflet.js to display <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiled web maps</a> 
 using an API URL supplied from tile map services. The default map is the unaltered version of OpenStreetMaps. 
 A collection of free tile provider previews and their URLs can be viewed 
