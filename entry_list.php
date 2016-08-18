@@ -69,7 +69,7 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </div>";
 	
 	echo "\n </div>";
-	echo "\n <br>";
+	echo "\n";
 	
 	echo "\n <script> ";
 	echo "\n $(document).ready(function() { ";
@@ -85,8 +85,6 @@ while ($row = mysqli_fetch_array($entries)){
 }
 ?>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
 <script type="text/javascript">
 $('.coords, .plate_text').click(function(e) {
 	e.stopPropagation();
@@ -96,7 +94,7 @@ $('.coords, .plate_text').click(function(e) {
 function plateSearch(plate) {
 	single_view = true;
 	var load_url = "entry_list.php?plate=" + plate;
-	$( "#inner_inner_container" ).load( load_url );
+	$( "#inner_container" ).load( load_url );
 	markers.clearLayers();
 	body_map.setZoom(13);
 	setTimeout(function() { single_view = false; }, 1000);

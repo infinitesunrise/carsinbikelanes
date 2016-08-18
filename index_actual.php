@@ -157,7 +157,7 @@ function close_single_view() {
 		var north = body_map.getBounds().getNorth();
 		markers.clearLayers();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
-		$( "#inner_inner_container" ).load( load_url );
+		$( "#inner_container" ).load( load_url );
 	}
 }
 
@@ -260,15 +260,15 @@ function load_entries() {
 		if (single_view_open == true){
 			$(".single_view_pane").animate({opacity: 'toggle', width: 'toggle'});
 			single_view_open = false;
+			$(".entry_list").show();
 		}
-		$(".entry_list").show();
 		var west = body_map.getBounds().getWest();
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
 		markers.clearLayers();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
-		$( "#inner_inner_container" ).load( load_url );
+		$( "#inner_container" ).load( load_url );
 	}
 }
 
@@ -324,14 +324,14 @@ if (isset($_GET['setup_success_dialog'])){
 ?>
 
 <!-- LEFT MENU -->
-<div class="left_menu">
-<div class="left_menu_item">
+<div class="right_menu">
+<div class="right_menu_item">
 <span><?php echo $config['site_name']; ?></span>
 </div><br>
-<div class="left_menu_item" id="toggle_submit">
+<div class="right_menu_item" id="toggle_submit">
 <span>SUBMIT</span>
 </div><br>
-<div class="left_menu_item" id="toggle_about">
+<div class="right_menu_item" id="toggle_about">
 <span>ABOUT</span>
 </div>
 </div>
@@ -434,9 +434,7 @@ if (isset($_GET['setup_success_dialog'])){
 
 <!-- LIST OF ENTRIES -->
 <div class="entry_list" id="entry_list">
-<div class="inner_container">
-<div class="inner_inner_container" id="inner_inner_container">
-</div>
+<div class="inner_container" id="inner_container">
 </div>
 </div>
 

@@ -87,32 +87,32 @@ span.form {
 	z-index: 99;
 	position: absolute;
 	margin: 10px;
-	width: 575px;
-	height: 100%;
-	background: none;
+	width: 555px;
+	height: 97%;
+	background-color: rgba(255,255,255,0.5);
 	overflow: hidden;
 }
 
 .inner_container{
-	position: absolute;
-	left: 0;
-	overflow-x: hidden;
-	overflow-y: scroll;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	padding-right: 15px;
 }
 
-.inner_container::-webkit-scrollbar {
+/*.inner_container::-webkit-scrollbar {
 	display: none;
 }
 
 .inner_inner_container{
 	width: 575px;
 	height: 1000px;
-}
+} */
 
 .column_entry{
-	width: 100%;
+	width: 535px;
 	height: 150px;
-	padding-left: 10px;
+	margin: 10px;
 	background-color:rgba(255, 255, 255, 0.8);
 }
 
@@ -170,7 +170,7 @@ span.form {
 	margin-right: auto;
 }
 
-.left_menu {
+.right_menu {
 	position: absolute;
 	text-align: right;
 	z-index: 99;
@@ -179,7 +179,7 @@ span.form {
 	margin-top: 12px;
 }
 
-.left_menu_item {
+.right_menu_item {
 	position: relative;
 	display: inline-block;
 	right: 0px;

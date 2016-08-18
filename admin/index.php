@@ -101,6 +101,7 @@ echo "\n <div class='flex_container_scroll'>";
 echo "\n <div class='moderation_queue'>";
 include 'nav.php';
 
+$count = 0;
 while ($row = mysqli_fetch_array($entries)){
 	echo "\n\n <div class='moderation_queue_row'>";
 	echo "\n <div class='moderation_queue_buttons'>";
@@ -130,9 +131,10 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n <p class='entry_comment'>" . nl2br($row[10]) . "</p>";
 	echo "\n </div>";
 	echo "\n </div>";
+	$count++;
 }
 
-if (count($row) == 0){
+if ($count == 0){
 	echo "\n\n <div class='moderation_queue_row'>";
 	echo "\n <h2>No new submissions.</h2>";
 	echo "\n </div>";
