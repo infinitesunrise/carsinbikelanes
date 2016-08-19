@@ -138,41 +138,77 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 </form>
 </div>
 </div>
-
-<script src="../scripts/leaflet-providers.js"></script>
-<script type="text/javascript">
-var providers = L.TileLayer.Provider.providers;
-for (var provider in providers){
-	document.writeln(provider + " </br>");	
-	if (providers[provider].hasOwnProperty("variants")){
-		for (var variant in providers[provider].variants){
-			document.writeln(provider + "." + variant + " </br>");
-		}
-	}
-}
-</script> 
+ 
 <div class='settings_box'>
 <div class="settings_group">
 <h3>Map Data</h3>
 <form action='update_config.php' method='post'>
 <input type='hidden' name='update_map' value='true'>
+<input type='hidden' id='use_leaflet_provider' name='use_leaflet_provider' value='<?php echo $config['use_leaflet_provider']; ?>'>
+<input type='hidden' id='leaflet_provider' name='leaflet_provider' value='<?php echo $config['leaflet_provider']; ?>'>
 <span>tile provider: </span>
-<select name='provider'>
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="fiat">Fiat</option>
-  <option value="audi">Audi</option>
-</select>
-<input type='text' class='wide' name='map_url' value='<?php echo $config['map_url']; ?>'/><br>
-<span>api url: </span><input type='text' class='wide' name='map_url' value='<?php echo $config['map_url']; ?>'/><br>
-<p class="tinytext"> CIBL currently utilizes Leaflet.js to display <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiled web maps</a> 
-using an API URL supplied from tile map services. The default map is the unaltered version of OpenStreetMaps. 
-A collection of free tile provider previews and their URLs can be viewed 
-<a href="http://leaflet-extras.github.io/leaflet-providers/preview/index.html">here</a>.</p>
-<input type='submit' class='wide' name='update_map_api' value='Update Map'/>
+<select name='provider' class="wide" id='provider_select' onChange='switch_map()' value='<?php echo $config['leaflet_provider']; ?>'></select>
+<div id="settings_map"></div>
+<!-- <span>api url: </span><input type='text' class='wide' id='map_url' name='map_url' value='HEY DORK ADD THE PHP BACK HERE TO INSERT THE API KEY'/><br> -->
+<p class="tinytext"> If you have your own tile provider URL you may paste it above instead of using one of the presets. 
+Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiled web maps</a> for more information about this schema.</p>
+<input type='submit' class='wide' name='update_map' value='Update Map'/>
 </form>
 </div>
 </div>
+
+<script src="../scripts/leaflet-providers.js"></script>
+<script type="text/javascript">
+var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>');
+settings_map = L.map('settings_map')
+	.addLayer(tiles)
+	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+
+var providers = L.TileLayer.Provider.providers;
+var providerOptions = "";
+var providerString = "";
+for (var provider in providers){
+	providerString = provider;
+	selectedString = "";
+	providerOptions += "<option value=" + providerString + ">" + providerString + "</option>\r\n";
+	if (providers[provider].hasOwnProperty("variants")){
+		for (var variant in providers[provider].variants){
+			providerString = provider + "." + variant;
+			providerOptions +=  "<option value=" + providerString + ">" + providerString + "</option>\r\n";
+		}
+	}
+}
+
+var select = document.getElementById("provider_select");
+select.innerHTML = providerOptions;
+var leafletProvider = '<?php echo $config['leaflet_provider']; ?>';
+var opts = select.options;
+for(var opt, index = 0; opt = opts[index]; index++) {
+	if(opt.value == leafletProvider) {
+		console.log(opt.value + " / " + leafletProvider);
+		select.selectedIndex = index;
+		break;
+	}
+}
+
+function switch_map(){
+	var newProvider = provider_select.options[provider_select.selectedIndex].text;
+	settings_map.remove();
+	var tiles = L.tileLayer.provider(newProvider);
+	settings_map = L.map('settings_map')
+	.addLayer(tiles)
+	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	document.getElementById("leaflet_provider").value = newProvider;
+	
+	//for now, set use_leafet_provider TRUE no matter what. until I implement leaflet-plugins support (Google and such)
+	document.getElementById("use_leaflet_provider").value = true;
+	
+	//var provider_select = document.getElementById("provider_select");
+	//var provider = provider_select.options[provider_select.selectedIndex].text;
+	//var index = providerNames.indexOf(provider);
+	//document.getElementById("map_url").value = "https:" + providerURLs[index];
+}
+</script>
 
 <div class='settings_box'>
 <div class='settings_group'>

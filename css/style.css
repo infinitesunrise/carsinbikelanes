@@ -29,6 +29,12 @@ body.non_map {
 	border: 1px solid gray;
 }
 
+#settings_map {
+	width: 400px;
+	height: 400px;
+	margin: 10px 0px 10px 0px;
+}
+
 h2 {
 	margin-top: 0px;
 	margin-bottom: -10px;
@@ -458,7 +464,9 @@ button, input.bold_button, form.bold_form {
 	font-family: 'Oswald', sans-serif;
 }
 
-input[type="text"].wide, input[type="password"].wide {
+input[type="text"].wide,
+input[type="password"].wide,
+select.wide {
 	height: 24px;
 	width: 100%;
 }

@@ -7,6 +7,8 @@ function write_config($new_config){
 		"sqluser" => "root",
 		"sqlpass" => "root",
 		"database" => "carsinbikelanes",
+		"use_leaflet_provider" => "TRUE",
+		"leaflet_provider" => "OpenStreetMap",
 		"map_url" => 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		"max_view" => 50,
 		"north_bounds" => 40.9168,
@@ -35,6 +37,8 @@ function write_config($new_config){
 	"'sqluser' => '" . $new_config['sqluser'] . "',\n" .
 	"'sqlpass' => '" . $new_config['sqlpass'] . "',\n" .
 	"'database' => '" . $new_config['database'] . "',\n" .
+	"'use_leaflet_provider' => " . $new_config['use_leaflet_provider'] . ",\n" .
+	"'leaflet_provider' => '" . $new_config['leaflet_provider'] . "',\n" .
 	"'map_url' => '" . $new_config['map_url'] . "',\n" .
 	"'max_view' => " . $new_config['max_view'] . ",\n" .
 	"'north_bounds' => " . $new_config['north_bounds'] . ",\n" .

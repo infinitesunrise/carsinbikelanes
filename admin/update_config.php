@@ -10,7 +10,7 @@ if (isset($_POST['update_users'])){ update_users($connection); }
 if (isset($_POST['update_identity'])){ update_identity(); }
 if (isset($_POST['update_coords'])){ update_coords(); }
 if (isset($_POST['update_about'])){ update_about(); }
-if (isset($_POST['update_map_api'])){ update_map_api(); }
+if (isset($_POST['update_map'])){ update_map(); }
 if (isset($_POST['update_database'])){ update_database(); }
 
 function update_password($connection) {
@@ -155,11 +155,15 @@ function update_about(){
 	}
 }
 
-function update_map_api(){
-	if(isset($_POST['update_map_api'])){
-		$new_values = array( 'map_url' => $_POST['map_url']);
+function update_map(){
+	if(isset($_POST['update_map'])){
+		$new_values = array(
+			'use_leaflet_provider' => $_POST['use_leaflet_provider'],
+			'leaflet_provider' => $_POST['leaflet_provider'],
+			//'map_url' => $_POST['map_url']
+		);
 		write_config($new_values);
-		return_message("Updated map API.");
+		return_message("Updated map service.");
 	}
 }
 

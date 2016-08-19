@@ -34,6 +34,9 @@ include ('admin/config.php');
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 
+<!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
+<script src="scripts/leaflet-providers.js"></script>
+
 <!-- mapbox -->
 <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
@@ -61,7 +64,7 @@ $(document).ready(function() {
 	$(".single_view_pane").hide();
 	$(".left_menu").show();
 	
-	submit_map.on('click', onSubmitClick);
+	//submit_map.on('click', onSubmitClick);
 	
 	body_map.on('panend', function(e) { load_entries(); });
 	body_map.on('moveend', function(e) { load_entries(); });
@@ -82,19 +85,30 @@ $(document).ready(function() {
 
 function initializeMaps() {
 
-	//var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/infinitesunrise.k636mj38/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaW5maW5pdGVzdW5yaXNlIiwiYSI6ImpkMjJZNDgifQ.XewtOwr2t6wlzCrwKDDArw');
-	var tiles = L.tileLayer(map_url);
+	//REMOVE THE == 0 FOR THIS TO WORK AGAIN
+	if (<?php echo $config['use_leaflet_provider']; ?> == 0) {
+		
+		body_map = L.map('body_map')
+		// TODO: .PROVIDER NOT BEING RECOGNIZED AS A FUNCTION DESPITE INCLUDING LEAFLET-PROVIDERS.JS ABOVE? HURR?
+		L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>').addTo(body_map);
+		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		
+		//var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>');
+		//body_map = L.map('body_map')
+		//	.addLayer(tiles)
+		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
+	else {
+		var tiles = L.tileLayer(map_url);
 
-	//Set up two maps - Main body map and submission form map
-	body_map = L.map('body_map')
-		.addLayer(tiles)
-		//.addLayer(bikelanes)
-		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		body_map = L.map('body_map')
+			.addLayer(tiles)
+			.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
+	
 	markers = L.layerGroup().addTo(body_map);
-
-	submit_map = L.map('submit_map')
-		//.addLayer(tiles)
-		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 14);
+	
+	//TODO: ADD BACK IN A SOLUTION FOR SUBMIT_MAP
 }
 
 function toggleView(view) {
