@@ -52,7 +52,7 @@ if (isset($_GET['error'])){
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>Reset Password</h3>
-<form action='update_config.php' method='post'>
+<form action='settings_update.php' method='post'>
 <input type='hidden' name='reset_password' value='true'>
 <span>old password: </span><input type='password' class='wide' name='oldpass' /><br>
 <span>new password: </span><input type='password' class='wide' name='newpass1' /><br>
@@ -65,7 +65,7 @@ if (isset($_GET['error'])){
 <?php
 if (isset($_SESSION['admin'])){
 	if ($_SESSION['admin'] == true){
-		include 'admin_settings.php';
+		include 'settings_admin.php';
 	}
 }
 ?>

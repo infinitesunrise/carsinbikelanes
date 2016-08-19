@@ -106,14 +106,12 @@ span.form {
 	padding-right: 15px;
 }
 
-/*.inner_container::-webkit-scrollbar {
+.holder{
 	display: none;
+	margin: 0px;
+	padding: 0px;
+	background: none;
 }
-
-.inner_inner_container{
-	width: 575px;
-	height: 1000px;
-} */
 
 .column_entry{
 	width: 535px;

@@ -34,15 +34,15 @@ include ('admin/config.php');
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 
-<!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
-<script src="scripts/leaflet-providers.js"></script>
-
 <!-- mapbox -->
 <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
 
 <!-- google fonts -->
 <link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+
+<!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
+<script src="scripts/leaflet-providers.js"></script>
 
 <script type="text/javascript">
 
@@ -82,34 +82,6 @@ $(document).ready(function() {
 	
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
 });
-
-function initializeMaps() {
-
-	//REMOVE THE == 0 FOR THIS TO WORK AGAIN
-	if (<?php echo $config['use_leaflet_provider']; ?> == 0) {
-		
-		body_map = L.map('body_map')
-		// TODO: .PROVIDER NOT BEING RECOGNIZED AS A FUNCTION DESPITE INCLUDING LEAFLET-PROVIDERS.JS ABOVE? HURR?
-		L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>').addTo(body_map);
-		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-		
-		//var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>');
-		//body_map = L.map('body_map')
-		//	.addLayer(tiles)
-		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-	}
-	else {
-		var tiles = L.tileLayer(map_url);
-
-		body_map = L.map('body_map')
-			.addLayer(tiles)
-			.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-	}
-	
-	markers = L.layerGroup().addTo(body_map);
-	
-	//TODO: ADD BACK IN A SOLUTION FOR SUBMIT_MAP
-}
 
 function toggleView(view) {
 	if (view == "about"){
@@ -306,8 +278,34 @@ function limitText() {
 	}
 }
 
-</script>
+function initializeMaps() {
 
+	if (<?php echo $config['use_providers_plugin']; ?>) {
+		
+		body_map = L.map('body_map');
+		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
+		catch (err) { console.log(err); }
+		body_map.addLayer(tiles);
+		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		
+		//var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>');
+		//body_map = L.map('body_map')
+		//	.addLayer(tiles)
+		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
+	else {
+		var tiles = L.tileLayer(map_url);
+
+		body_map = L.map('body_map')
+			.addLayer(tiles)
+			.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
+	
+	markers = L.layerGroup().addTo(body_map);
+	
+	//TODO: ADD BACK IN A SOLUTION FOR SUBMIT_MAP
+}
+</script>
 </head>
 
 <body>
@@ -451,6 +449,10 @@ if (isset($_GET['setup_success_dialog'])){
 <div class="inner_container" id="inner_container">
 </div>
 </div>
+
+
+
+
 
 </body>
 

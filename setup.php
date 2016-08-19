@@ -1,7 +1,7 @@
 <?php
 
 require 'scripts/PasswordHash.php';
-require 'admin/write_config.php';
+require 'admin/config_write.php';
 
 //VALUES PASSED FROM SETUP FORM
 $config = array(
@@ -112,7 +112,7 @@ if ($connection->query($query) === TRUE) {
 $connection->close();
 
 //CREATE CONFIG FILE, CREATE EMPTY DIRECTORIES, SWAP SETUP AND MAIN INDEX PAGE
-write_config($config);
+config_write($config);
 mkdir("images");
 mkdir("thumbs");
 rename('index.php', 'index_old.php');
