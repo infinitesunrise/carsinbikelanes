@@ -160,9 +160,22 @@ function update_map(){
 		$new_values = array(
 			'use_providers_plugin' => $_POST['use_providers_plugin'],
 			'leaflet_provider' => $_POST['leaflet_provider'],
+			'use_google' => $_POST['use_google'],
+			'google_api_key' => $_POST['google_api_key'],
+			'google_extra_layer' => $_POST['google_extra_layer'],
 			'map_url' => $_POST['map_url']
 		);
 		config_write($new_values);
+		$new_styles = $_POST['google_style'];
+		if($new_styles == ""){ $new_styles = "[\n\n]"; }
+		if (file_exists('../config/google_style.php')){
+			file_put_contents("../config/google_style.php", "");
+		}
+		$style_file = fopen('../config/google_style.php', "w")
+			or die("PHP Error: Issues creating google map styles file. Are permissions set correctly?");
+		fwrite($style_file, $new_styles);
+		fclose($style_file);
+		
 		return_message("Updated map service.");
 	}
 }

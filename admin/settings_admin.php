@@ -146,10 +146,27 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 <input type='hidden' name='update_map' value='true'>
 <input type='hidden' id='use_providers_plugin' name='use_providers_plugin' value='<?php echo $config['use_providers_plugin']; ?>'>
 <input type='hidden' id='leaflet_provider' name='leaflet_provider' value='<?php echo $config['leaflet_provider']; ?>'>
+<input type='hidden' id='use_google' name='use_google' value='<?php echo $config['use_google']; ?>'>
 
 <span>tile provider: </span>
 <select name='provider' class="wide" id='provider_select' onChange='switch_map()' value='<?php echo $config['leaflet_provider']; ?>'></select>
 <div id="settings_map"></div>
+
+<div class="holder" id="map_options_google">
+<span>google api key: </span>
+<input type='text' class='wide' id='google_api_key' name='google_api_key' onChange='update_google_api()' value='<?php echo $config['google_api_key']; ?>'/><br>
+<p class="tinytext">You'll need a Google Maps Javascript API key from Google in order to use Goolge Map tiles with CIBL.
+Sign up for one <a href="https://developers.google.com/maps/documentation/javascript/get-api-key">here</a> and paste it into the box above.</p>
+<span>additional layer: </span><br>
+<input type='hidden' id='google_extra_layer' name='google_extra_layer' value='<?php echo $config['google_extra_layer']; ?>'>
+<span>bicycling: </span><input type='checkbox' id='google_bicycling' name='google_bicycling' onChange='switch_map("google1")'/>
+<span>transit: </span><input type='checkbox' id='google_transit' name='google_transit' onChange='switch_map("google2")'/>
+<span>traffic: </span><input type='checkbox' id='google_traffic' name='google_traffic' onChange='switch_map("google3")'/>
+<br/>
+<span>map style:</span>
+<textarea class="settings" id="google_style" name="google_style"><?php include '../config/google_style.php'; ?></textarea>
+<p class="tinytext">Refer to <a href="https://developers.google.com/maps/documentation/javascript/styling">this page</a> for instructions on styling a Google map with JSON. Write all style objects between the [] square brackets.</p>
+</div>
 
 <div class="holder" id="map_options_custom">
 <span>tiles url: </span>
@@ -163,14 +180,15 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 </div>
 </div>
 
+<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
 <script src="../scripts/leaflet-providers.js"></script>
 <script type="text/javascript">
-//var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>');
-//settings_map = L.map('settings_map')
-//	.addLayer(tiles)
-//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-
 settings_map = L.map('settings_map');
+googleExtraLayer =  document.getElementById("google_extra_layer").value;
+if (googleExtraLayer == "BICYCLING") { document.getElementById("google_bicycling").checked = true; }
+if (googleExtraLayer == "TRANSIT") { document.getElementById("google_transit").checked = true; }
+if (googleExtraLayer == "TRAFFIC") { document.getElementById("google_traffic").checked = true; }
 
 var providers = L.TileLayer.Provider.providers;
 var providerOptions = "";
@@ -187,6 +205,7 @@ for (var provider in providers){
 	}
 }
 providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
+providerOptions +=  "<option value='Google'>Google</option>\r\n";
 
 var select = document.getElementById("provider_select");
 select.innerHTML = providerOptions;
@@ -201,30 +220,84 @@ for(var option, index = 0; option = options[index]; index++) {
 
 switch_map();
 
-function switch_map(){
+function switch_map(option){
 	var newProvider = document.getElementById("provider_select").options[provider_select.selectedIndex].value;
 	
-	//console.log("Switched map to type: " + newProvider);
+	console.log("Switched map to type: " + newProvider);
 	
 	if (newProvider == "Custom"){
 		document.getElementById("map_options_custom").style.display = "block";
-		//var newProvider = provider_select.options[provider_select.selectedIndex].text;
+		document.getElementById("map_options_google").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
+		document.getElementById("use_google").value = 0;
 		document.getElementById("leaflet_provider").value = newProvider;	
 		settings_map.remove();
+		document.getElementById("settings_map").innerHTML = "";
 		var url = document.getElementById("custom_url").value;
-		console.log("new values: \n" + document.getElementById("use_providers_plugin").value +
-					"\n" + document.getElementById("leaflet_provider").value + 
-					"\n" + document.getElementById("custom_url").value);
 		var tiles = L.tileLayer(url);
 		settings_map = L.map('settings_map')
 		.addLayer(tiles)
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
+	else if (newProvider == "Google"){
+		document.getElementById("map_options_google").style.display = "block";
+		document.getElementById("map_options_custom").style.display = "none";
+		document.getElementById("use_providers_plugin").value = 0;
+		document.getElementById("use_google").value = 1;
+		document.getElementById("leaflet_provider").value = newProvider;
+		
+		if (option == 'google1' || option == 'google2' || option == 'google3'){
+			google_bicycling = document.getElementById("google_bicycling");
+			google_transit = document.getElementById("google_transit");
+			google_traffic = document.getElementById("google_traffic");
+			switch (option){
+				case ('google1'):
+					if (google_bicycling.checked == false) { document.getElementById("google_extra_layer").value = "NONE"; }
+					else {
+						document.getElementById("google_extra_layer").value = "BICYCLING";
+						google_transit.checked = false;
+						google_traffic.checked = false;
+					}
+					break;
+				case ('google2'):
+					if (google_transit.checked == false) { document.getElementById("google_extra_layer").value = "NONE"; }
+					else {
+						document.getElementById("google_extra_layer").value = "TRANSIT";
+						google_bicycling.checked = false;
+						google_traffic.checked = false;
+					}
+					break;
+				case ('google3'):
+					if (google_traffic.checked == false) { document.getElementById("google_extra_layer").value = "NONE"; }
+					else {
+						document.getElementById("google_extra_layer").value = "TRAFFIC";
+						google_bicycling.checked = false;
+						google_transit.checked = false;
+					}
+					break;
+			}
+		}
+		
+		var options = <?php include '../config/google_style.php'; ?>;
+		var extra = document.getElementById("google_extra_layer").value;
+		settings_map.remove();
+		document.getElementById("settings_map").innerHTML = "";
+		var tiles = new L.Google('ROADMAP', {
+			mapOptions: {
+				styles: options
+			}
+		}, extra);
+		settings_map = L.map('settings_map')
+		.addLayer(tiles)
+		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 13);
+	}
 	else{
 		document.getElementById("map_options_custom").style.display = "none";
-		//var newProvider = provider_select.options[provider_select.selectedIndex].text;
+		document.getElementById("map_options_google").style.display = "none";
+		document.getElementById("use_providers_plugin").value = 1;
+		document.getElementById("use_google").value = 0;
 		settings_map.remove();
+		document.getElementById("settings_map").innerHTML = "";
 		var tiles = L.tileLayer.provider(newProvider);
 		settings_map = L.map('settings_map')
 		.addLayer(tiles)
@@ -232,6 +305,13 @@ function switch_map(){
 		document.getElementById("use_providers_plugin").value = true;
 		document.getElementById("leaflet_provider").value = newProvider;
 	}
+}
+
+function update_google_api(){
+	var key = document.getElementById("google_api_key").value;
+	var googleURL = "http://maps.google.com/maps/api/js?key=" + key;
+	document.getElementById("google_api_link").src = googleURL;
+	switch_map();
 }
 </script>
 
