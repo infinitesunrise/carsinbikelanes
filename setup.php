@@ -115,7 +115,6 @@ $connection->close();
 config_write($config);
 mkdir("images");
 mkdir("thumbs");
-mkdir("config");
 rename('index.php', 'index_old.php');
 rename('index_actual.php', 'index.php');
 

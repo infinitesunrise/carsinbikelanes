@@ -44,6 +44,12 @@ include ('admin/config.php');
 <!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
 <script src="scripts/leaflet-providers.js"></script>
 
+<!-- Google Javascript API with current key -->
+<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+
+<!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
+<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
+
 <script type="text/javascript">
 
 marker = new L.marker();
@@ -87,24 +93,24 @@ function toggleView(view) {
 	if (view == "about"){
 		if (about_view_open){
 			$("#about").animate({opacity: 'toggle', width: 'toggle'});
-			$(".left_menu").show();
+			$(".right_menu").show();
 			about_view_open = false;
 		}
 		else{
 			$("#about").animate({opacity: 'toggle', width: 'toggle'});
-			$(".left_menu").hide();
+			$(".right_menu").hide();
 			about_view_open = true;
 		}
 	}
 	if (view == "submit"){
 		if (submit_view_open){
 			$("#submission_form").animate({opacity: 'toggle', width: 'toggle'});
-			$(".left_menu").show();
+			$(".right_menu").show();
 			submit_view_open = false;
 		}
 		else {
 			$("#submission_form").animate({opacity: 'toggle', width: 'toggle'});
-			$(".left_menu").hide();
+			$(".right_menu").hide();
 			submit_view_open = true;
 		}
 	}
@@ -293,12 +299,35 @@ function initializeMaps() {
 		//	.addLayer(tiles)
 		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
+	else if (<?php echo $config['use_google']; ?>) {
+		body_map = L.map('body_map');
+		<?php if ($config['use_google']){
+			echo "var options = ";
+			include 'config/google_style.php';
+			echo ";\n"; }
+		?>
+		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>
+		try { 
+			var tiles = new L.Google('ROADMAP', {
+					mapOptions: {
+						styles: options
+					}
+				}, extra);
+		}
+		catch (err) { console.log(err); }
+		body_map.addLayer(tiles);
+		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
 	else {
-		var tiles = L.tileLayer(map_url);
+		body_map = L.map('body_map');
+		try { var tiles = L.tileLayer(map_url); }
+		catch (err) { console.log(err); }
+		body_map.addLayer(tiles);
+		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 
-		body_map = L.map('body_map')
-			.addLayer(tiles)
-			.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		//body_map = L.map('body_map')
+		//	.addLayer(tiles)
+		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
 	
 	markers = L.layerGroup().addTo(body_map);
@@ -309,6 +338,7 @@ function initializeMaps() {
 </head>
 
 <body>
+
 <div id="body_map">
 </div>
 
@@ -335,7 +365,7 @@ if (isset($_GET['setup_success_dialog'])){
 }
 ?>
 
-<!-- LEFT MENU -->
+<!-- RIGHT MENU -->
 <div class="right_menu">
 <div class="right_menu_item">
 <span><?php echo $config['site_name']; ?></span>
@@ -449,10 +479,6 @@ if (isset($_GET['setup_success_dialog'])){
 <div class="inner_container" id="inner_container">
 </div>
 </div>
-
-
-
-
 
 </body>
 

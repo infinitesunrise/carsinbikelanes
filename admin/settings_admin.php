@@ -168,6 +168,12 @@ Sign up for one <a href="https://developers.google.com/maps/documentation/javasc
 <p class="tinytext">Refer to <a href="https://developers.google.com/maps/documentation/javascript/styling">this page</a> for instructions on styling a Google map with JSON. Write all style objects between the [] square brackets.</p>
 </div>
 
+<div class="holder" id="map_options_esri">
+<p class="tinytext">Note: Esri/ArcGIS maps do not require any additional configuration to use, but ArcGIS requires that developers
+<a href="https://developers.arcgis.com/sign-up/"> register for an account</a> and abide by their <a href="https://developers.arcgis.com/terms/">
+terms of service</a>.
+</div>
+
 <div class="holder" id="map_options_custom">
 <span>tiles url: </span>
 <input type='text' class='wide' id='custom_url' name='map_url' onChange='switch_map()' value='<?php echo $config['map_url']; ?>'/><br>
@@ -196,6 +202,12 @@ var providerString = "";
 for (var provider in providers){
 	providerString = provider;
 	selectedString = "";
+	if (providerString == "NASAGIBS" ||
+		providerString == "HERE" ||
+		providerString == "OpenSeaMap" ||
+		providerString == "OpenWeatherMap" ||
+		providerString == "MapBox")
+		{ continue; }
 	providerOptions += "<option value=" + providerString + ">" + providerString + "</option>\r\n";
 	if (providers[provider].hasOwnProperty("variants")){
 		for (var variant in providers[provider].variants){
@@ -228,6 +240,7 @@ function switch_map(option){
 	if (newProvider == "Custom"){
 		document.getElementById("map_options_custom").style.display = "block";
 		document.getElementById("map_options_google").style.display = "none";
+		document.getElementById("map_options_esri").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_google").value = 0;
 		document.getElementById("leaflet_provider").value = newProvider;	
@@ -242,6 +255,7 @@ function switch_map(option){
 	else if (newProvider == "Google"){
 		document.getElementById("map_options_google").style.display = "block";
 		document.getElementById("map_options_custom").style.display = "none";
+		document.getElementById("map_options_esri").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_google").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
@@ -294,6 +308,10 @@ function switch_map(option){
 	else{
 		document.getElementById("map_options_custom").style.display = "none";
 		document.getElementById("map_options_google").style.display = "none";
+		document.getElementById("map_options_esri").style.display = "none";
+		if (newProvider.indexOf("Esri") != -1){
+			document.getElementById("map_options_esri").style.display = "block";
+		}
 		document.getElementById("use_providers_plugin").value = 1;
 		document.getElementById("use_google").value = 0;
 		settings_map.remove();

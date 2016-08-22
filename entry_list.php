@@ -36,7 +36,7 @@ $entries = mysqli_query($connection, $full_query);
 
 if (mysqli_num_rows($entries) == 0){
 	echo "\n <div class='column_entry'>";
-	echo "<h3>No records found here.</h3>";
+	echo "<h3 style='padding:10px'>No records found here.</h3>";
 	echo "\n </div>";
 }
 

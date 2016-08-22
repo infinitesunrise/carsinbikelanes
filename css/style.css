@@ -12,8 +12,8 @@ body.non_map {
 #body_map {
 	margin: 0px;
 	padding: 0px;
-	min-height: 100%;
-	height: auto;
+	/* min-height: 100%;
+	height: auto; */
 	height: 100%;
 	width: 100%;
 	float: left;
@@ -334,8 +334,8 @@ input.submit_button {
 	font-size: 12px;
 }
 
-#body_map .leaflet-left {
-	left: 585px;
+.leaflet-left {
+	padding-left: 565px !important;
 }
 
 .flex_container_scroll {
