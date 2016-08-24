@@ -41,8 +41,6 @@ if (mysqli_num_rows($entries) == 0){
 }
 
 while ($row = mysqli_fetch_array($entries)){
-	error_log($row[0]);
-	
 	echo "\n <div class='column_entry' onClick='zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");'>";
 		
 	echo "\n <div class='column_entry_thumbnail'>";

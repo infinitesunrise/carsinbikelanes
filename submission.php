@@ -214,7 +214,7 @@ function success() {
 		
 		echo "\n $('#back_button').click( function() {";
 		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', width: 'toggle'});";
-		echo "\n	$(\".left_menu\").show();";
+		echo "\n	$(\".right_menu\").show();";
 		echo "\n 	$(\"#results_form\").empty();";
 		echo "\n });";
 		

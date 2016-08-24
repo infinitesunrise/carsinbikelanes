@@ -71,11 +71,10 @@ $(document).ready(function() {
 	$(".single_view_pane").hide();
 	$(".left_menu").show();
 	
-	//submit_map.on('click', onSubmitClick);
-	
 	body_map.on('panend', function(e) { load_entries(); });
 	body_map.on('moveend', function(e) { load_entries(); });
 	body_map.on('click', function(e) { close_single_view(); });
+	submit_map.on('click', onSubmitClick);
 	
 	$("#toggle_submit, #toggle_submit2").click( function() {toggleView("submit")} );
 	
@@ -287,18 +286,18 @@ function limitText() {
 
 function initializeMaps() {
 
-	if (<?php echo $config['use_providers_plugin']; ?>) {
-		
+	if (<?php echo $config['use_providers_plugin']; ?>) {		
 		body_map = L.map('body_map');
 		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-		
-		//var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>');
-		//body_map = L.map('body_map')
-		//	.addLayer(tiles)
-		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+				
+		submit_map = L.map('submit_map');
+		try { var tiles2 = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
+		catch (err) { console.log(err); }
+		submit_map.addLayer(tiles2);
+		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
 	else if (<?php echo $config['use_google']; ?>) {
 		body_map = L.map('body_map');
@@ -318,6 +317,18 @@ function initializeMaps() {
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		
+		submit_map = L.map('submit_map');
+		try { 
+			var tiles2 = new L.Google('ROADMAP', {
+					mapOptions: {
+						styles: options
+					}
+				}, extra);
+		}
+		catch (err) { console.log(err); }
+		submit_map.addLayer(tiles2);
+		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
 	else if (<?php echo $config['use_bing']; ?>) {
 		body_map = L.map('body_map');
@@ -327,6 +338,12 @@ function initializeMaps() {
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		
+		submit_map = L.map('submit_map');
+		try { var tiles2 = new L.BingLayer(bingApiKey, {type: imagerySet}); }
+		catch (err) { console.log(err); }
+		submit_map.addLayer(tiles2);
+		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
 	else {
 		body_map = L.map('body_map');
@@ -334,15 +351,15 @@ function initializeMaps() {
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-
-		//body_map = L.map('body_map')
-		//	.addLayer(tiles)
-		//	.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+		
+		submit_map = L.map('submit_map');
+		try { var tiles2 = L.tileLayer(map_url); }
+		catch (err) { console.log(err); }
+		submit_map.addLayer(tiles2);
+		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
 	
 	markers = L.layerGroup().addTo(body_map);
-	
-	//TODO: ADD BACK IN A SOLUTION FOR SUBMIT_MAP
 }
 </script>
 </head>

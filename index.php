@@ -97,7 +97,7 @@ Please fill in the following fields to configure your site.</p>
 <h3>MySQL:</h3>
 <span>hostname: </span><input type="text" name="sqlhost" placeholder="localhost"/><br>
 <span>username: </span><input type="text" name="sqluser" placeholder="root"/><br>
-<span>password: </span><input type="text" name="sqlpass" placeholder="root"/><br>
+<span>password: </span><input type="password" name="sqlpass" placeholder="root"/><br>
 <span>database: </span><input type="text" name="database" placeholder="carsinbikelanes"/><br>
 <p class="tinytext">Note: Database must not already exist.</p>
 </div>

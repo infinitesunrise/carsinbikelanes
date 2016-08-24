@@ -447,6 +447,13 @@ input.submit_button {
 	width: 150px;
 }
 
+.mod_queue_img_container {
+	min-width: 200px;
+	margin: 0px 10px 0px 10px;
+	display: flex;
+	align-items: center;
+}
+
 .settings_group {
 	width: 400px;
 	margin: 0px auto;
@@ -460,6 +467,11 @@ button, input.bold_button, form.bold_form {
 	margin-bottom: 10px;
 	font-size: 18px;
 	font-family: 'Oswald', sans-serif;
+}
+
+button.rotate {
+	width: 50%;
+	font-size: 24px;
 }
 
 input[type="text"].wide,
@@ -483,7 +495,8 @@ input[type="submit"].wide {
 }
 
 img.review {
-	margin: 10px;
+	display: block;
+	margin: 0 auto;
 }
 
 .centered_form {

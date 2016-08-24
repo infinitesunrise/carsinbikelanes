@@ -16,26 +16,43 @@
 <script type="text/javascript">
 
 var zoomToggles = new Map();
+var rotations = new Map();
 
 function toggleImg(link,id) {
 	if (zoomToggles.has(id) && (zoomToggles.get(id))){
 		var newImg = "../thumbs/" + link;
-		var newHtml = "<img class='review' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
+		var newHtml = "<img class='review' id='img" + id + "' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
 		$("#" + id + "").empty();
 		$("#" + id + "").html(newHtml);
+		rotate(0,id);
 		zoomToggles.set(id, false);
 	}
 	else {
 		var newImg = "../images/" + link;
-		var newHtml = "<img class='review' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
+		var newHtml = "<img class='review' id='img" + id + "' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
 		$("#" + id + "").empty();
 		$("#" + id + "").html(newHtml);
+		rotate(0,id);
 		zoomToggles.set(id, true);
 	}
 }
 
+function rotate(angle, imgNumber){
+	var rotation = 0;
+	if (rotations.has(imgNumber)){ rotation = rotations.get(imgNumber); }
+	rotation += angle;
+	if (rotation > 360) { rotation -= 360; }
+	if (rotation < 0) { rotation += 360; }
+	rotations.set(imgNumber,rotation);
+	console.log(imgNumber + " / " + rotation);
+	document.getElementById("img" + imgNumber).style.transform = "rotate(" + rotations.get(imgNumber) + "deg)";
+}
+
 function accept(id){
-	window.location.href = "index.php?accept=" + id;
+	var acceptURL = "index.php?accept=" + id;
+	if (rotations.has(id)){ acceptURL += "&rot=" + rotations.get(id); }
+	console.log(acceptURL);
+	window.location.href = acceptURL;
 }
 
 function deny(id){
@@ -66,9 +83,22 @@ if (isset($_GET["accept"])) {
 		$connection->query('UPDATE cibl_data SET url=\'' . $new_url . '\' WHERE increment=' . $id);
 		$connection->query('DELETE FROM cibl_queue
 							WHERE increment = ' . $_GET["accept"]);
+		$connection->commit();
 		rename('../thumbs/' . $old_url, '../thumbs/' . $new_url);
 		rename('../images/' . $old_url, '../images/' . $new_url);
-		$connection->commit();
+		
+		if (isset($_GET['rot'])){
+			$source = imagecreatefromjpeg('../images/' . $new_url);
+			$rotate = imagerotate($source, -$_GET['rot'], 0);
+			imagejpeg($rotate, '../images/' . $new_url);
+			
+			$source = imagecreatefromjpeg('../thumbs/' . $new_url);
+			$rotate = imagerotate($source, -$_GET['rot'], 0);
+			imagejpeg($rotate, '../thumbs/' . $new_url);
+			imagedestroy($source);
+			imagedestroy($rotate);
+		}
+		
 	}
 	catch (Exception $e) {
 		error_log('MySQL transaction exception: ' . $e);
@@ -98,7 +128,7 @@ $entries = $connection->query(
 	OFFSET 0');
 
 echo "\n <div class='flex_container_scroll'>";
-echo "\n <div class='moderation_queue'>";
+echo "\n <div class='moderation_queue' id='moderation_queue'>";
 include 'nav.php';
 
 $count = 0;
@@ -107,9 +137,14 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n <div class='moderation_queue_buttons'>";
 	echo "\n <button class='bold_button' onclick='javascript:accept(" . $row[0] . ");'>ACCEPT</button> <br>";
 	echo "\n <button class='bold_button' onclick='javascript:deny(" . $row[0] . ");'>DENY</button>";
+	echo "\n <div style='width:100%; display:flex;'>";
+	echo "<button class='rotate' onClick='rotate(-90," . $row[0] . ")'>&#10553</button>";
+	echo "<div style='width:10px'></div>";
+	echo "<button class='rotate' onClick='rotate(90," . $row[0] . ")'>&#10552</button>";
+	echo "</div>";
 	echo "\n </div>";
-	echo "\n <div id='" . $row[0] . "'>";
-	echo "\n <img class='review' src='../thumbs/" . $row[1] . "' onclick=\"javascript:toggleImg('" . $row[1] . "', " . $row[0] . ");\"/>";
+	echo "\n <div id='" . $row[0] . "' class='mod_queue_img_container'>";
+	echo "\n <img id='img" . $row[0] . "' class='review' src='../thumbs/" . $row[1] . "' onclick=\"javascript:toggleImg('" . $row[1] . "', " . $row[0] . ");\"/>";
 	echo "\n </div>";
 	echo "\n <div class='moderation_queue_details'>";
 	echo "\n <h2>#" . $row[0] . ": " . $row[2] . "</h2>";
@@ -142,6 +177,41 @@ if ($count == 0){
 
 echo "\n\n</div>";
 echo "</div>";
+
+//IMAGE RESIZE FUNCTION	
+function resize_image($file, $w, $h, $crop=FALSE) {
+    list($width, $height) = getimagesize($file);
+    $r = $width / $height;
+    if ($crop) {
+        if ($width > $height) {
+            $width = ceil($width-($width*abs($r-$w/$h)));
+        } else {
+            $height = ceil($height-($height*abs($r-$w/$h)));
+        }
+        $newwidth = $w;
+        $newheight = $h;
+    } else {
+        if ($w/$h > $r) {
+            $newwidth = $h*$r;
+            $newheight = $h;
+        } else {
+            $newheight = $w/$r;
+            $newwidth = $w;
+        }
+    }
+    $info = getimagesize($file);
+    if ($info['mime'] == 'image/jpeg') 
+		$src = imagecreatefromjpeg($file);
+	elseif ($info['mime'] == 'image/gif') 
+		$src = imagecreatefromgif($file);
+	elseif ($info['mime'] == 'image/png') 
+		$src = imagecreatefrompng($file);
+    
+    $dst = imagecreatetruecolor($newwidth, $newheight);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+	
+    return $dst;
+}
 
 ?>
 
