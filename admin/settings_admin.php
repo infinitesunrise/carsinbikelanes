@@ -142,18 +142,19 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 <div class='settings_box'>
 <div class="settings_group">
 <h3>Map Data</h3>
-<form action='settings_update.php' method='post'>
+<form id='map_form' name='map_form' action='settings_update.php' method='post'>
 <input type='hidden' name='update_map' value='true'>
 <input type='hidden' id='use_providers_plugin' name='use_providers_plugin' value='<?php echo $config['use_providers_plugin']; ?>'>
 <input type='hidden' id='leaflet_provider' name='leaflet_provider' value='<?php echo $config['leaflet_provider']; ?>'>
 <input type='hidden' id='use_google' name='use_google' value='<?php echo $config['use_google']; ?>'>
+<input type='hidden' id='use_bing' name='use_bing' value='<?php echo $config['use_bing']; ?>'>
 
 <span>tile provider: </span>
 <select name='provider' class="wide" id='provider_select' onChange='switch_map()' value='<?php echo $config['leaflet_provider']; ?>'></select>
 <div id="settings_map"></div>
 
 <div class="holder" id="map_options_google">
-<span>google api key: </span>
+<span>google api key:</span>
 <input type='text' class='wide' id='google_api_key' name='google_api_key' onChange='update_google_api()' value='<?php echo $config['google_api_key']; ?>'/><br>
 <p class="tinytext">You'll need a Google Maps Javascript API key from Google in order to use Goolge Map tiles with CIBL.
 Sign up for one <a href="https://developers.google.com/maps/documentation/javascript/get-api-key">here</a> and paste it into the box above.</p>
@@ -166,6 +167,20 @@ Sign up for one <a href="https://developers.google.com/maps/documentation/javasc
 <span>map style:</span>
 <textarea class="settings" id="google_style" name="google_style"><?php include '../config/google_style.php'; ?></textarea>
 <p class="tinytext">Refer to <a href="https://developers.google.com/maps/documentation/javascript/styling">this page</a> for instructions on styling a Google map with JSON. Write all style objects between the [] square brackets.</p>
+</div>
+
+<div class="holder" id="map_options_bing">
+<span>bing api key:</span>
+<input type='text' class='wide' id='bing_api_key' name='bing_api_key' onChange='switch_map()' value='<?php echo $config['bing_api_key']; ?>'/><br>
+<p class="tinytext">You'll need a Bing Maps API key from Microsoft in order to use Bing Maps tiles with CIBL.
+Sign up for one <a href="https://www.microsoft.com/maps/create-a-bing-maps-key.aspx">here</a> and paste it into the box above.</p>
+<span>imagery set: </span><br>
+<input type='hidden' id='bing_imagery' name='bing_imagery' value='<?php echo $config['bing_imagery']; ?>'>
+<select name='bing_imagery_select' class="wide" id='bing_imagery_select' onChange='switch_map()' value='<?php echo $config['bing_imagery']; ?>'>
+<option id='Road' name='Road' value='Road'>Road</option>
+<option id='Aerial' name='Aerial' value='Aerial'>Aerial</option>
+<option id='AerialWithLabels' name='AerialWithLabels' value='AerialWithLabels'>AerialWithLabels</option>
+</select>
 </div>
 
 <div class="holder" id="map_options_esri">
@@ -187,7 +202,8 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 </div>
 
 <script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
-<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
+<script id="leaflet_plugins_google" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
+<script id="leaflet_plugins_bing" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 <script src="../scripts/leaflet-providers.js"></script>
 <script type="text/javascript">
 settings_map = L.map('settings_map');
@@ -195,6 +211,15 @@ googleExtraLayer =  document.getElementById("google_extra_layer").value;
 if (googleExtraLayer == "BICYCLING") { document.getElementById("google_bicycling").checked = true; }
 if (googleExtraLayer == "TRANSIT") { document.getElementById("google_transit").checked = true; }
 if (googleExtraLayer == "TRAFFIC") { document.getElementById("google_traffic").checked = true; }
+bingImagery =  document.getElementById("bing_imagery").value;
+switch (bingImagery){
+	case "Road":
+		document.getElementById("bing_imagery_select").selectedIndex = 0; break;
+	case "Aerial":
+		document.getElementById("bing_imagery_select").selectedIndex = 1; break;
+	case "AerialWithLabels":
+		document.getElementById("bing_imagery_select").selectedIndex = 2; break;
+}
 
 var providers = L.TileLayer.Provider.providers;
 var providerOptions = "";
@@ -218,6 +243,7 @@ for (var provider in providers){
 }
 providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
 providerOptions +=  "<option value='Google'>Google</option>\r\n";
+providerOptions +=  "<option value='Bing'>Bing</option>\r\n";
 
 var select = document.getElementById("provider_select");
 select.innerHTML = providerOptions;
@@ -241,8 +267,10 @@ function switch_map(option){
 		document.getElementById("map_options_custom").style.display = "block";
 		document.getElementById("map_options_google").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
+		document.getElementById("map_options_bing").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_google").value = 0;
+		document.getElementById("use_bing").value = 0;
 		document.getElementById("leaflet_provider").value = newProvider;	
 		settings_map.remove();
 		document.getElementById("settings_map").innerHTML = "";
@@ -256,7 +284,9 @@ function switch_map(option){
 		document.getElementById("map_options_google").style.display = "block";
 		document.getElementById("map_options_custom").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
+		document.getElementById("map_options_bing").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
+		document.getElementById("use_bing").value = 0;
 		document.getElementById("use_google").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
 		
@@ -305,22 +335,44 @@ function switch_map(option){
 		.addLayer(tiles)
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 13);
 	}
+	else if (newProvider == "Bing"){
+		document.getElementById("map_options_google").style.display = "none";
+		document.getElementById("map_options_custom").style.display = "none";
+		document.getElementById("map_options_esri").style.display = "none";
+		document.getElementById("map_options_bing").style.display = "block";
+		document.getElementById("use_providers_plugin").value = 0;
+		document.getElementById("use_google").value = 0;
+		document.getElementById("use_bing").value = 1;
+		document.getElementById("leaflet_provider").value = newProvider;
+		bingImagerySelect = document.getElementById("bing_imagery_select");
+		imagerySet = bingImagerySelect.options[bingImagerySelect.selectedIndex].value;
+		document.getElementById("bing_imagery").value = imagerySet;
+		bingApiKey = document.getElementById("bing_api_key").value;
+		settings_map.remove();
+		document.getElementById("settings_map").innerHTML = "";
+		var tiles = new L.BingLayer(bingApiKey, {type: imagerySet});
+		settings_map = L.map('settings_map')
+		.addLayer(tiles)
+		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 13);
+	}
 	else{
 		document.getElementById("map_options_custom").style.display = "none";
 		document.getElementById("map_options_google").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
+		document.getElementById("map_options_bing").style.display = "none";
 		if (newProvider.indexOf("Esri") != -1){
 			document.getElementById("map_options_esri").style.display = "block";
 		}
 		document.getElementById("use_providers_plugin").value = 1;
 		document.getElementById("use_google").value = 0;
+		document.getElementById("use_bing").value = 0;
 		settings_map.remove();
 		document.getElementById("settings_map").innerHTML = "";
 		var tiles = L.tileLayer.provider(newProvider);
 		settings_map = L.map('settings_map')
 		.addLayer(tiles)
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);	
-		document.getElementById("use_providers_plugin").value = true;
+		document.getElementById("use_providers_plugin").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
 	}
 }

@@ -163,7 +163,10 @@ function update_map(){
 			'use_google' => $_POST['use_google'],
 			'google_api_key' => $_POST['google_api_key'],
 			'google_extra_layer' => $_POST['google_extra_layer'],
-			'map_url' => $_POST['map_url']
+			'map_url' => $_POST['map_url'],
+			'use_bing' => $_POST['use_bing'],
+			'bing_api_key' => $_POST['bing_api_key'],
+			'bing_imagery' => $_POST['bing_imagery'],
 		);
 		config_write($new_values);
 		$new_styles = $_POST['google_style'];

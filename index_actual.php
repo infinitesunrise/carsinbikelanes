@@ -49,6 +49,7 @@ include ('admin/config.php');
 
 <!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
+<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 
 <script type="text/javascript">
 
@@ -314,6 +315,15 @@ function initializeMaps() {
 					}
 				}, extra);
 		}
+		catch (err) { console.log(err); }
+		body_map.addLayer(tiles);
+		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
+	else if (<?php echo $config['use_bing']; ?>) {
+		body_map = L.map('body_map');
+		imagerySet = '<?php echo $config['bing_imagery']; ?>';
+		bingApiKey = '<?php echo $config['bing_api_key']; ?>';
+		try { var tiles = new L.BingLayer(bingApiKey, {type: imagerySet}); }
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);

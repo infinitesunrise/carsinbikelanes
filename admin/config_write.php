@@ -7,12 +7,15 @@ function config_write($new_config){
 		"sqluser" => "root",
 		"sqlpass" => "root",
 		"database" => "carsinbikelanes",
-		"use_providers_plugin" => 'TRUE',
+		"use_providers_plugin" => 1,
 		"leaflet_provider" => "OpenStreetMap",
 		"map_url" => 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-		"use_google" => 'FALSE',
+		"use_google" => 0,
 		"google_api_key" => "",
 		"google_extra_layer" => "NONE",
+		"use_bing" => 0,
+		"bing_api_key" => "",
+		"bing_imagery" => 'Road',
 		"max_view" => 50,
 		"north_bounds" => 40.9168,
 		"south_bounds" => 40.490617,
@@ -49,6 +52,9 @@ function config_write($new_config){
 	"'use_google' => " . $new_config['use_google'] . ",\n" .
 	"'google_api_key' => '" . $new_config['google_api_key'] . "',\n" .
 	"'google_extra_layer' => '" . $new_config['google_extra_layer'] . "',\n" .
+	"'use_bing' => " . $new_config['use_bing'] . ",\n" .
+	"'bing_api_key' => '" . $new_config['bing_api_key'] . "',\n" .
+	"'bing_imagery' => '" . $new_config['bing_imagery'] . "',\n" .
 	"'max_view' => " . $new_config['max_view'] . ",\n" .
 	"'north_bounds' => " . $new_config['north_bounds'] . ",\n" .
 	"'south_bounds' => " . $new_config['south_bounds'] . ",\n" .
