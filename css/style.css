@@ -12,8 +12,6 @@ body.non_map {
 #body_map {
 	margin: 0px;
 	padding: 0px;
-	/* min-height: 100%;
-	height: auto; */
 	height: 100%;
 	width: 100%;
 	float: left;
@@ -23,8 +21,8 @@ body.non_map {
 }
 
 #submit_map {
-	height: 400px;
-	width: 500px;
+	height: 300px;
+	width: 515px;
 	background: none;
 	border: 1px solid gray;
 }
@@ -196,22 +194,14 @@ span.form {
 
 .top_dialog_button {
 	position: absolute;
-	z-index: 101;
 	top: 0px;
 	right: 0px;
-	margin: 2px;
-	padding-left: 5px;
-	padding-right: 5px;
-	border: 1px solid gray;
-}
-
-#error_back, #submit_another, #back_button, .bottom_dialog_button {
-	display: block;
-	z-index: 101;
-	padding-left: 5px;
-	padding-right: 5px;
-	max-width: 100px;
-	margin-right: auto;
+	margin-right: 20px;
+	margin-top: 20px;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	vertical-align: center;
 	border: 1px solid gray;
 }
 
@@ -227,13 +217,32 @@ span.form {
 	z-index: 100;
 	position: absolute;
 	top: 0px;
-	right: 0px;
+	right: -565px;
 	margin: 10px;
-	vertical-align: top;
-	width: 500px;
-	height: 700px;
+	width: 555px;
+	background-color:rgba(255, 255, 255, 0.5);
+}
+
+.submission_form_container, .about_container, .results_form_container{
+	width: 515px;
+	margin: 10px;
+	padding: 10px;
 	background-color:rgba(255, 255, 255, 0.8);
-	padding: 0px 12px 0px 12px;
+}
+
+.submit_form_row{
+	width: 100%;
+	margin-top: 10px;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: nowrap;
+}
+
+.submit_form_item {
+	line-height: 30px;
+	font-family: 'Oswald', sans-serif;
+	font-size: 18px;
+	text-transform: uppercase;
 }
 
 .single_view_pane {
@@ -243,21 +252,15 @@ span.form {
 	left: 0px;
 	max-width: 830px;
 	max-height: 100%;
-	/*overflow-y: scroll;*/
 	overflow-x: hidden;
 	margin: 10px;
 	padding: 25px 25px 25px 25px;
-	
 	background-color:rgba(255, 255, 255, 0.8);
 }
 
-textarea.comments {
-	width: 500px;
+textarea.description {
+	width: 100%;
 	height: 75px;
-	margin-bottom: 10px; 
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 14px;
 }
 
 textarea.settings {
@@ -282,26 +285,6 @@ textarea.settings {
 	display: inline;
 }
 
-input {
-	margin-top: 5px;
-}
-
-input.bold1 {
-	width: 60px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
-input.bold2 {
-	width: 152px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
 input.bold3 {
 	width: 150px;
 	font-family: 'Oswald', sans-serif;
@@ -309,15 +292,6 @@ input.bold3 {
 	font-size: 14px;
 	text-transform: uppercase;
 }
-
-.bold4 {
-	width: 50px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
 
 .bold5 {
 	width: 350px;

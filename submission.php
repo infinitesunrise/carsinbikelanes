@@ -158,36 +158,36 @@ function resize_image($file, $w, $h, $crop=FALSE) {
 }
 
 function error($type) {
+	echo "\n <div class=\"top_dialog_button\" id=\"close\">";
+	echo "\n <span>&#x2A09</span>";
+	echo "\n </div>";
+	
 	if ($type == "noimage"){
 		echo "\n <h2>Error:</h2>";
 		echo "\n <p class=\"submit_detail\">Submissions without an image attached are currently not accepted.</p>";
-		echo "\n <div id=\"error_back\"><span>Back</span></div>";
 	}
 	if ($type == "badimage"){
 		echo "\n <h2>Error:</h2>";
 		echo "\n <p class=\"submit_detail\">You must submit a JPG, JPEG, GIF or PNG image.</p>";
-		echo "\n <div id=\"error_back\"><span>Back</span></div>";
 	}
 	if ($type == "badlocation"){
 		echo "\n <h2>Error:</h2>";
 		echo "\n <p class=\"submit_detail\">No location marked within project area, please mark a valid location on the map.</p>";
-		echo "\n <div id=\"error_back\"><span>Back</span></div>";
 	}
 	if ($type == "mysql"){
 		echo "\n <h2>Error:</h2>";
 		echo "\n <p class=\"submit_detail\">Something is wrong with the server. Maybe try again later?</p>";
-		echo "\n <div id=\"error_back\"><span>Back</span></div>";
 	}
 	if ($type == "plate"){
 		echo "\n <h2>Error:</h2>";
 		echo "\n <p class=\"submit_detail\">License plates must only contain letters and numbers.</p>";
-		echo "\n <div id=\"error_back\"><span>Back</span></div>";
 	}
 	
 	echo "\n\n<script>";
-	echo "\n $('#error_back').click( function() {";
-	echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', width: 'toggle'});";
-	echo "\n	setTimeout(function() { $(\"#submission_form\").animate({opacity: 'toggle', width: 'toggle'}); }, 500);";
+	echo "\n $('#close').click( function() {";
+	echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', right: '-565px'});";
+	echo "\n	$(\"#submission_form\").delay( 300 ).animate({opacity: 'toggle', right: '0px'});";
+	/*echo "\n 	$(\"#results_form_container\").delay( 300 ).empty();";*/
 	echo "\n });";
 	echo "\n\n</script>";
 	
@@ -195,27 +195,30 @@ function error($type) {
 }
 
 function success() {
+		echo "\n <div class=\"top_dialog_button\" id=\"close\">";
+		echo "\n <span>&#x2A09</span>";
+		echo "\n </div>";
+	
 		echo "\n <h2>Submission received!</h2>";
 		echo "\n <p class=\"submit_detail\">Thank you for contributing!
 		All submissions require moderator approval before being added to the map.
 		Expect yours to show up within 24 hours.</p>";
-		echo "\n <div id=\"submit_another\"><span>Submit Another</span></div>";
-		echo "\n <br>";
-		echo "\n <div id=\"back_button\"><span>Back</span></div>";
+		echo "\n <button class='wide' id='submit_another'>Submit Another</button></div>";
 		
 		echo "\n\n<script>";
 		
 		echo "\n $('#submit_another').click( function() {";
-		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', width: 'toggle'});";
+		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', right: '-565px'});";
 		echo "\n 	document.getElementById(\"the_form\").reset();";
-		echo "\n	setTimeout(function() { $(\"#submission_form\").animate({opacity: 'toggle', width: 'toggle'}); }, 500);";
-		echo "\n 	$(\"#results_form\").empty();";
+		echo "\n	$(\"#submission_form\").delay( 300 ).animate({opacity: 'toggle', right: '0px'});";
+		echo "\n    submit_view_open = true;";
+		/*echo "\n 	$(\"#results_form_container\").delay( 300 ).empty();";*/
 		echo "\n });";
 		
-		echo "\n $('#back_button').click( function() {";
-		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', width: 'toggle'});";
-		echo "\n	$(\".right_menu\").show();";
-		echo "\n 	$(\"#results_form\").empty();";
+		echo "\n $('#close').click( function() {";
+		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', right: '-565px'});";
+		echo "\n	$(\".right_menu\").delay( 300 ).fadeIn( 300 )";
+		/*echo "\n 	$(\"#results_form_container\").delay( 300 ).empty();";*/
 		echo "\n });";
 		
 		echo "\n\n</script>";

@@ -92,25 +92,25 @@ $(document).ready(function() {
 function toggleView(view) {
 	if (view == "about"){
 		if (about_view_open){
-			$("#about").animate({opacity: 'toggle', width: 'toggle'});
-			$(".right_menu").show();
+			$("#about").animate({opacity: 'toggle', right: '-565px'})
+			$(".right_menu").delay( 300 ).fadeIn( 300 );
 			about_view_open = false;
 		}
 		else{
-			$("#about").animate({opacity: 'toggle', width: 'toggle'});
 			$(".right_menu").hide();
+			$("#about").delay( 100 ).animate({opacity: 'toggle', right: '0px'});
 			about_view_open = true;
 		}
 	}
 	if (view == "submit"){
 		if (submit_view_open){
-			$("#submission_form").animate({opacity: 'toggle', width: 'toggle'});
-			$(".right_menu").show();
+			$("#submission_form").animate({opacity: 'toggle', right: '-565px'});
+			$(".right_menu").delay( 300 ).fadeIn( 300 );
 			submit_view_open = false;
 		}
 		else {
-			$("#submission_form").animate({opacity: 'toggle', width: 'toggle'});
 			$(".right_menu").hide();
+			$("#submission_form").delay( 100 ).animate({opacity: 'toggle', right: '0px'});
 			submit_view_open = true;
 		}
 	}
@@ -237,12 +237,17 @@ function submitForm(e) {
 	  contentType: false,
 	  mimeType: 'multipart/form-data',
 	  success: function (a) {
-		$("#submission_form").animate({opacity: 'toggle', width: 'toggle'});
-		setTimeout(function() { $('#results_form').html(a); }, 500);
-		setTimeout(function() { $("#results_form").animate({opacity: 'toggle', width: 'toggle'}); }, 500);
+		$("#submission_form").animate({opacity: 'toggle', right: '-565px'});
+		$('#results_form_container').empty();
+		$('#results_form_container').html(a);
+		console.log("stuff");
+		$("#results_form").animate({opacity: 'toggle', right: '0px'});
+		console.log("thangs");
+		submit_view_open = false;
 	  },
 	  error: function(a) {
 		alert( "something went wrong: " + a);
+		submit_view_open = false;
 	  }
 	});
 }
@@ -370,7 +375,6 @@ function initializeMaps() {
 </div>
 
 <?php
-
 if (isset($_GET['setup_success_dialog'])){
 	echo "<div class=\"flex_container_dialog_float\" id=\"success_dialog\">\n";
 	echo "<div class=\"setup_centered\">\n";
@@ -411,16 +415,26 @@ if (isset($_GET['setup_success_dialog'])){
 
 <!-- SUBMISSION FORM -->
 <div class="submission_form" id="submission_form">
+<div class="submission_form_container">
 
 <div class="top_dialog_button" id="toggle_submit2">
-<span>CANCEL</span>
+<span>&#x2A09</span>
 </div>
 
-<form id="the_form" action="submission.php" enctype="multipart/form-data">
-    <span>Attach your image:</span> <input type="file" class="bold5" name="image_submission" id="image_submission"><br>
-    <span>License plate:</span> <input type="text" name="plate" id="plate" class="bold1" maxlength="7">&nbsp&nbsp&nbsp
-    <span> State: </span>
-    <select name="state" id="state" class="bold4">
+<form id="the_form" action="submission.php" style="margin-bottom: 0px" enctype="multipart/form-data">
+
+	<div style="width: 100%">
+    <span class="submit_form_item">Image:</span><input type="file" class="submit_form_item" name="image_submission" id="image_submission"><br>
+	</div>
+	
+	<div class="submit_form_row">
+	<div>
+    <span class="submit_form_item">Plate:</span> <input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="7">
+	</div>
+	
+	<div>
+    <span class="submit_form_item"> State: </span>
+    <select name="state" id="state" class="submit_form_item">
     <option value="NY">NY</option>
     <option value="NJ">NJ</option>
     <option value="POLICE">POLICE</option>
@@ -475,31 +489,64 @@ if (isset($_GET['setup_success_dialog'])){
     <option value="WI">WI</option>
     <option value="WY">WY</option>
     <option value="OTHER">OTHER</option>
-    </select> &nbsp&nbsp&nbsp
-    <span> When:</span> <input type="text" name="date" class="bold2" id="datetimepicker"><br>
-	<span>Cross streets (optional): <input type="text" name="street1" id="street1" class="bold3"> &amp <input type="text" name="street2" id="street2" class="bold3"></span><br>
-    <span id="map_prompt">Click to mark location:</span><br>
+    </select>
+	</div>
+	
+	<div>
+    <span class="submit_form_item"> When:</span> <input type="text" name="date" class="submit_form_item" id="datetimepicker">
+	</div>
+	</div>
+	
+	<div class="submit_form_row">
+	<div>
+	<span class="submit_form_item">Cross streets (optional): </span>
+	</div>
+	<div>
+	<input type="text" name="street1" id="street1" class="submit_form_item" style="width:140px">
+	<span class="submit_form_item">&amp</span>
+	<input type="text" name="street2" id="street2" class="submit_form_item" style="width:140px">
+	</div>
+	</div>
+	
+    <span id="map_prompt">Click to mark location:</span>
 	<div id="submit_map"></div>
-	<span id="gps_coords">Latitude: ... Longitude: ...</span><br>
-	<span>Any additional info (
-	<div id="character_limit">200</div> characters):</span><br>
-	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="comments" id="comments" value="Brief description of the situation if desired, and any other info"></textarea><br>
+	<span id="gps_coords">Latitude: ... Longitude: ...</span>
 	<input type="hidden" name="lat" id="latitude">
 	<input type="hidden" name="lng" id="longitude">
-	<input type="submit" class="submit_button" value="SUBMIT" name="submit"><br>
+	
+	<div class="submit_form_row">
+	<span class="submit_form_item">Any additional info (
+	<div id="character_limit">200</div> characters):</span>
+	</div>
+	
+	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="description" id="comments"></textarea>
+	
+	<div class="submit_form_row">
+	<input type="submit" class="submit_form_item" style="width:100%" value="SUBMIT" name="submit">
+	</div>
+	
 </form>
+</div>
 </div>
 
 <!-- ABOUT BOX -->
 <div id="about">
+<div class="about_container">
+
+<div class="top_dialog_button" id="toggle_about2">
+<span>&#x2A09</span>
+</div>
+
 <?php echo stripslashes(htmlspecialchars_decode($config['about_text'])); ?>
-<div class="bottom_dialog_button" id="toggle_about2">
-<span>BACK</span>
+
 </div>
 </div>
 
 <!-- RESULTS FORM -->
-<div class="results_form" id="results_form"></div>
+<div class="results_form" id="results_form">
+<div class="results_form_container" id="results_form_container">
+</div>
+</div>
 
 <!-- LIST OF ENTRIES -->
 <div class="entry_list" id="entry_list">
