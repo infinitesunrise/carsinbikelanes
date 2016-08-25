@@ -7,7 +7,7 @@ else if ($_GET["forcedesktop"] == false) {
 	include 'detectmobilebrowser.php';
 }
 
-include ('admin/config.php');
+include ('config/config.php');
 
 ?>
 
@@ -53,32 +53,35 @@ include ('admin/config.php');
 
 <script type="text/javascript">
 
+windows = {
+	single_view: false,
+	about_view: false,
+	submit_view: false,
+	entry_list: false
+}
 marker = new L.marker();
-halt_changes = false;
-single_view_open = false;
-about_view_open = false;
-submit_view_open = false;
+stop_load_entries = false;
 noemail = true;
-map_url = '<?php echo $config['map_url']; ?>';
 
 $(document).ready(function() {
 	initializeMaps();
 	initializeDateTimePicker();
-	setTimeout(function() { load_entries(); }, 250);
 	$("#about").hide();
 	$("#submission_form").hide();
 	$(".results_form").hide();
+	$(".entry_list").hide();
 	$(".single_view_pane").hide();
-	$(".left_menu").show();
+	$(".right_menu").show();
+	setTimeout(function() { load_entries(); }, 250);
 	
 	body_map.on('panend', function(e) { load_entries(); });
 	body_map.on('moveend', function(e) { load_entries(); });
-	body_map.on('click', function(e) { close_single_view(); });
+	body_map.on('click', function(e) { load_entries(); });
 	submit_map.on('click', onSubmitClick);
 	
-	$("#toggle_submit, #toggle_submit2").click( function() {toggleView("submit")} );
+	$("#submit_link").click( function() { open_window('submit_view') } );
 	
-	$("#toggle_about, #toggle_about2").click( function() {toggleView("about")} );
+	$("#about_link").click( function() {open_window('about_view')} );
 	
 	$("#feedback").click( function(e) { showEmail(e) } );
 	
@@ -89,68 +92,59 @@ $(document).ready(function() {
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
 });
 
-function toggleView(view) {
-	if (view == "about"){
-		if (about_view_open){
-			$("#about").animate({opacity: 'toggle', right: '-565px'})
-			$(".right_menu").delay( 300 ).fadeIn( 300 );
-			about_view_open = false;
-		}
-		else{
-			$(".right_menu").hide();
-			$("#about").delay( 100 ).animate({opacity: 'toggle', right: '0px'});
-			about_view_open = true;
-		}
-	}
-	if (view == "submit"){
-		if (submit_view_open){
-			$("#submission_form").animate({opacity: 'toggle', right: '-565px'});
-			$(".right_menu").delay( 300 ).fadeIn( 300 );
-			submit_view_open = false;
-		}
-		else {
-			$(".right_menu").hide();
-			$("#submission_form").delay( 100 ).animate({opacity: 'toggle', right: '0px'});
-			submit_view_open = true;
-		}
-	}
-}
-
 function zoomToEntry(lat,lng,id) {
-	halt_changes = true;
+	stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
 	markers.clearLayers();
-	
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
 	markers.addLayer(soloMarker);
 	body_map.panTo([lat,lng-.005]);
 	setTimeout(function() { body_map.setZoom(17) }, 500);
-	
 	setTimeout(function() {
-		$(".entry_list").hide();
-		$(".single_view_pane").load(single_view_url);
-		if (single_view_open == false){
-			$(".single_view_pane").animate({opacity: 'toggle', width: 'toggle'});
-			single_view_open = true;
-		}
-	}, 1000);
-	
-	setTimeout(function() { halt_changes = false; }, 1000);
+		$(".single_view_pane_container").load(single_view_url);
+		open_window('single_view', true);
+	}, 1000);	
+	setTimeout(function() { stop_load_entries = false; }, 500);
 }
 
-function close_single_view() {
-	if (single_view_open == true && halt_changes == false) {
-		$(".single_view_pane").animate({opacity: 'toggle', width: 'toggle'});
-		single_view_open = false;
-		$(".entry_list").show();
-		var west = body_map.getBounds().getWest();
-		var east = body_map.getBounds().getEast();
-		var south = body_map.getBounds().getSouth();
-		var north = body_map.getBounds().getNorth();
-		markers.clearLayers();
-		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
-		$( "#inner_container" ).load( load_url );
+function open_window(window, close_entry_list = false) {
+	if (windows.single_view == true) {
+		$('.single_view_pane').animate({opacity: 'toggle', left: '-865px'});
 	}
+	if (windows.about_view == true) {
+		$('#about').animate({opacity: 'toggle', right: '-565px'});
+		$('.right_menu').delay(300).animate({opacity: 'toggle'});
+	}
+	if (windows.submit_view == true) {
+		$('#submission_form').animate({opacity: 'toggle', right: '-565px'});
+		$('.right_menu').delay(300).animate({opacity: 'toggle'});
+	}
+	windows.single_view = false; windows.about_view = false; windows.submit_view = false;
+	
+	if (windows.entry_list == true && close_entry_list == true) {
+		$('.entry_list').animate({opacity: 'toggle', left: '-565px'});
+		windows.entry_list = false;
+	}
+	if (window == 'single_view' && windows.single_view == false){
+		$('.single_view_pane').animate({opacity: 'toggle', left: '0px'});
+		windows.single_view = true;
+	}
+	if (window == 'about_view' && windows.about_view == false){
+		$('#about').animate({opacity: 'toggle', right: '0px'});
+		$('.right_menu').hide();
+		windows.about_view = true;
+	}
+	if (window == 'submit_view' && windows.submit_view == false){
+		$('#submission_form').animate({opacity: 'toggle', right: '0px'});
+		$('.right_menu').hide();
+		windows.submit_view = true;
+	}
+	if (window == 'entry_list' && windows.entry_list == false){
+		$('.entry_list').animate({opacity: 'toggle', left: '0px'});
+		windows.entry_list = true;
+	}
+	
+	console.log("entry_list: " + windows.entry_list + " single_view: " + windows.single_view + " about_view: " + windows.about_view + " submit_view: " + windows.submit_view);
 }
 
 function initializeDateTimePicker() {
@@ -197,7 +191,6 @@ function fillExifFields(e) {
 			document.getElementById("gps_coords").innerHTML = gps_text;
 			document.getElementById("map_prompt").innerHTML = "Location detected:";
 		}
-		
 		//Auto-enter time and date
 		if(EXIF.getTag(this, "DateTimeOriginal")){
 			var capture_time = EXIF.getTag(this, "DateTimeOriginal");
@@ -237,28 +230,19 @@ function submitForm(e) {
 	  contentType: false,
 	  mimeType: 'multipart/form-data',
 	  success: function (a) {
-		$("#submission_form").animate({opacity: 'toggle', right: '-565px'});
+		open_window('none');
 		$('#results_form_container').empty();
 		$('#results_form_container').html(a);
-		console.log("stuff");
 		$("#results_form").animate({opacity: 'toggle', right: '0px'});
-		console.log("thangs");
-		submit_view_open = false;
 	  },
 	  error: function(a) {
 		alert( "something went wrong: " + a);
-		submit_view_open = false;
 	  }
 	});
 }
 
 function load_entries() {
-	if (halt_changes == false) {
-		if (single_view_open == true){
-			$(".single_view_pane").animate({opacity: 'toggle', width: 'toggle'});
-			single_view_open = false;
-			$(".entry_list").show();
-		}
+	if (stop_load_entries == false) {
 		var west = body_map.getBounds().getWest();
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
@@ -266,6 +250,7 @@ function load_entries() {
 		markers.clearLayers();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
 		$( "#inner_container" ).load( load_url );
+		open_window('entry_list');
 	}
 }
 
@@ -352,13 +337,13 @@ function initializeMaps() {
 	}
 	else {
 		body_map = L.map('body_map');
-		try { var tiles = L.tileLayer(map_url); }
+		try { var tiles = L.tileLayer('<?php echo $config['map_url']; ?>'); }
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 		
 		submit_map = L.map('submit_map');
-		try { var tiles2 = L.tileLayer(map_url); }
+		try { var tiles2 = L.tileLayer('<?php echo $config['map_url']; ?>'); }
 		catch (err) { console.log(err); }
 		submit_map.addLayer(tiles2);
 		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
@@ -400,24 +385,28 @@ if (isset($_GET['setup_success_dialog'])){
 <div class="right_menu">
 <div class="right_menu_item">
 <span><?php echo $config['site_name']; ?></span>
-</div><br>
-<div class="right_menu_item" id="toggle_submit">
+</div>
+<br>
+<div class="right_menu_item" id="submit_link">
 <span>SUBMIT</span>
-</div><br>
-<div class="right_menu_item" id="toggle_about">
+</div>
+<br>
+<div class="right_menu_item" id="about_link">
 <span>ABOUT</span>
 </div>
 </div>
 
 <!-- SINGLE VIEW PANE -->
 <div class="single_view_pane" id="single_view_pane">
+<div class="single_view_pane_container">
+</div>
 </div>
 
 <!-- SUBMISSION FORM -->
 <div class="submission_form" id="submission_form">
 <div class="submission_form_container">
 
-<div class="top_dialog_button" id="toggle_submit2">
+<div class="top_dialog_button" onClick="open_window('entry_list')">
 <span>&#x2A09</span>
 </div>
 
@@ -532,18 +521,18 @@ if (isset($_GET['setup_success_dialog'])){
 <!-- ABOUT BOX -->
 <div id="about">
 <div class="about_container">
-
-<div class="top_dialog_button" id="toggle_about2">
+<div class="top_dialog_button" onClick="open_window('entry_list')">
 <span>&#x2A09</span>
 </div>
-
 <?php echo stripslashes(htmlspecialchars_decode($config['about_text'])); ?>
-
 </div>
 </div>
 
 <!-- RESULTS FORM -->
 <div class="results_form" id="results_form">
+<div class="top_dialog_button" onClick="open_window('entry_list')">
+<span>&#x2A09</span>
+</div>
 <div class="results_form_container" id="results_form_container">
 </div>
 </div>

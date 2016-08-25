@@ -65,7 +65,7 @@ function deny(id){
 
 <?php
 
-require('config.php');
+require('../config/config.php');
 
 if (isset($_GET["accept"])) {
 	try {

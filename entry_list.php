@@ -1,7 +1,7 @@
 <html>
 <?php
 
-require 'admin/config.php';
+require 'config/config.php';
 
 $west;
 $east;
@@ -9,7 +9,7 @@ $south;
 $north;
 $plate_query = "";
 
-if (isset($_GET["plate"])){
+if (isset($_GET['plate'])){
 	$east = $config['east_bounds'];
 	$west = $config['west_bounds'];
 	$south = $config['south_bounds'];
@@ -26,21 +26,26 @@ else {
 $gps_query = " WHERE (gps_lat BETWEEN " . $south . " AND " . $north . ") AND (gps_long BETWEEN " . $west . " AND " . $east . ") ";
 $full_query =
 "SELECT *
-FROM `cibl_data` 
+FROM cibl_data 
 " . $gps_query . $plate_query . "
-ORDER BY date_added DESC
+ORDER BY date_added DESC 
 LIMIT " . $config['max_view'] . "
 OFFSET 0";
 
 $entries = mysqli_query($connection, $full_query);
+$count = mysqli_num_rows($entries);
+$lat_total = 0;
+$long_total = 0;
 
-if (mysqli_num_rows($entries) == 0){
+if ($count == 0){
 	echo "\n <div class='column_entry'>";
 	echo "<h3 style='padding:10px'>No records found here.</h3>";
 	echo "\n </div>";
 }
 
 while ($row = mysqli_fetch_array($entries)){
+	if (isset($_GET['plate'])) { $lat_total += $row[6]; $long_total += $row[7]; }
+	
 	echo "\n <div class='column_entry' onClick='zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");'>";
 		
 	echo "\n <div class='column_entry_thumbnail'>";
@@ -81,6 +86,15 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </script>";
 	echo "\n";
 }
+
+if (isset($_GET['plate'])){
+$lat_average = $lat_total / $count;
+$long_average =  $long_total / $count;
+echo "\n <script type='text/javascript'>";
+echo "\n body_map.setView([" . $lat_average . ", " . ($long_average - 0.05) . "], 12);";
+echo "\n setTimeout(function() { stop_load_entries = false; }, 1000);";
+echo "\n </script>";
+}
 ?>
 
 <script type="text/javascript">
@@ -90,12 +104,11 @@ $('.coords, .plate_text').click(function(e) {
 });
 
 function plateSearch(plate) {
-	single_view = true;
 	var load_url = "entry_list.php?plate=" + plate;
 	$( "#inner_container" ).load( load_url );
+	stop_load_entries = true;
 	markers.clearLayers();
-	body_map.setZoom(13);
-	setTimeout(function() { single_view = false; }, 1000);
+	open_window('entry_list');
 }
 </script>
 

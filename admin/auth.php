@@ -1,7 +1,7 @@
 <?php
 
 require '../scripts/PasswordHash.php';
-require 'config.php';
+require '../config/config.php';
 
 session_start();
 

@@ -1,6 +1,6 @@
 <?php
 
-require 'admin/config.php';
+require 'config/config.php';
 
 //VERIFY ATTACHMENT
 if (empty($_FILES["image_submission"]["name"])){
@@ -186,8 +186,7 @@ function error($type) {
 	echo "\n\n<script>";
 	echo "\n $('#close').click( function() {";
 	echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', right: '-565px'});";
-	echo "\n	$(\"#submission_form\").delay( 300 ).animate({opacity: 'toggle', right: '0px'});";
-	/*echo "\n 	$(\"#results_form_container\").delay( 300 ).empty();";*/
+	echo "\n	open_window('submit_view');";
 	echo "\n });";
 	echo "\n\n</script>";
 	
@@ -198,7 +197,7 @@ function success() {
 		echo "\n <div class=\"top_dialog_button\" id=\"close\">";
 		echo "\n <span>&#x2A09</span>";
 		echo "\n </div>";
-	
+
 		echo "\n <h2>Submission received!</h2>";
 		echo "\n <p class=\"submit_detail\">Thank you for contributing!
 		All submissions require moderator approval before being added to the map.
@@ -210,15 +209,12 @@ function success() {
 		echo "\n $('#submit_another').click( function() {";
 		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', right: '-565px'});";
 		echo "\n 	document.getElementById(\"the_form\").reset();";
-		echo "\n	$(\"#submission_form\").delay( 300 ).animate({opacity: 'toggle', right: '0px'});";
-		echo "\n    submit_view_open = true;";
-		/*echo "\n 	$(\"#results_form_container\").delay( 300 ).empty();";*/
+		echo "\n	open_window('submit_view');";
 		echo "\n });";
 		
 		echo "\n $('#close').click( function() {";
 		echo "\n 	$(\"#results_form\").animate({opacity: 'toggle', right: '-565px'});";
-		echo "\n	$(\".right_menu\").delay( 300 ).fadeIn( 300 )";
-		/*echo "\n 	$(\"#results_form_container\").delay( 300 ).empty();";*/
+		echo "\n 	open_window('entry_list');";
 		echo "\n });";
 		
 		echo "\n\n</script>";

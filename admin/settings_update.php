@@ -1,7 +1,7 @@
 <?php
 
 require 'auth.php';
-require 'config.php';
+require '../config/config.php';
 require 'config_write.php';
 
 if (isset($_POST['reset_password'])){ update_password($connection); }

@@ -90,6 +90,8 @@ span.form {
 .entry_list{
 	z-index: 99;
 	position: absolute;
+	top: 0px;
+	left: -565px;
 	margin: 10px;
 	width: 555px;
 	height: 97%;
@@ -203,6 +205,7 @@ span.form {
 	text-align: center;
 	vertical-align: center;
 	border: 1px solid gray;
+	cursor:pointer;
 }
 
 .entry_comment {
@@ -223,8 +226,10 @@ span.form {
 	background-color:rgba(255, 255, 255, 0.5);
 }
 
-.submission_form_container, .about_container, .results_form_container{
-	width: 515px;
+.submission_form_container,
+.about_container,
+.results_form_container,
+.single_view_pane_container{
 	margin: 10px;
 	padding: 10px;
 	background-color:rgba(255, 255, 255, 0.8);
@@ -249,13 +254,11 @@ span.form {
 	z-index: 100;
 	position: absolute;
 	top: 0px;
-	left: 0px;
-	max-width: 830px;
-	max-height: 100%;
-	overflow-x: hidden;
+	left: -865px;
+	max-height: 97%;
+	overflow-y: scroll;
 	margin: 10px;
-	padding: 25px 25px 25px 25px;
-	background-color:rgba(255, 255, 255, 0.8);
+	background-color:rgba(255, 255, 255, 0.5);
 }
 
 textarea.description {
@@ -285,28 +288,21 @@ textarea.settings {
 	display: inline;
 }
 
-input.bold3 {
-	width: 150px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
-.bold5 {
-	width: 350px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
 input.submit_button {
 	width: 500px;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
 	font-size: 12px;
 }
+
+.leaflet-control-zoom {
+	opacity: 0.5;
+}
+
+.leaflet-control-zoom:hover {
+	opacity: 1.0;
+}
+
 
 .leaflet-left {
 	padding-left: 565px !important;

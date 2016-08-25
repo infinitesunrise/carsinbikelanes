@@ -1,11 +1,10 @@
-<html>
 <?php
 
-require 'admin/config.php';
+require 'config/config.php';
 
 $id = $_GET["id"];
 
-$full_query = "SELECT * FROM `cibl_data` WHERE increment =" . $id . " LIMIT 1";
+$full_query = "SELECT * FROM cibl_data WHERE increment =" . $id . " LIMIT 1";
 
 $entries = mysqli_query($connection, $full_query);
 
@@ -32,4 +31,3 @@ echo "</a></p>\n";
 echo "<p class='entry_comment'>" . nl2br($row[10]) . "</p>\n";
 
 ?>
-</html>
