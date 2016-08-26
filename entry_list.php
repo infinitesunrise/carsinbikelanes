@@ -74,42 +74,64 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </div>";
 	echo "\n";
 	
-	echo "\n <script> ";
+	echo "\n <script type='text/javascript'> ";
 	echo "\n $(document).ready(function() { ";
-	echo "\n marker" . $row[0] . " = new L.marker([" . $row[6] . ", " . $row[7] . "], {title: '#" . $row[0] . ": " . strtoupper($row[2]) . "'}).addTo(body_map);";
-	echo "\n markers.addLayer(marker" . $row[0] . ");";
-	echo "\n }); ";
+	echo "\n var marker" . $row[0] . " = new L.marker([" . $row[6] . ", " . $row[7] . "], {title: '#" . $row[0] . ": " . strtoupper($row[2]) . "'});";
 	echo "\n";
 	echo "\n marker" . $row[0] . ".on('click', function(e) {";
 	echo "\n	zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");";
 	echo "\n });";
-	echo "\n </script>";
 	echo "\n";
+	echo "\n var newCount = 0;";
+	echo "\n newMarkers.eachLayer(function (layer) {";
+    echo "\n newCount++;";
+	echo "\n });";
+	echo "\n";
+	echo "\n newMarkers.addLayer(marker" . $row[0] . ");";
+	echo "\n console.log(\"" . $count . ": newMarkers.length: \" + newCount);";
+	echo "\n }); ";
+	echo "\n";
+	echo "\n </script> ";
 }
 
 if (isset($_GET['plate'])){
 $lat_average = $lat_total / $count;
 $long_average =  $long_total / $count;
-echo "\n <script type='text/javascript'>";
+echo "\n <script type='text/javascript'> ";
 echo "\n body_map.setView([" . $lat_average . ", " . ($long_average - 0.05) . "], 12);";
 echo "\n setTimeout(function() { stop_load_entries = false; }, 1000);";
+echo "\n </script> ";
+}
+
+echo "\n <script type='text/javascript'> ";
+echo "\n $(document).ready(function() {";
+echo "\n 	console.log('newMarkers.length: ' + newMarkers.length);";
+echo "\n 	newMarkers.eachLayer(function (marker) {";
+echo "\n 		if (markers.hasLayer(marker) == false){";
+echo "\n 			markers.addLayer(marker);";
+echo "\n 		}";
+echo "\n 	});";
+echo "\n 	markers.eachLayer(function (marker) {";
+echo "\n 		if (newMarkers.hasLayer(marker) == false){";
+echo "\n 			markers.removeLayer(marker);";
+echo "\n 		}";
+echo "\n 	});";
+echo "\n 	newMarkers.clearLayers();";
+echo "\n });";
+
+echo "\n $('.coords, .plate_text').click(function(e) {";
+echo "\n 	e.stopPropagation();";
+echo "\n 	e.preventDefault();";
+echo "\n });";
+
+echo "\n function plateSearch(plate) {";
+echo "\n 	var load_url = 'entry_list.php?plate=' + plate;";
+echo "\n 	$( '#inner_container' ).load( load_url );";
+echo "\n 	stop_load_entries = true;";
+echo "\n 	markers.clearLayers();";
+echo "\n 	open_window('entry_list');";
+echo "\n }";
 echo "\n </script>";
-}
 ?>
-
-<script type="text/javascript">
-$('.coords, .plate_text').click(function(e) {
-	e.stopPropagation();
-	e.preventDefault();
-});
-
-function plateSearch(plate) {
-	var load_url = "entry_list.php?plate=" + plate;
-	$( "#inner_container" ).load( load_url );
-	stop_load_entries = true;
-	markers.clearLayers();
-	open_window('entry_list');
-}
-</script>
 
 </html>

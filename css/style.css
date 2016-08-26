@@ -183,6 +183,10 @@ span.form {
 	margin-top: 12px;
 }
 
+#submit_link, #about_link {
+	cursor: pointer;
+}
+
 .right_menu_item {
 	position: relative;
 	display: inline-block;

@@ -95,10 +95,10 @@ $(document).ready(function() {
 function zoomToEntry(lat,lng,id) {
 	stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
+	body_map.panTo([lat,lng-.005]);
 	markers.clearLayers();
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
 	markers.addLayer(soloMarker);
-	body_map.panTo([lat,lng-.005]);
 	setTimeout(function() { body_map.setZoom(17) }, 500);
 	setTimeout(function() {
 		$(".single_view_pane_container").load(single_view_url);
@@ -144,7 +144,7 @@ function open_window(window, close_entry_list = false) {
 		windows.entry_list = true;
 	}
 	
-	console.log("entry_list: " + windows.entry_list + " single_view: " + windows.single_view + " about_view: " + windows.about_view + " submit_view: " + windows.submit_view);
+	/*console.log("entry_list: " + windows.entry_list + " single_view: " + windows.single_view + " about_view: " + windows.about_view + " submit_view: " + windows.submit_view);*/
 }
 
 function initializeDateTimePicker() {
@@ -247,7 +247,7 @@ function load_entries() {
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
-		markers.clearLayers();
+		//markers.clearLayers();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
 		$( "#inner_container" ).load( load_url );
 		open_window('entry_list');
@@ -350,6 +350,7 @@ function initializeMaps() {
 	}
 	
 	markers = L.layerGroup().addTo(body_map);
+	newMarkers = L.layerGroup();
 }
 </script>
 </head>
