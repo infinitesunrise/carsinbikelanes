@@ -12,6 +12,10 @@
 
 <!-- google fonts -->
 <link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'> 
+
+<!-- license plate font by Dave Hansen -->
+<link href='../css/license-plate-font.css' rel='stylesheet' type='text/css'>
 
 <script type="text/javascript">
 
@@ -147,7 +151,13 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n <img id='img" . $row[0] . "' class='review' src='../thumbs/" . $row[1] . "' onclick=\"javascript:toggleImg('" . $row[1] . "', " . $row[0] . ");\"/>";
 	echo "\n </div>";
 	echo "\n <div class='moderation_queue_details'>";
-	echo "\n <h2>#" . $row[0] . ": " . $row[2] . "</h2>";
+	if ($row[3] == "NYPD"){
+		$plate_split = str_split($row[2], 4);
+		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
+	}
+	else {
+		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate ". $row[3] . "'>" . $row[2] . "</div></div>";
+	}
 
 	$datetime = new DateTime($row[4]);
 

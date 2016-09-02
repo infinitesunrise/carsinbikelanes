@@ -53,7 +53,14 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </div>";
 	
 	echo "\n <div class='column_entry_info'>";
-	echo "\n <h2>#" . $row[0] . ": <a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</h2></a>";
+	//echo "\n <h2>#" . $row[0] . ": <a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</h2></a>";
+	if ($row[3] == "NYPD"){
+		$plate_split = str_split($row[2], 4);
+		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate NYPD'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $plate_split[0] . "</a><span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
+	}
+	else {
+		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate ". $row[3] . "'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</a></div></div>";
+	}
 	$datetime = new DateTime($row[4]);
 	echo "\n <p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ <a class='coords' onclick='body_map.setZoomAround([" . $row[6] . "," . $row[7] . "], 17);'>";
 	

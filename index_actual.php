@@ -40,6 +40,10 @@ include ('config/config.php');
 
 <!-- google fonts -->
 <link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'> 
+
+<!-- license plate font by Dave Hansen -->
+<link href='css/license-plate-font.css' rel='stylesheet' type='text/css'>
 
 <!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
 <script src="scripts/leaflet-providers.js"></script>
@@ -427,7 +431,8 @@ if (isset($_GET['setup_success_dialog'])){
     <select name="state" id="state" class="submit_form_item">
     <option value="NY">NY</option>
     <option value="NJ">NJ</option>
-    <option value="POLICE">POLICE</option>
+    <option value="NYPD">NYPD</option>
+    <option value="FDNY">FDNY</option>
     <option>--</option>
     <option value="AL">AL</option>
     <option value="AK">AK</option>

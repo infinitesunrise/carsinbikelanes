@@ -13,7 +13,15 @@ $row = mysqli_fetch_array($entries);
 $image_url = $row[1];
 echo '<img src="images/' . $image_url . '" class="fullsize" />';
 echo '<br>';
-echo "<h2>#" . $row[0] . ": " . strtoupper($row[2]) . "</h2>\n";
+
+if ($row[3] == "NYPD"){
+	$plate_split = str_split($row[2], 4);
+	echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate NYPD'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $plate_split[0] . "</a><span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
+}
+else {
+	echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate ". $row[3] . "'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</a></div></div>";
+}
+
 $datetime = new DateTime($row[4]);
 echo "<p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ <a class='coords' onclick='body_map.setZoomAround([" . $row[6] . "," . $row[7] . "], 17);'>";
 
