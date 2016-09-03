@@ -99,16 +99,15 @@ $(document).ready(function() {
 function zoomToEntry(lat,lng,id) {
 	stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
+	$(".single_view_pane_container").load(single_view_url);
+	open_window('none', true);
 	body_map.panTo([lat,lng-.005]);
-	markers.clearLayers();
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
+	markers.clearLayers();
 	markers.addLayer(soloMarker);
-	setTimeout(function() { body_map.setZoom(17) }, 500);
-	setTimeout(function() {
-		$(".single_view_pane_container").load(single_view_url);
-		open_window('single_view', true);
-	}, 1000);	
-	setTimeout(function() { stop_load_entries = false; }, 500);
+	body_map.setZoom(17);
+	setTimeout(function() { open_window('single_view', true); }, 700);
+	setTimeout(function() { stop_load_entries = false; }, 500);	;
 }
 
 function open_window(window, close_entry_list = false) {

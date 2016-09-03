@@ -36,7 +36,7 @@ body.non_map {
 .plate_name {
 	display: flex;
 	justify-content: flex-start;
-	margin: 5px 0px 5px 0px;
+	margin-top: 5px;
 }
 
 .plate {
@@ -310,9 +310,9 @@ span.form {
 .entry_comment {
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	line-height: 20px;
+	/*line-height: 20px;
 	height: 63px;
-	overflow: hidden;
+	overflow: hidden;*/
 	padding: 0px;
 	margin-top: 10px;
 	margin-bottom: 0px;
