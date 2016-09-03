@@ -391,10 +391,10 @@ function update_google_api(){
 <form action='settings_update.php' method='post'>
 <input type='hidden' name='update_database' value='true'>
 <?php
-echo "<span>hostname: </span><input type='text' class='wide' name='sqlhost' value='" . $config['sqlhost'] . "'/><br>\n";
-echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . $config['sqluser'] . "'/><br>\n";
-echo "<span>password: </span><input type='text' class='wide' name='sqlpass' value='" . $config['sqlpass'] . "'/><br>\n";
-echo "<span>database: </span><input type='text' class='wide' name='database' value='" . $config['database'] . "'/><br>\n";
+echo "<span>hostname: </span><input type='text' class='wide' name='sqlhost' value='" . "'/><br>\n";
+echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . "'/><br>\n";
+echo "<span>password: </span><input type='password' class='wide' name='sqlpass' value='" . "'/><br>\n";
+echo "<span>database: </span><input type='text' class='wide' name='database' value='" . "'/><br>\n";
 ?>
 <input type='submit' class='wide' name='update_database' value='Update Database'/>
 </form>

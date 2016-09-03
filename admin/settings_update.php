@@ -5,6 +5,7 @@ require '../config/config.php';
 require 'config_write.php';
 
 if (isset($_POST['reset_password'])){ update_password($connection); }
+if (isset($_POST['update_email'])){ update_email($connection); }
 if (isset($_POST['new_user'])){ new_user($connection); }
 if (isset($_POST['update_users'])){ update_users($connection); }
 if (isset($_POST['update_identity'])){ update_identity(); }
@@ -47,16 +48,51 @@ function update_password($connection) {
 	}
 }
 
+function update_email($connection) {
+	if(isset($_POST['email'])){
+		$email = $_POST['email'];
+		if (filter_var($email, FILTER_VALIDATE_EMAIL)){
+			$current_user = $_SESSION['username'];
+			$query = "UPDATE cibl_users SET email='" . $email . "' WHERE username='" . $current_user . "'";
+			if ($connection->query($query) === TRUE) {
+			/*	$to      = $email;
+				$subject = 'You updated your email address on CIBL';
+				$message = 'Great job.';
+				$headers = 'From: webmaster@example.com' . "\r\n" .
+					'Reply-To: webmaster@example.com' . "\r\n" .
+					'X-Mailer: PHP/' . phpversion();
+				$sent = mail($to, $subject, $message, $headers);
+				*/
+				if ($sent){
+					return_message("Email address updated.");
+				}
+			} else {
+				return_error("MySQL error: " . $connection->error);
+			}	
+		}
+		else{
+			return_error("Email address entered is invalid");
+		}
+	}
+}
+
 function new_user($connection) {
 	$newusername = $_POST['newusername'];
 	$newpass1 = $_POST['newpass1'];
 	$newpass2 = $_POST['newpass2'];
 	$email = $_POST['email'];
 	$password = "";
+	$query = "SELECT EXISTS(SELECT username FROM cibl_users WHERE username = '" . $newusername . "')";
+	$result = $connection->query($query);
+	$exists = mysqli_fetch_array($result)[0];
+	if ($exists == 1) {
+    	return_error("Username already exists.");
+	}
 	if ($newpass1 !== $newpass2){
 		return_error("Password fields did not match!");
 	}
-	else { $password = $newpass1;
+	else {
+		$password = $newpass1;
 		$hasher = new PasswordHash(8, false);
 		$hash = $hasher->HashPassword($password);
 		$query = "INSERT INTO cibl_users VALUES ('" . $newusername . "', '" . $hash . "', FALSE, '" . $email . "');";
@@ -204,12 +240,14 @@ function return_message($message){
 	$message_parsed = rawurlencode($message);
 	$url = 'Location: settings.php?message=' . $message_parsed;
 	header($url);
+	exit();
 }
 
 function return_error($error){
 	$error_parsed = rawurlencode($error);
 	$url = 'Location: settings.php?error=' . $error_parsed;
 	header($url);
+	exit();
 }
 
 ?>
