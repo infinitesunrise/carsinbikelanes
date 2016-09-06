@@ -165,7 +165,7 @@ Sign up for one <a href="https://developers.google.com/maps/documentation/javasc
 <span>traffic: </span><input type='checkbox' id='google_traffic' name='google_traffic' onChange='switch_map("google3")'/>
 <br/>
 <span>map style:</span>
-<textarea class="settings" id="google_style" name="google_style"><?php include '../config/google_style.php'; ?></textarea>
+<textarea class="settings" id="google_style" name="google_style"><?php include $config_folder . '/google_style.php'; ?></textarea>
 <p class="tinytext">Refer to <a href="https://developers.google.com/maps/documentation/javascript/styling">this page</a> for instructions on styling a Google map with JSON. Write all style objects between the [] square brackets.</p>
 </div>
 
@@ -322,7 +322,7 @@ function switch_map(option){
 			}
 		}
 		
-		var options = <?php include '../config/google_style.php'; ?>;
+		var options = <?php include $config_folder . '/google_style.php'; ?>;
 		var extra = document.getElementById("google_extra_layer").value;
 		settings_map.remove();
 		document.getElementById("settings_map").innerHTML = "";

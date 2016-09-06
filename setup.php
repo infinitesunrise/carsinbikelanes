@@ -14,20 +14,48 @@ $username = $_POST["username"];
 $password1 = $_POST["password1"];
 $password2 = $_POST["password2"];
 $email = $_POST["email"];
+$config_folder = $_POST["config_folder"];
+
+$progress = "";
 
 //CHECK THAT PASSWORDS WERE CORRECTLY TYPED
 $password = "";
 if ($password1 !== $password2){
-	die("Passwords entered do not match!");
-	echo "Passwords entered do not match!";
+	return_error("Passwords entered do not match.");
 }
 else { $password = $password1; }
+
+//MAKE SURE CONFIG FOLDER PATH IS VALID AND DOES NOT ALREADY EXIST
+$path_parts = explode('/', $config_folder);
+array_pop($path_parts);
+$config_parent = implode('/', $path_parts);
+if (!file_exists($config_parent)){
+	return_error("Config folder path not valid");
+}
+if (file_exists($config_folder)){
+	return_error("Configuration folder already exists at specified location.");
+}
+
+//MOVE AND RENAME CONFIG FOLDER
+if (!rename('config', $config_folder)){
+	return_error("Problem setting up configuration folder.");
+}
+
+//CREATE POINTER TO CONFIG FILE
+$config_pointer = fopen('admin/config_pointer.php', 'w');
+$pointer_contents = 
+	"<?php \n" . 
+	"include ('" . $config_folder . "/config.php');\n" . 
+	"\$config_folder = '" . $config_folder . "';\n" .  
+	"\$config_location = '" . $config_folder . "/config.php';\n" .
+	"?>";
+fwrite($config_pointer, $pointer_contents);
+fclose($config_pointer);
 
 //CREATE MYSQL CONNECTION
 $connection = new mysqli($config['sqlhost'], $config['sqluser'], $config['sqlpass']);
 if ($connection->connect_error) {
-    die("MySQL connection failed: " . $connection->connect_error);
-    echo "MySQL connection failed: " . $connection->connect_error;
+	return_error("MySQL connection failed: " . $connection->connect_error);
 } 
 
 //CREATE MYSQL DATABASE
@@ -35,11 +63,10 @@ $query = "CREATE DATABASE " . $config['database'] . " CHARACTER SET utf8 COLLATE
 if ($connection->query($query) === TRUE) {
 	$query = "USE " . $config['database'];
 	if ($connection->query($query) === TRUE) {
-		echo "Database " . $config['database'] . " created successfully.<br>";
+		$progress .= "Database " . $config['database'] . " created successfully.<br>";
 	}
 } else {
-	die("MySQL connection successful but error creating database: " . $connection->error);
-    echo "MySQL connection successful but error creating database: " . $connection->error;
+	return_error("MySQL connection successful but error creating database: " . $connection->connect_error);
 }
 
 //CREATE MYSQL RECORDS TABLE
@@ -57,10 +84,9 @@ street2 text NOT NULL,
 description text NOT NULL
 )";
 if ($connection->query($query) === TRUE) {
-    echo "Records table populated successfully.<br>";
+    $progress .= "Records table populated successfully.<br>";
 } else {
-	die("MySQL error populating database: " . $connection->error);
-    echo "MySQL error populating database: " . $connection->error;
+	return_error("MySQL error populating database: " . $connection->connect_error);
 }
 
 //CREATE SUBMISSION QUEUE TABLE
@@ -78,10 +104,9 @@ street2 text NOT NULL,
 description text NOT NULL
 )";
 if ($connection->query($query) === TRUE) {
-    echo "Submission queue table populated successfully.<br>";
+    $progress .= "Submission queue table populated successfully.<br>";
 } else {
-	die("MySQL error populating database: " . $connection->error);
-    echo "MySQL error populating database: " . $connection->error;
+	return_error("MySQL error populating database: " . $connection->connect_error);
 }
 
 //CREATE MYSQL LOGINS TABLE
@@ -92,10 +117,9 @@ admin BOOLEAN NOT NULL,
 email CHAR(255)
 )";
 if ($connection->query($query) === TRUE) {
-    echo "Logins table populated successfully.<br>";
+    $progress .= "Logins table populated successfully.<br>";
 } else {
-	die("MySQL error populating database: " . $connection->error);
-    echo "MySQL error populating database: " . $connection->error;
+	return_error("MySQL error populating database: " . $connection->connect_error);
 }
 
 //SAVE ADMIN CREDENTIALS
@@ -103,10 +127,9 @@ $hasher = new PasswordHash(8, false);
 $hash = $hasher->HashPassword($password);
 $query = "INSERT INTO cibl_users VALUES ('" . $username . "', '" . $hash . "', TRUE, '" . $email . "');";
 if ($connection->query($query) === TRUE) {
-    echo "Admin credentials saved.<br>";
+    $progress .= "Admin credentials saved.<br>";
 } else {
-	die("MySQL error saving admin credentials: " . $connection->error);
-    echo "MySQL error saving admin credentials: " . $connection->error;
+	return_error("MySQL error saving admin credentials: " . $connection->connect_error);
 }
 
 $connection->close();
@@ -118,6 +141,18 @@ mkdir("thumbs");
 rename('index.php', 'index_old.php');
 rename('index_actual.php', 'index.php');
 
-echo "<script>location.href = 'index.php?setup_success_dialog=true';</script>";
+$progress .= "Setup complete!<br>";
+
+$progress .= "<script>location.href = 'index.php?setup_success_dialog=true';</script>";
+
+echo $progress;
+
+function return_error($error){
+	error_log($error);
+	$error_parsed = rawurlencode($error);
+	$url = 'Location: index.php?error=' . $error_parsed;
+	header($url);
+	exit();
+}
 
 ?>

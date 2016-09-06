@@ -1,7 +1,7 @@
 <html>
 <?php
 
-require 'config/config.php';
+require 'admin/config_pointer.php';
 
 $west;
 $east;

@@ -69,7 +69,7 @@ function deny(id){
 
 <?php
 
-require('../config/config.php');
+require('config_pointer.php');
 
 if (isset($_GET["accept"])) {
 	try {

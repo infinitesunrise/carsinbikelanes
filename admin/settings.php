@@ -1,6 +1,6 @@
 <?php
 require 'auth.php';
-require '../config/config.php';
+require 'config_pointer.php';
 ?>
 
 <html>

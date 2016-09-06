@@ -1,6 +1,6 @@
 <?php
 
-require 'config/config.php';
+require 'admin/config_pointer.php';
 
 //VERIFY ATTACHMENT
 if (empty($_FILES["image_submission"]["name"])){

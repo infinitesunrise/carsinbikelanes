@@ -208,6 +208,8 @@ h2 {
 	margin-bottom: -10px;
 	font-size: 42px;
 	font-family: 'Oswald', sans-serif;
+	white-space: nowrap;
+	text-align: center;
 }
 
 h3 {

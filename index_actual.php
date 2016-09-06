@@ -7,7 +7,7 @@ else if ($_GET["forcedesktop"] == false) {
 	include 'detectmobilebrowser.php';
 }
 
-include ('config/config.php');
+include ('admin/config_pointer.php');
 
 ?>
 
@@ -296,7 +296,7 @@ function initializeMaps() {
 		body_map = L.map('body_map');
 		<?php if ($config['use_google']){
 			echo "var options = ";
-			include 'config/google_style.php';
+			include $config_folder . '/google_style.php';
 			echo ";\n"; }
 		?>
 		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>

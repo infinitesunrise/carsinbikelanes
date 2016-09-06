@@ -1,7 +1,7 @@
 <?php
 
 require 'auth.php';
-require '../config/config.php';
+require 'config_pointer.php';
 require 'config_write.php';
 
 if (isset($_POST['reset_password'])){ update_password($connection); }
@@ -11,7 +11,7 @@ if (isset($_POST['update_users'])){ update_users($connection); }
 if (isset($_POST['update_identity'])){ update_identity(); }
 if (isset($_POST['update_coords'])){ update_coords(); }
 if (isset($_POST['update_about'])){ update_about(); }
-if (isset($_POST['update_map'])){ update_map(); }
+if (isset($_POST['update_map'])){ update_map($config_folder); }
 if (isset($_POST['update_database'])){ update_database(); }
 
 function update_password($connection) {
@@ -191,7 +191,7 @@ function update_about(){
 	}
 }
 
-function update_map(){
+function update_map($config_folder){
 	if(isset($_POST['update_map'])){
 		$new_values = array(
 			'use_providers_plugin' => $_POST['use_providers_plugin'],
@@ -207,11 +207,11 @@ function update_map(){
 		config_write($new_values);
 		$new_styles = $_POST['google_style'];
 		if($new_styles == ""){ $new_styles = "[\n\n]"; }
-		if (file_exists('../config/google_style.php')){
-			file_put_contents("../config/google_style.php", "");
+		if (file_exists($config_folder . '/google_style.php')){
+			file_put_contents($config_folder . '/google_style.php', "");
 		}
-		$style_file = fopen('../config/google_style.php', "w")
-			or die("PHP Error: Issues creating google map styles file. Are permissions set correctly?");
+		$style_file = fopen($config_folder . '/google_style.php', "w")
+			or return_error("PHP Error: Issues creating google map styles file. Are permissions set correctly?");
 		fwrite($style_file, $new_styles);
 		fclose($style_file);
 		
