@@ -57,7 +57,7 @@ while ($row = mysqli_fetch_array($user_list)) {
 <div class='settings_group'>
 <h3>Site Identity</h3>
 <form action='settings_update.php' method='post'>
-<input type='hidden' name='update_users' value='true'>
+<input type='hidden' name='update_identity' value='true'>
 <span>site name: </span><input type='text' class='wide' name='site_name' value='<?php echo $config['site_name'];  ?>'/><br>
 <p class="tinytext">
 Displays on the main page and anywhere else the site name is referenced.</p>

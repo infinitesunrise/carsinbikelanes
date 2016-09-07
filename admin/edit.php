@@ -1,5 +1,14 @@
 <?php require 'auth.php'; ?>
 
+<!-- Non-admins have no reason to be on this page. -->
+<?php
+if (isset($_SESSION['admin'])){
+	if ($_SESSION['admin'] == false){
+		header('Location: index.php');
+	}
+}
+?>
+
 <html>
 <head>
 
@@ -126,14 +135,36 @@ if (isset($_GET["deny"])) {
 
 $entries = $connection->query(
 	'SELECT *
-	FROM cibl_queue
-	ORDER BY date_added ASC
+	FROM cibl_data
+	ORDER BY date_added DESC
 	LIMIT ' . $config['max_view'] . '
 	OFFSET 0');
 
 echo "\n <div class='flex_container_scroll'>";
 echo "\n <div class='moderation_queue' id='moderation_queue'>";
 include 'nav.php';
+
+?>
+
+<div class="flex_container_nav">
+<button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
+<button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
+<div class="nav_option">
+<span>Entries per page:</span>
+<input type="text" class="nav" " name="per_page"/>
+</div>
+<div class="nav_option">
+<span>Go to entry:</span>
+<input type="text" class="nav" name="go_to_entry"/>
+</div>
+<div class="nav_option">
+<span>Displaying 1 - 50</span>
+</div>
+<button class='bold_button_square' onclick='javascript:forward();'>&#10095</button>
+<button class='bold_button_square' onclick='javascript:end();'>&#10095&#10095</button>
+</div>
+
+<?php
 
 $count = 0;
 while ($row = mysqli_fetch_array($entries)){
@@ -147,7 +178,7 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "<button class='rotate' onClick='rotate(90," . $row[0] . ")'>&#10552</button>";
 	echo "</div>";
 	echo "\n </div>";
-	echo "\n <div id='" . $row[0] . "' class='mod_queue_img_container'>";
+	echo "\n <div id='img_container_" . $row[0] . "' class='mod_queue_img_container'>";
 	echo "\n <img id='img" . $row[0] . "' class='review' src='../thumbs/" . $row[1] . "' onclick=\"javascript:toggleImg('" . $row[1] . "', " . $row[0] . ");\"/>";
 	echo "\n </div>";
 	echo "\n <div class='moderation_queue_details'>";
@@ -178,7 +209,27 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </div>";
 	$count++;
 }
+?>
 
+<div class="flex_container_nav">
+<button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
+<button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
+<div class="nav_option">
+<span>Entries per page:</span>
+<input type="text" class="nav" " name="per_page"/>
+</div>
+<div class="nav_option">
+<span>Go to entry:</span>
+<input type="text" class="nav" name="go_to_entry"/>
+</div>
+<div class="nav_option">
+<span>Displaying 1 - 50</span>
+</div>
+<button class='bold_button_square' onclick='javascript:forward();'>&#10095</button>
+<button class='bold_button_square' onclick='javascript:end();'>&#10095&#10095</button>
+</div>
+
+<?php
 if ($count == 0){
 	echo "\n\n <div class='moderation_queue_row'>";
 	echo "\n <h2>No new submissions.</h2>";

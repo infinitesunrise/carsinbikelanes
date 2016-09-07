@@ -240,6 +240,7 @@ p.entry_details {
 	padding: 0px;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
+	white-space: nowrap;
 }
 
 span {
@@ -287,7 +288,7 @@ span.form {
 
 .column_entry{
 	width: 535px;
-	height: 150px;
+	min-height: 150px;
 	margin: 10px;
 	background-color:rgba(255, 255, 255, 0.8);
 }
@@ -310,11 +311,9 @@ span.form {
 }
 
 .entry_comment {
+	max-width: 300px;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	/*line-height: 20px;
-	height: 63px;
-	overflow: hidden;*/
 	padding: 0px;
 	margin-top: 10px;
 	margin-bottom: 0px;
@@ -609,6 +608,15 @@ button, input.bold_button, form.bold_form {
 	font-family: 'Oswald', sans-serif;
 }
 
+.bold_button_square {
+	height: 36px;
+	width: 36px;
+	margin: 10px;
+	margin-bottom: 10px;
+	font-size: 18px;
+	font-family: 'Oswald', sans-serif;
+}
+
 button.rotate {
 	width: 50%;
 	font-size: 24px;
@@ -624,6 +632,17 @@ select.wide {
 input[type="text"].half_wide {
 	height: 24px;
 	width: 49%;
+}
+
+input[type="text"].nav {
+	width: 75px;
+	height: 25px;
+	font-size: 12px;
+	font-family: 'Oswald', sans-serif;
+}
+
+.nav_option {
+	margin: 15px 10px 12px 10px;
 }
 
 input[type="submit"].wide {

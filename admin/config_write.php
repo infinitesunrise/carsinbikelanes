@@ -29,8 +29,6 @@ function config_write($new_config){
 &lt;p&gt;In a LAMP environement CIBL will deploy itself out of the box via a simple setup wizard. Support for numerous free maps is provided by &lt;a href=&quot;https://github.com/leaflet-extras/leaflet-providers&quot;&gt;leaflet-providers&lt;/a&gt; and Google Maps support via &lt;a href=&quot;https://github.com/shramov/leaflet-plugins&quot;&gt;leaflet-plugins&lt;/a&gt;. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record. GPS coordinates and date/time are pulled from image exif data if available via the included exif.js library. Administrative credentials are protected with PHPass. CIBL\'s mobile view is designed for quick and easy capture and upload of records on the go. A submissions queue allows administrative users to accept or deny pending submissions.&lt;/p&gt;
 &lt;p&gt;CIBL was designed by a cyclist, inspired by the need for cycling advocacy in a city where law enforcement sentiment toward biking reads as apathetic, dismissive, and harmful. With enough public interest an active CIBL database has the potential to change hearts and minds, and expose endemic traffic and safety issues. Adapt it for your city however you\'d like. Better yet, invite your local law enforcement agency to be involved!&lt;/p&gt;' );
 		
-	sleep(1);
-		
 	if (file_exists(__DIR__ . '/config_pointer.php')){
 		include '' . __DIR__ . '/config_pointer.php';
 	}
