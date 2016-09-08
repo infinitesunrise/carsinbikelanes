@@ -36,7 +36,6 @@ body.non_map {
 .plate_name {
 	display: flex;
 	justify-content: flex-start;
-	margin-top: 5px;
 }
 
 .plate {
@@ -45,7 +44,7 @@ body.non_map {
 	border: 3px solid;
 	border-radius: 5px;
 	padding: 7px 0px 5px 0px;
-	margin-left: 15px;
+	/*margin-left: 15px;*/
 	font-size: 42px;
 	font-family: 'License-Plate';
 }
@@ -203,13 +202,39 @@ box-shadow: 0px 0px 0px 3px white;
 color: #000099;
 }
 
+.edit {
+	padding: 5px;
+	border: 3px solid transparent;
+}
+
 .edit:hover {
+	border: 3px dashed gray;
 	box-shadow: 3px 3px 7px gray;
 }
 
 .edit_comment {
 	min-width: 100%;
 	min-height: 24px;
+	max-width: 300px;
+}
+
+.edit_date, .edit_streets, .edit_gps {
+	display: inline;
+}
+
+.details_top {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+}
+
+.details_bottom {
+	margin-top: 10px;
+}
+
+.details_timeplace {
+	margin-left: 10px;
+	margin-top: 5px;
 }
 
 h2 {
@@ -320,11 +345,12 @@ span.form {
 }
 
 .entry_comment {
-	max-width: 300px;
+	max-width: 400px;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
 	padding: 0px;
 	margin-top: 10px;
+	line-height: 20px;
 	margin-bottom: 0px;
 }
 
@@ -386,13 +412,13 @@ span.form {
 	cursor:pointer;
 }
 
-.entry_comment {
+/*.entry_comment {
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
 	line-height: 20px;
 	padding: 0px;
 	margin: 0px;
-}
+}*/
 
 .submission_form, .results_form, #about{
 	z-index: 100;
@@ -649,6 +675,11 @@ input[type="text"].nav {
 	height: 25px;
 	font-size: 12px;
 	font-family: 'Oswald', sans-serif;
+}
+
+.disabled {
+	color : gray;
+    font-style: italic;
 }
 
 form {

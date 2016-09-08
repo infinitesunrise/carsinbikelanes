@@ -19,6 +19,10 @@ if (isset($_SESSION['admin'])){
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
+<!-- jquery datetimepicker plugin by Valeriy (https://github.com/xdan) -->
+<script src="../scripts/jquery.datetimepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="../css/jquery.datetimepicker.css"/ >
+
 <!-- google fonts -->
 <link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'> 
@@ -78,6 +82,25 @@ function rotate(angle, imgNumber){
 		document.getElementById(imgNumber).style.height = bounds.height;
 	}, 10);
 }
+
+function initializeDateTimePicker() {
+	$('#datetimepicker').datetimepicker({format:'m/d/Y g:iA'});
+	var d = new Date();
+	var month = d.getMonth()+1;
+	var day = d.getDate();
+	var year = d.getFullYear();
+	var hour = d.getHours();
+	var meridiem = "AM"; if (hour > 12){ meridiem = "PM"; }
+	if (hour > 12){ hour -= 12; }
+	if (hour == 0){ hour = 12; }
+	var min = d.getMinutes();
+	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
+	document.getElementById('datetimepicker').value = date_string;
+}
+
+$(document).ready( function() {
+	$(".disabled").prop('disabled', true);
+});
 
 </script>
 </head>
@@ -139,45 +162,84 @@ while ($row = mysqli_fetch_array($result)){
 
 $count = 0;
 while ($count < count($entries)){
+	
+	//BEGIN MOD QUEUE ROW
 	echo "\n\n <div class='moderation_queue_row'>";
+	
+	//---SECTION 1: BUTTONS---
 	echo "\n <div class='moderation_queue_buttons'>";
-	echo "\n <button class='bold_button' onclick='javascript:accept(" . $entries[$count][0] . ");'>ACCEPT</button> <br>";
-	echo "\n <button class='bold_button' onclick='javascript:deny(" . $entries[$count][0] . ");'>DENY</button>";
+	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button disabled' onclick='javascript:accept(" . $entries[$count][0] . ");'>SAVE CHANGES</button> <br>";
+	echo "\n <div class='delete_div'>";
+	echo "\n <span><label><input type='checkbox' style='height:20px'onClick='javascript:toggleSelect(" . $entries[$count][0] . ");'>DELETE:</label></span>";
+	echo "\n <button id='delete" . $entries[$count][0] . "' class='bold_button disabled'  style='margin-top:0px' onClick='javascript:window.location = edit.php?delete=" . $entries[$count][0] . "'>DELETE</button><br>";
+	echo "\n </div>";
 	echo "\n <div style='width:100%; display:flex;'>";
 	echo "<button class='rotate' onClick='rotate(-90," . $entries[$count][0] . ")'>&#10553</button>";
 	echo "<div style='width:10px'></div>";
 	echo "<button class='rotate' onClick='rotate(90," . $entries[$count][0] . ")'>&#10552</button>";
 	echo "</div>";
 	echo "\n </div>";
+	
+	//---SECTION 2: IMAGE---
 	echo "\n <div id='" . $entries[$count][0] . "' class='mod_queue_img_container'>";
 	echo "\n <img id='img" . $entries[$count][0] . "' class='review' src='../thumbs/" . $entries[$count][1] . "' onclick=\"javascript:toggleImg('" . $entries[$count][1] . "', " . $entries[$count][0] . ");\"/>";
 	echo "\n </div>";
+	
+	//---SECTION 3: DETAILS---
 	echo "\n <div class='moderation_queue_details'>";
+
+		//---SECTION 3.TOP: PLATE AND DETAILS---
+	echo "\n <div class='details_top'>";
+	
+			//---SECTION 3.TOP.LEFT: PLATE---
+	echo "\n <div class='details_plate'>";	
+	echo "\n <div class='plate_name'><div><br/><h2>#" . $entries[$count][0] . ":</h2></div>";
+	echo "\n <div class='edit edit_plate'>";
+	
 	if ($entries[$count][3] == "NYPD"){
 		$plate_split = str_split($entries[$count][2], 4);
-		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='plate edit edit_plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
+		echo "\n <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
 	}
 	else {
-		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='edit edit_plate plate ". $entries[$count][3] . "'>" . $entries[$count][2] . "</div></div>";
+		echo "\n <div class='plate ". $entries[$count][3] . "'>" . $entries[$count][2] . "</div></div>";
 	}
 
-	$datetime = new DateTime($row[4]);
+	echo "\n </div>";
+	echo "\n </div>";
 
-	echo "\n <p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ ";
-
-	if ($entries[$count][8] !== ''){
-		echo strtoupper($row[8]);
-		if ($entries[$count][9] !== ''){
-			echo " & " . strtoupper($row[9]);
-		}
-	} else { 
-		echo $entries[$count][6] . " / " . $entries[$count][7];
+			//---SECTION 3.TOP.RIGHT: TIME AND PLACE---
+	echo "<div class='details_timeplace'>";
+	$datetime = new DateTime($entries[$count][4]);
+	
+	echo "\n<span>TIME: </span>";
+	echo "<div class='edit edit_date'>";
+	echo "<span>" . strtoupper($datetime->format('m/d/Y g:ia')) . "</span>";
+	echo "</div><br/>";
+	
+	echo "\n<span>STREETS: </span>";
+	echo "<div class='edit edit_streets'>";
+	echo "<span>" . strtoupper($entries[$count][8]);
+	if ($entries[$count][9] !== ''){
+		echo " & " . strtoupper($entries[$count][9]);
 	}
+	echo "</span></div><br/>";
+	
+	echo "\n<span>GPS: </span>";
+	echo "<div class='edit edit_gps'><span>";
+	echo $entries[$count][6] . " / " . $entries[$count][7];
+	echo "</span></div>";	
+	
+	echo "\n</div>";
+	echo "\n</div>";
 
-	echo "</p>";
-	echo "\n <div class='edit edit_comment'><p class='entry_comment'>" . nl2br($entries[$count][10]) . "</p></div>";
+		//---SECTION 3.BOTTOM: COMMENT---
+	echo "\n <div class='details_bottom'>";
+	echo "\n <div class='edit edit_comment'><span>" . nl2br($entries[$count][10]) . "</span></div>";	
+	echo "\n </div>";
+	
 	echo "\n </div>";
 	echo "\n </div>";
+	//END MOD QUEUE ROW
 	$count++;
 }
 ?>
