@@ -92,6 +92,9 @@ if (isset($_GET['per_page'])){ $per_page = $_GET['per_page']; }
 $go_to_entry = 1;
 if (isset($_GET['go_to_entry'])){ $go_to_entry = $_GET['go_to_entry']; }
 
+$total_query = 'SELECT COUNT(*) FROM cibl_data';
+$total_entries = mysqli_fetch_array(mysqli_query($connection, $total_query))[0];
+
 $result = $connection->query(
 	'SELECT *
 	FROM cibl_data
@@ -124,7 +127,7 @@ while ($row = mysqli_fetch_array($result)){
 <input type="text" class="nav" name="go_to_entry" value="<?php echo $go_to_entry; ?>"/>
 </div>
 <div class="nav_option">
-<span>Displaying <?php echo $entries[0][0] . ' - ' . $entries[count($entries)-1][0]; ?></span>
+<span><?php echo 'Displaying ' . $entries[0][0] . ' - ' . $entries[count($entries)-1][0] . ' out of ' . $total_entries; ?></span>
 </div>
 <button class='bold_button_square' onclick='javascript:forward();'>&#10095</button>
 <button class='bold_button_square' onclick='javascript:end();'>&#10095&#10095</button>
@@ -152,10 +155,10 @@ while ($count < count($entries)){
 	echo "\n <div class='moderation_queue_details'>";
 	if ($entries[$count][3] == "NYPD"){
 		$plate_split = str_split($entries[$count][2], 4);
-		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
+		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='plate edit edit_plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
 	}
 	else {
-		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='plate ". $entries[$count][3] . "'>" . $entries[$count][2] . "</div></div>";
+		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='edit edit_plate plate ". $entries[$count][3] . "'>" . $entries[$count][2] . "</div></div>";
 	}
 
 	$datetime = new DateTime($row[4]);
@@ -172,7 +175,7 @@ while ($count < count($entries)){
 	}
 
 	echo "</p>";
-	echo "\n <p class='entry_comment'>" . nl2br($entries[$count][10]) . "</p>";
+	echo "\n <div class='edit edit_comment'><p class='entry_comment'>" . nl2br($entries[$count][10]) . "</p></div>";
 	echo "\n </div>";
 	echo "\n </div>";
 	$count++;
