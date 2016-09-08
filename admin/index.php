@@ -49,8 +49,11 @@ function rotate(angle, imgNumber){
 	if (rotation < 0) { rotation += 360; }
 	rotations.set(imgNumber,rotation);
 	document.getElementById("img" + imgNumber).style.transform = "rotate(" + rotations.get(imgNumber) + "deg)";
-	var bounds = document.getElementById("img" + imgNumber).getBoundingClientRect();
-	document.getElementById("img_container_" + imgNumber).style.height = bounds.height;
+	setTimeout( function(){
+		var bounds = document.getElementById("img" + imgNumber).getBoundingClientRect();
+		document.getElementById(imgNumber).style.width = bounds.width;
+		document.getElementById(imgNumber).style.height = bounds.height;
+	}, 10);
 }
 
 function accept(id){

@@ -28,8 +28,22 @@ if (isset($_SESSION['admin'])){
 
 <script type="text/javascript">
 
+class Entry {
+	constructor(id, date, plate, lat, lon, street1, street2, description) {
+ 		this.id = id;
+ 		this.date = date;
+ 		this.plate = plate;
+ 		this.lat = lat;
+ 		this.lon = lon;
+ 		this.street1 = street1;
+ 		this.street2 = street2;
+ 		this.description = description;
+ 	}
+}
+
 var zoomToggles = new Map();
 var rotations = new Map();
+var entries = new Map();
 
 function toggleImg(link,id) {
 	if (zoomToggles.has(id) && (zoomToggles.get(id))){
@@ -58,18 +72,11 @@ function rotate(angle, imgNumber){
 	if (rotation < 0) { rotation += 360; }
 	rotations.set(imgNumber,rotation);
 	document.getElementById("img" + imgNumber).style.transform = "rotate(" + rotations.get(imgNumber) + "deg)";
-	var bounds = document.getElementById("img" + imgNumber).getBoundingClientRect();
-	document.getElementById("img_container_" + imgNumber).style.height = bounds.height;
-}
-
-function accept(id){
-	var acceptURL = "index.php?accept=" + id;
-	if (rotations.has(id)){ acceptURL += "&rot=" + rotations.get(id); }
-	window.location.href = acceptURL;
-}
-
-function deny(id){
-	window.location.href = "index.php?deny=" + id;
+	setTimeout( function(){
+		var bounds = document.getElementById("img" + imgNumber).getBoundingClientRect();
+		document.getElementById(imgNumber).style.width = bounds.width;
+		document.getElementById(imgNumber).style.height = bounds.height;
+	}, 10);
 }
 
 </script>
@@ -80,131 +87,92 @@ function deny(id){
 
 require('config_pointer.php');
 
-if (isset($_GET["accept"])) {
-	try {
-		//MOVE SUBMISSION TO MAIN TABLE, DELETE QUEUE SUBMISSION, UPDATE IMAGE NAMES AND URLS
-		$connection->begin_transaction();
-		$connection->query('INSERT INTO cibl_data 
-							SELECT * FROM cibl_queue 
-							WHERE increment = ' . $_GET["accept"]);
-		$id = $connection->insert_id;
-		$old_url = mysqli_fetch_array($connection->query(
-							'SELECT url 
-							FROM cibl_queue 
-							WHERE increment = ' . $_GET["accept"]))[0];
-		$new_url = pathinfo($old_url)['dirname'] . '/' . $id . '.' . pathinfo($old_url)['extension'];
-		$connection->query('UPDATE cibl_data SET url=\'' . $new_url . '\' WHERE increment=' . $id);
-		$connection->query('DELETE FROM cibl_queue
-							WHERE increment = ' . $_GET["accept"]);
-		$connection->commit();
-		rename('../thumbs/' . $old_url, '../thumbs/' . $new_url);
-		rename('../images/' . $old_url, '../images/' . $new_url);
-		
-		if (isset($_GET['rot'])){
-			$source = imagecreatefromjpeg('../images/' . $new_url);
-			$rotate = imagerotate($source, -$_GET['rot'], 0);
-			imagejpeg($rotate, '../images/' . $new_url);
-			
-			$source = imagecreatefromjpeg('../thumbs/' . $new_url);
-			$rotate = imagerotate($source, -$_GET['rot'], 0);
-			imagejpeg($rotate, '../thumbs/' . $new_url);
-			imagedestroy($source);
-			imagedestroy($rotate);
-		}
-		
-	}
-	catch (Exception $e) {
-		error_log('MySQL transaction exception: ' . $e);
-		$connection->rollback();
-	}
-}
+$per_page = $config['max_view'];
+if (isset($_GET['per_page'])){ $per_page = $_GET['per_page']; }
+$go_to_entry = 1;
+if (isset($_GET['go_to_entry'])){ $go_to_entry = $_GET['go_to_entry']; }
 
-if (isset($_GET["deny"])) {
-	//DELETE QUEUED SUBMISSION AND ASSOCIATED FILES
-	$url = mysqli_fetch_array($connection->query(
-							'SELECT url 
-							FROM cibl_queue 
-							WHERE increment = ' . $_GET["deny"]))[0];					
-	$file_thumb = "../thumbs/" . $url;
-	$file_image = "../images/" . $url;
-	unlink($file_thumb);
-	unlink($file_image);
-	$connection->query('DELETE FROM cibl_queue 
-						WHERE increment = ' . $_GET["deny"]);
-}
-
-$entries = $connection->query(
+$result = $connection->query(
 	'SELECT *
 	FROM cibl_data
-	ORDER BY date_added DESC
-	LIMIT ' . $config['max_view'] . '
+	WHERE increment >= ' . $go_to_entry . '
+	ORDER BY date_added ASC
+	LIMIT ' . $per_page . '
 	OFFSET 0');
 
 echo "\n <div class='flex_container_scroll'>";
 echo "\n <div class='moderation_queue' id='moderation_queue'>";
 include 'nav.php';
 
+$entries = array();
+while ($row = mysqli_fetch_array($result)){
+	$entries[] = $row;
+}
+
 ?>
 
+<form action='edit.php' method='GET'>
 <div class="flex_container_nav">
 <button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
 <button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
 <div class="nav_option">
 <span>Entries per page:</span>
-<input type="text" class="nav" " name="per_page"/>
+<input type="text" class="nav" name="per_page" value="<?php echo $per_page; ?>"/>
 </div>
 <div class="nav_option">
 <span>Go to entry:</span>
-<input type="text" class="nav" name="go_to_entry"/>
+<input type="text" class="nav" name="go_to_entry" value="<?php echo $go_to_entry; ?>"/>
 </div>
 <div class="nav_option">
-<span>Displaying 1 - 50</span>
+<span>Displaying <?php echo $entries[0][0] . ' - ' . $entries[count($entries)-1][0]; ?></span>
 </div>
 <button class='bold_button_square' onclick='javascript:forward();'>&#10095</button>
 <button class='bold_button_square' onclick='javascript:end();'>&#10095&#10095</button>
+<input type='submit' name='nav_submit' style='display:none'/>
 </div>
+</form>
 
 <?php
 
 $count = 0;
-while ($row = mysqli_fetch_array($entries)){
+while ($count < count($entries)){
 	echo "\n\n <div class='moderation_queue_row'>";
 	echo "\n <div class='moderation_queue_buttons'>";
-	echo "\n <button class='bold_button' onclick='javascript:accept(" . $row[0] . ");'>ACCEPT</button> <br>";
-	echo "\n <button class='bold_button' onclick='javascript:deny(" . $row[0] . ");'>DENY</button>";
+	echo "\n <button class='bold_button' onclick='javascript:accept(" . $entries[$count][0] . ");'>ACCEPT</button> <br>";
+	echo "\n <button class='bold_button' onclick='javascript:deny(" . $entries[$count][0] . ");'>DENY</button>";
 	echo "\n <div style='width:100%; display:flex;'>";
-	echo "<button class='rotate' onClick='rotate(-90," . $row[0] . ")'>&#10553</button>";
+	echo "<button class='rotate' onClick='rotate(-90," . $entries[$count][0] . ")'>&#10553</button>";
 	echo "<div style='width:10px'></div>";
-	echo "<button class='rotate' onClick='rotate(90," . $row[0] . ")'>&#10552</button>";
+	echo "<button class='rotate' onClick='rotate(90," . $entries[$count][0] . ")'>&#10552</button>";
 	echo "</div>";
 	echo "\n </div>";
-	echo "\n <div id='img_container_" . $row[0] . "' class='mod_queue_img_container'>";
-	echo "\n <img id='img" . $row[0] . "' class='review' src='../thumbs/" . $row[1] . "' onclick=\"javascript:toggleImg('" . $row[1] . "', " . $row[0] . ");\"/>";
+	echo "\n <div id='" . $entries[$count][0] . "' class='mod_queue_img_container'>";
+	echo "\n <img id='img" . $entries[$count][0] . "' class='review' src='../thumbs/" . $entries[$count][1] . "' onclick=\"javascript:toggleImg('" . $entries[$count][1] . "', " . $entries[$count][0] . ");\"/>";
 	echo "\n </div>";
 	echo "\n <div class='moderation_queue_details'>";
-	if ($row[3] == "NYPD"){
-		$plate_split = str_split($row[2], 4);
-		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
+	if ($entries[$count][3] == "NYPD"){
+		$plate_split = str_split($entries[$count][2], 4);
+		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
 	}
 	else {
-		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate ". $row[3] . "'>" . $row[2] . "</div></div>";
+		echo "\n <div class='plate_name'><div><h2>#" . $entries[$count][0] . ":</h2></div> <div class='plate ". $entries[$count][3] . "'>" . $entries[$count][2] . "</div></div>";
 	}
 
 	$datetime = new DateTime($row[4]);
 
 	echo "\n <p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ ";
 
-	if ($row[8] !== ''){
+	if ($entries[$count][8] !== ''){
 		echo strtoupper($row[8]);
-		if ($row[9] !== ''){
+		if ($entries[$count][9] !== ''){
 			echo " & " . strtoupper($row[9]);
 		}
 	} else { 
-		echo $row[6] . " / " . $row[7];
+		echo $entries[$count][6] . " / " . $entries[$count][7];
 	}
 
 	echo "</p>";
-	echo "\n <p class='entry_comment'>" . nl2br($row[10]) . "</p>";
+	echo "\n <p class='entry_comment'>" . nl2br($entries[$count][10]) . "</p>";
 	echo "\n </div>";
 	echo "\n </div>";
 	$count++;
@@ -216,7 +184,7 @@ while ($row = mysqli_fetch_array($entries)){
 <button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
 <div class="nav_option">
 <span>Entries per page:</span>
-<input type="text" class="nav" " name="per_page"/>
+<input type="text" class="nav" name="per_page"/>
 </div>
 <div class="nav_option">
 <span>Go to entry:</span>

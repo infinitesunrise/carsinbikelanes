@@ -417,12 +417,12 @@ if (isset($_GET['setup_success_dialog'])){
 <form id="the_form" action="submission.php" style="margin-bottom: 0px" enctype="multipart/form-data">
 
 	<div style="width: 100%">
-    <span class="submit_form_item">Image:</span><input type="file" class="submit_form_item" name="image_submission" id="image_submission"><br>
+    <span class="submit_form_item">Image: </span><input type="file" class="submit_form_item" name="image_submission" id="image_submission"><br>
 	</div>
 	
 	<div class="submit_form_row">
 	<div>
-    <span class="submit_form_item">Plate:</span> <input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="7">
+    <span class="submit_form_item">Plate: </span><input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="7">
 	</div>
 	
 	<div>

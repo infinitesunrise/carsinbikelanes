@@ -591,6 +591,7 @@ input.submit_button {
 	margin: 0px 10px 0px 10px;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 }
 
 .settings_group {
@@ -635,10 +636,16 @@ input[type="text"].half_wide {
 }
 
 input[type="text"].nav {
-	width: 75px;
+	width: 40px;
 	height: 25px;
 	font-size: 12px;
 	font-family: 'Oswald', sans-serif;
+}
+
+form {
+margin: 0px;
+padding: 0px;
+border: 0px;
 }
 
 .nav_option {
@@ -656,6 +663,7 @@ input[type="submit"].wide {
 img.review {
 	display: block;
 	margin: 0 auto;
+	flex-shrink: 0;
 }
 
 .centered_form {
