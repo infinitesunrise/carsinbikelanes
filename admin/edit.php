@@ -46,7 +46,7 @@ class Entry {
 		this.url = url;
  		this.plate = plate;
 		this.state = state;
-		this.date = new Date(date);
+		this.date = date;
  		this.lat = lat;
  		this.lon = lon;
  		this.street1 = street1;
@@ -91,21 +91,6 @@ function rotate(angle, imgNumber){
 		document.getElementById(imgNumber).style.width = bounds.width;
 		document.getElementById(imgNumber).style.height = bounds.height;
 	}, 10);
-}
-
-function initializeDateTimePicker() {
-	$('#datetimepicker').datetimepicker({format:'m/d/Y g:iA'});
-	var d = new Date();
-	var month = d.getMonth()+1;
-	var day = d.getDate();
-	var year = d.getFullYear();
-	var hour = d.getHours();
-	var meridiem = "AM"; if (hour > 12){ meridiem = "PM"; }
-	if (hour > 12){ hour -= 12; }
-	if (hour == 0){ hour = 12; }
-	var min = d.getMinutes();
-	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
-	document.getElementById('datetimepicker').value = date_string;
 }
 
 $(document).ready( function() {
@@ -178,7 +163,7 @@ while ($count < count($entries)){
 	
 	//---SECTION 1: BUTTONS---
 	echo "\n <div class='moderation_queue_buttons'>";
-	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button disabled' onclick='javascript:accept(" . $entries[$count][0] . ");'>SAVE CHANGES</button> <br>";
+	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button disabled' onclick='javascript:accept(" . $entries[$count][0] . ");'>UPDATE ENTRY</button> <br>";
 	echo "\n <div class='delete_div'>";
 	echo "\n <span><label><input type='checkbox' style='height:20px'onClick='javascript:armForDelete(" . $entries[$count][0] . ");'>DELETE:</label></span>";
 	echo "\n <button id='delete" . $entries[$count][0] . "' class='bold_button disabled'  style='margin-top:0px' onClick='javascript:window.location = edit.php?delete=" . $entries[$count][0] . "'>DELETE</button><br>";
@@ -220,14 +205,15 @@ while ($count < count($entries)){
 			//---SECTION 3.TOP.RIGHT: TIME AND PLACE---
 	echo "<div class='details_timeplace'>";
 	$datetime = new DateTime($entries[$count][4]);
+	$datetime = strtoupper($datetime->format('m/d/Y g:ia'));
 	
 	echo "\n<span>TIME: </span>";
 	echo "<div class='edit edit_date' id='date" . $entries[$count][0] . "' onclick='javascript:edit_date(" . $entries[$count][0] . ")'>";
-	echo "<span>" . strtoupper($datetime->format('m/d/Y g:ia')) . "</span>";
+	echo "<span>" . $datetime . "</span>";
 	echo "</div><br/>";
 	
 	echo "\n<span>STREETS: </span>";
-	echo "<div class='edit edit_streets'>";
+	echo "<div id='streets" . $entries[$count][0] . "' class='edit edit_streets main_font' onclick='javascript:edit_streets(" . $entries[$count][0] . ")'>";
 	echo "<span>" . strtoupper($entries[$count][8]);
 	if ($entries[$count][9] !== ''){
 		echo " & " . strtoupper($entries[$count][9]);
@@ -252,16 +238,16 @@ while ($count < count($entries)){
 	echo "\n </div>";
 	
 	//ROW VALUES
-	echo "<input name='id_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][0] . "'/>";
-	echo "<input name='url_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][1] . "'/>";
-	echo "<input name='plate_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][2] . "'/>";
-	echo "<input name='state_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][3] . "'/>";
-	echo "<input name='date_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][4] . "'/>";
-	echo "<input name='lat_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][6] . "'/>";
-	echo "<input name='lon_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][7] . "'/>";
-	echo "<input name='street1_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][8] . "'/>";
-	echo "<input name='street2_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][9] . "'/>";
-	echo "<input name='comment_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][10] . "'/>";
+	echo "<input id='id_" . $entries[$count][0] . "' name='id_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][0] . "'/>";
+	echo "<input id='url_" . $entries[$count][0] . "' name='url_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][1] . "'/>";
+	echo "<input id='plate_" . $entries[$count][0] . "' name='plate_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][2] . "'/>";
+	echo "<input id='state_" . $entries[$count][0] . "' name='state_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][3] . "'/>";
+	echo "<input id='date_" . $entries[$count][0] . "' name='date_" . $entries[$count][0] . "' type='hidden' value='" . $datetime . "'/>";
+	echo "<input id='lat_" . $entries[$count][0] . "' name='lat_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][6] . "'/>";
+	echo "<input id='lon_" . $entries[$count][0] . "' name='lon_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][7] . "'/>";
+	echo "<input id='street1_" . $entries[$count][0] . "' name='street1_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][8] . "'/>";
+	echo "<input id='street2_" . $entries[$count][0] . "' name='street2_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][9] . "'/>";
+	echo "<input id='comment_" . $entries[$count][0] . "' name='comment_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][10] . "'/>";
 	//END MOD QUEUE ROW
 	$count++;
 }
@@ -345,56 +331,73 @@ function armForDelete(id){
 
 function edit_plate(id){
 	new_current_entry(id);
-	
 	if ( !$("#input_plate" + id).is(":focus") ) {
-		document.getElementById("plate" + id).innerHTML = "<input id='input_plate" + id + "' class='plate " + currentEntry.state + "' style='width:146px'/>";
-		document.getElementById("input_plate" + id).value = currentEntry.plate;
-	}
-	
-	if ( !$("#input_plate" + id).is(":focus") ){
-		document.getElementById("input_plate" + id).focus();
+		$("#plate" + id).html("<input id='input_plate" + id + "' class='plate " + currentEntry.state + "' style='width:146px'/>");
+		$("#input_plate" + id).val(currentEntry.plate);
+		$("#input_plate" + id).focus();
 		$("#input_plate" + id).focusout( function(){
 			currentEntry.plate = $("#input_plate" + id).val();
-			document.getElementById("plate" + id).innerHTML = "<div class='plate " + currentEntry.state + "'>" + currentEntry.plate + "</div></div>";
-			document.getElementsByName("plate_" + id)[0].value = currentEntry.plate;
+			if (currentEntry.state == "NYPD" && currentEntry.plate.length > 4){
+				var bigText = currentEntry.plate.slice(0,4);
+				var smallText = currentEntry.plate.slice(4,999);
+				$("#plate" + id).html("<div class='plate " + currentEntry.state + "'>" + bigText + "<span class='NYPDsuffix'>" + smallText + "</span></div></div>");
+			}
+			else { $("#plate" + id).html("<div class='plate " + currentEntry.state + "'>" + currentEntry.plate + "</div></div>"); }
+			$("#plate_" + id).val(currentEntry.plate);
 		});
 	}
 }
 
 function edit_date(id){
 	new_current_entry(id);
-	
 	if ( !$("#input_date" + id).is(":focus") ) {
-		document.getElementById("date" + id).innerHTML = "<input id='input_date" + id + "' class='main_font no_show'/>";
+		$("#date" + id).html("<input id='input_date" + id + "' class='main_font transparent_bg'/>");
 		//document.getElementById("input_date" + id).value = currentEntry.date;
-		var formattedDate = format_date(currentEntry.date);
-		$("#input_date" + id).datetimepicker({value:formattedDate, format:'m/d/Y g:iA'});
-	}
-	
-	if ( !$("#input_date" + id).is(":focus") ){
-		document.getElementById("input_date" + id).focus();
+		//var formattedDate = format_date(currentEntry.date);
+		$("#input_date" + id).datetimepicker({value:currentEntry.date, format:'m/d/Y g:iA'});
+		$("#input_date" + id).focus();
 		$("#input_date" + id).focusout( function(){
-			currentEntry.date = new Date($("#input_date" + id).val());
-			document.getElementById("date" + id).innerHTML = "<span>" + $("#input_date" + id).val() + "</span>";
-			document.getElementsByName("date_" + id)[0].value = currentEntry.date;
+			currentEntry.date = $("#input_date" + id).val();
+			console.log(currentEntry.date);
+			$("#date" + id).html("<span>" + currentEntry.date + "</span>");
+			$("#date_" + id).val(currentEntry.date);
+		});
+	}
+}
+
+function edit_streets(id){
+	new_current_entry(id);
+	if ( !$("#input_street1-" + id).is(":focus") && !$("#input_street2-" + id).is(":focus")) {
+		$("#streets" + id).html("<input id='input_street1-" + id + "' class='main_font'/> & <input id='input_street2-" + id + "' class='main_font'/>");
+		$("#input_street1-" + id).val(currentEntry.street1);
+		$("#input_street2-" + id).val(currentEntry.street2);
+		$("#input_street1-" + id).focus();
+		$("#streets" + id).focusout( function(){
+			if ($(this).has(document.activeElement).length == 0) {
+				console.log("lost focus");
+				currentEntry.street1 = $("#input_street1-" + id).val();
+				currentEntry.street2 = $("#input_street2-" + id).val();				
+				var newContents = "<span>" + currentEntry.street1;
+				if (currentEntry.street2 != 0 && currentEntry.street2 != ""){ newContents+= " & " + currentEntry.street2; }
+				newContents += "</span>";
+				$("#streets" + id).html(newContents);
+				$("#street1_" + id).val(currentEntry.street1);
+				$("#street2_" + id).val(currentEntry.street2);
+			}
 		});
 	}
 }
 
 function edit_comment(id){
-	new_current_entry(id);
-	
+	new_current_entry(id);	
 	if ( !$("#textarea_comment" + id).is(":focus") ) {
-		document.getElementById("comment" + id).innerHTML = "<textarea id='textarea_comment" + id + "' style='width:100%; background: transparent; border: 0 none; outline: none;'></textarea>";
-		document.getElementById("textarea_comment" + id).value = currentEntry.comment;
-	}
-	
-	if ( !$("#textarea_comment" + id).is(":focus") ){
-		document.getElementById("textarea_comment" + id).focus();
+		$("#comment" + id).html("<textarea id='textarea_comment" + id + "' class='main_font transparent_bg' style='width:100%' value=''></textarea>");
+		$("#textarea_comment" + id).val(currentEntry.comment);
+		$("#textarea_comment" + id).focus();
 		$("#textarea_comment" + id).focusout( function(){
 			currentEntry.comment = $("#textarea_comment" + id).val();
-			document.getElementById("comment" + id).innerHTML = "<span>" + currentEntry.comment + "</span>";
-			document.getElementsByName("comment_" + id)[0].value = currentEntry.comment;
+			$("#comment" + id).html("<span>" + currentEntry.comment + "</span>");
+			$("#comment_" + id).val(currentEntry.comment);
 		});
 	}
 }
@@ -405,36 +408,22 @@ function new_current_entry(id){
 	}
 	if (currentEntry.id != id){
 		currentEntry = new Entry(
-			document.getElementsByName("id_" + id)[0].value,
-			document.getElementsByName("url_" + id)[0].value,
-			document.getElementsByName("plate_" + id)[0].value,
-			document.getElementsByName("state_" + id)[0].value,
-			document.getElementsByName("date_" + id)[0].value,
-			document.getElementsByName("lat_" + id)[0].value,
-			document.getElementsByName("lon_" + id)[0].value,
-			document.getElementsByName("street1_" + id)[0].value,
-			document.getElementsByName("street2_" + id)[0].value,
-			document.getElementsByName("comment_" + id)[0].value
+			$("#id_" + id).val(),
+			$("#url_" + id).val(),
+			$("#plate_" + id).val(),
+			$("#state_" + id).val(),
+			$("#date_" + id).val(),
+			$("#lat_" + id).val(),
+			$("#lon_" + id).val(),
+			$("#street1_" + id).val(),
+			$("#street2_" + id).val(),
+			$("#comment_" + id).val()
 		);
 		$("#save" + id).prop('disabled', false);
 		$("#save" + id).removeClass("disabled");
 		return true;
 	}
 	else { return false; }
-}
-
-function format_date(date) {
-	var d = new Date(date);
-	var month = d.getMonth()+1;
-	var day = d.getDate();
-	var year = d.getFullYear();
-	var hour = d.getHours();
-	var meridiem = "AM"; if (hour > 12){ meridiem = "PM"; }
-	if (hour > 12){ hour -= 12; }
-	if (hour == 0){ hour = 12; }
-	var min = d.getMinutes();
-	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
-	return date_string;
 }
 </script>
 

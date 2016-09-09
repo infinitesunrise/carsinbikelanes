@@ -77,8 +77,8 @@ $target_thumb = "thumbs/" . $target_file;
 //DETERMINE TIME
 $time = date('Y-m-d H:i:s', strtotime($_POST["date"]));
 //$time = strtotime($_POST["date"]);
-//echo "1: " . strtotime($_POST["date"]);
-//echo "2: " . $time;
+//error_log("1: " . strtotime($_POST["date"]));
+//error_log("2: " . $time);
 //echo $time . "<br>";
 
 //VALIDATE LICENSE PLATE
