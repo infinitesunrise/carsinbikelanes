@@ -14,8 +14,8 @@
 <div class="settings_group">
 <form action="index.php" method="post">
 <h3>Administration</h3>
-<span>username: </span><input class="wide" type="text" name="username">
-<span>password: </span><input class="wide" type="password" name="password">
+<span>username: </span><input id="username" class="wide" type="text" name="username">
+<span>password: </span><input id="password" class="wide" type="password" name="password">
 <input type="submit" class="wide" value="LOGIN">
 </form>
 </div>
@@ -25,4 +25,7 @@
 
 </body>
 
+<script type="text/javascript">
+document.getElementById("username").focus();
+</script>
 </html>

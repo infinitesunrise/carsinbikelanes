@@ -219,7 +219,12 @@ color: #000099;
 }
 
 .edit_date, .edit_streets, .edit_gps {
-	display: inline;
+	display: inline-block;
+	padding: 0px;
+	margin: 0px;
+	min-width: 100px;
+	min-height: 20px;
+	line-height: 20px;
 }
 
 .details_top {
@@ -275,6 +280,18 @@ p.entry_details {
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
 	white-space: nowrap;
+}
+
+.main_font {
+	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+	font-size: 16px;
+}
+
+.no_show {
+	background: transparent;
+	border: 0 none;
+	outline: none;
 }
 
 span {
@@ -679,7 +696,6 @@ input[type="text"].nav {
 
 .disabled {
 	color : gray;
-    font-style: italic;
 }
 
 form {

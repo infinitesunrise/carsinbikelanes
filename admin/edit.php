@@ -33,15 +33,25 @@ if (isset($_SESSION['admin'])){
 <script type="text/javascript">
 
 class Entry {
-	constructor(id, date, plate, lat, lon, street1, street2, description) {
+	/*var id;
+	var	date;
+	var	plate;
+	var lat;
+	var lon;
+	var street1;
+	var street2;
+	var description;*/
+	constructor(id, url, plate, state, date, lat, lon, street1, street2, comment) {
  		this.id = id;
- 		this.date = date;
+		this.url = url;
  		this.plate = plate;
+		this.state = state;
+		this.date = new Date(date);
  		this.lat = lat;
  		this.lon = lon;
  		this.street1 = street1;
  		this.street2 = street2;
- 		this.description = description;
+ 		this.comment = comment;
  	}
 }
 
@@ -170,7 +180,7 @@ while ($count < count($entries)){
 	echo "\n <div class='moderation_queue_buttons'>";
 	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button disabled' onclick='javascript:accept(" . $entries[$count][0] . ");'>SAVE CHANGES</button> <br>";
 	echo "\n <div class='delete_div'>";
-	echo "\n <span><label><input type='checkbox' style='height:20px'onClick='javascript:toggleSelect(" . $entries[$count][0] . ");'>DELETE:</label></span>";
+	echo "\n <span><label><input type='checkbox' style='height:20px'onClick='javascript:armForDelete(" . $entries[$count][0] . ");'>DELETE:</label></span>";
 	echo "\n <button id='delete" . $entries[$count][0] . "' class='bold_button disabled'  style='margin-top:0px' onClick='javascript:window.location = edit.php?delete=" . $entries[$count][0] . "'>DELETE</button><br>";
 	echo "\n </div>";
 	echo "\n <div style='width:100%; display:flex;'>";
@@ -194,7 +204,7 @@ while ($count < count($entries)){
 			//---SECTION 3.TOP.LEFT: PLATE---
 	echo "\n <div class='details_plate'>";	
 	echo "\n <div class='plate_name'><div><br/><h2>#" . $entries[$count][0] . ":</h2></div>";
-	echo "\n <div class='edit edit_plate'>";
+	echo "\n <div class='edit edit_plate' id='plate" . $entries[$count][0] . "' onclick='javascript:edit_plate(" . $entries[$count][0] . ")'>";
 	
 	if ($entries[$count][3] == "NYPD"){
 		$plate_split = str_split($entries[$count][2], 4);
@@ -212,7 +222,7 @@ while ($count < count($entries)){
 	$datetime = new DateTime($entries[$count][4]);
 	
 	echo "\n<span>TIME: </span>";
-	echo "<div class='edit edit_date'>";
+	echo "<div class='edit edit_date' id='date" . $entries[$count][0] . "' onclick='javascript:edit_date(" . $entries[$count][0] . ")'>";
 	echo "<span>" . strtoupper($datetime->format('m/d/Y g:ia')) . "</span>";
 	echo "</div><br/>";
 	
@@ -226,7 +236,7 @@ while ($count < count($entries)){
 	
 	echo "\n<span>GPS: </span>";
 	echo "<div class='edit edit_gps'><span>";
-	echo $entries[$count][6] . " / " . $entries[$count][7];
+	echo $entries[$count][5] . " / " . $entries[$count][7];
 	echo "</span></div>";	
 	
 	echo "\n</div>";
@@ -234,11 +244,24 @@ while ($count < count($entries)){
 
 		//---SECTION 3.BOTTOM: COMMENT---
 	echo "\n <div class='details_bottom'>";
-	echo "\n <div class='edit edit_comment'><span>" . nl2br($entries[$count][10]) . "</span></div>";	
+	echo "\n <span style='margin-left:7px'>COMMENT:</span>";
+	echo "\n <div class='edit edit_comment' id='comment" . $entries[$count][0] . "' onclick='javascript:edit_comment(" . $entries[$count][0] . ")'><span>" . nl2br($entries[$count][10]) . "</span></div>";	
 	echo "\n </div>";
 	
 	echo "\n </div>";
 	echo "\n </div>";
+	
+	//ROW VALUES
+	echo "<input name='id_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][0] . "'/>";
+	echo "<input name='url_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][1] . "'/>";
+	echo "<input name='plate_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][2] . "'/>";
+	echo "<input name='state_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][3] . "'/>";
+	echo "<input name='date_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][4] . "'/>";
+	echo "<input name='lat_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][6] . "'/>";
+	echo "<input name='lon_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][7] . "'/>";
+	echo "<input name='street1_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][8] . "'/>";
+	echo "<input name='street2_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][9] . "'/>";
+	echo "<input name='comment_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][10] . "'/>";
 	//END MOD QUEUE ROW
 	$count++;
 }
@@ -271,6 +294,10 @@ if ($count == 0){
 
 echo "\n\n</div>";
 echo "</div>";
+?>
+
+<script type="text/javascript">
+var currentEntry;
 
 //IMAGE RESIZE FUNCTION	
 function resize_image($file, $w, $h, $crop=FALSE) {
@@ -307,7 +334,109 @@ function resize_image($file, $w, $h, $crop=FALSE) {
     return $dst;
 }
 
-?>
+//ARM (ENABLE) A DELETE BUTTON FOR ENTRY DELETION
+function armForDelete(id){
+	$("#delete" + id).prop('disabled', function(i, v) {
+		if (v){ $("#delete" + id).removeClass('disabled') }
+		else { $("#delete" + id).addClass('disabled'); }
+		return !v;
+	});
+}
+
+function edit_plate(id){
+	new_current_entry(id);
+	
+	if ( !$("#input_plate" + id).is(":focus") ) {
+		document.getElementById("plate" + id).innerHTML = "<input id='input_plate" + id + "' class='plate " + currentEntry.state + "' style='width:146px'/>";
+		document.getElementById("input_plate" + id).value = currentEntry.plate;
+	}
+	
+	if ( !$("#input_plate" + id).is(":focus") ){
+		document.getElementById("input_plate" + id).focus();
+		$("#input_plate" + id).focusout( function(){
+			currentEntry.plate = $("#input_plate" + id).val();
+			document.getElementById("plate" + id).innerHTML = "<div class='plate " + currentEntry.state + "'>" + currentEntry.plate + "</div></div>";
+			document.getElementsByName("plate_" + id)[0].value = currentEntry.plate;
+		});
+	}
+}
+
+function edit_date(id){
+	new_current_entry(id);
+	
+	if ( !$("#input_date" + id).is(":focus") ) {
+		document.getElementById("date" + id).innerHTML = "<input id='input_date" + id + "' class='main_font no_show'/>";
+		//document.getElementById("input_date" + id).value = currentEntry.date;
+		var formattedDate = format_date(currentEntry.date);
+		$("#input_date" + id).datetimepicker({value:formattedDate, format:'m/d/Y g:iA'});
+	}
+	
+	if ( !$("#input_date" + id).is(":focus") ){
+		document.getElementById("input_date" + id).focus();
+		$("#input_date" + id).focusout( function(){
+			currentEntry.date = new Date($("#input_date" + id).val());
+			document.getElementById("date" + id).innerHTML = "<span>" + $("#input_date" + id).val() + "</span>";
+			document.getElementsByName("date_" + id)[0].value = currentEntry.date;
+		});
+	}
+}
+
+function edit_comment(id){
+	new_current_entry(id);
+	
+	if ( !$("#textarea_comment" + id).is(":focus") ) {
+		document.getElementById("comment" + id).innerHTML = "<textarea id='textarea_comment" + id + "' style='width:100%; background: transparent; border: 0 none; outline: none;'></textarea>";
+		document.getElementById("textarea_comment" + id).value = currentEntry.comment;
+	}
+	
+	if ( !$("#textarea_comment" + id).is(":focus") ){
+		document.getElementById("textarea_comment" + id).focus();
+		$("#textarea_comment" + id).focusout( function(){
+			currentEntry.comment = $("#textarea_comment" + id).val();
+			document.getElementById("comment" + id).innerHTML = "<span>" + currentEntry.comment + "</span>";
+			document.getElementsByName("comment_" + id)[0].value = currentEntry.comment;
+		});
+	}
+}
+
+function new_current_entry(id){
+	if (currentEntry == null){
+		currentEntry = new Entry(0,0,0,0,0,0,0,0,0,0);
+	}
+	if (currentEntry.id != id){
+		currentEntry = new Entry(
+			document.getElementsByName("id_" + id)[0].value,
+			document.getElementsByName("url_" + id)[0].value,
+			document.getElementsByName("plate_" + id)[0].value,
+			document.getElementsByName("state_" + id)[0].value,
+			document.getElementsByName("date_" + id)[0].value,
+			document.getElementsByName("lat_" + id)[0].value,
+			document.getElementsByName("lon_" + id)[0].value,
+			document.getElementsByName("street1_" + id)[0].value,
+			document.getElementsByName("street2_" + id)[0].value,
+			document.getElementsByName("comment_" + id)[0].value
+		);
+		$("#save" + id).prop('disabled', false);
+		$("#save" + id).removeClass("disabled");
+		return true;
+	}
+	else { return false; }
+}
+
+function format_date(date) {
+	var d = new Date(date);
+	var month = d.getMonth()+1;
+	var day = d.getDate();
+	var year = d.getFullYear();
+	var hour = d.getHours();
+	var meridiem = "AM"; if (hour > 12){ meridiem = "PM"; }
+	if (hour > 12){ hour -= 12; }
+	if (hour == 0){ hour = 12; }
+	var min = d.getMinutes();
+	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
+	return date_string;
+}
+</script>
 
 </body>
 </html>
