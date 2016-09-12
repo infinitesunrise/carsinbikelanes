@@ -19,6 +19,10 @@ if (isset($_SESSION['admin'])){
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
+<!-- leaflet -->
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+
 <!-- jquery datetimepicker plugin by Valeriy (https://github.com/xdan) -->
 <script src="../scripts/jquery.datetimepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="../css/jquery.datetimepicker.css"/ >
@@ -33,14 +37,6 @@ if (isset($_SESSION['admin'])){
 <script type="text/javascript">
 
 class Entry {
-	/*var id;
-	var	date;
-	var	plate;
-	var lat;
-	var lon;
-	var street1;
-	var street2;
-	var description;*/
 	constructor(id, url, plate, state, date, lat, lon, street1, street2, comment) {
  		this.id = id;
 		this.url = url;
@@ -99,7 +95,7 @@ $(document).ready( function() {
 
 </script>
 </head>
-<body class='non_map'>
+<body id='body' class='non_map'>
 
 <?php
 
@@ -221,9 +217,10 @@ while ($count < count($entries)){
 	echo "</span></div><br/>";
 	
 	echo "\n<span>GPS: </span>";
-	echo "<div class='edit edit_gps'><span>";
-	echo $entries[$count][5] . " / " . $entries[$count][7];
-	echo "</span></div>";	
+	echo "<div id='gps" . $entries[$count][0] . "' class='edit edit_gps' onclick='javascript:edit_gps(" . $entries[$count][0] . ")'><span>";
+	echo $entries[$count][6] . " / " . $entries[$count][7];
+	echo "</span></div>";
+	echo "\n<div style='position:relative'><div id='gps_map_container_" . $entries[$count][0] . "' class='gps_map_container'><div id='gps_map" . $entries[$count][0] . "' class='gps_map'></div></div></div>";
 	
 	echo "\n</div>";
 	echo "\n</div>";
@@ -284,6 +281,7 @@ echo "</div>";
 
 <script type="text/javascript">
 var currentEntry;
+var currentID;
 
 //IMAGE RESIZE FUNCTION	
 function resize_image($file, $w, $h, $crop=FALSE) {
@@ -331,80 +329,131 @@ function armForDelete(id){
 
 function edit_plate(id){
 	new_current_entry(id);
-	if ( !$("#input_plate" + id).is(":focus") ) {
+	if ( currentID != "plate" + id ) {	
+		currentID = "plate" + id;
 		$("#plate" + id).html("<input id='input_plate" + id + "' class='plate " + currentEntry.state + "' style='width:146px'/>");
 		$("#input_plate" + id).val(currentEntry.plate);
 		$("#input_plate" + id).focus();
-		$("#input_plate" + id).focusout( function(){
-			currentEntry.plate = $("#input_plate" + id).val();
-			if (currentEntry.state == "NYPD" && currentEntry.plate.length > 4){
-				var bigText = currentEntry.plate.slice(0,4);
-				var smallText = currentEntry.plate.slice(4,999);
-				$("#plate" + id).html("<div class='plate " + currentEntry.state + "'>" + bigText + "<span class='NYPDsuffix'>" + smallText + "</span></div></div>");
+		var plateListener = function(e){
+			if (e.target.className != 'plate ' + currentEntry.state){
+				document.removeEventListener('click', plateListener, true);
+				currentEntry.plate = $("#input_plate" + id).val();
+				if (currentEntry.state == "NYPD" && currentEntry.plate.length > 4){
+					var bigText = currentEntry.plate.slice(0,4);
+					var smallText = currentEntry.plate.slice(4,999);
+					$("#plate" + id).html("<div class='plate " + currentEntry.state + "'>" + bigText + "<span class='NYPDsuffix'>" + smallText + "</span></div></div>");
+				}
+				else { $("#plate" + id).html("<div class='plate " + currentEntry.state + "'>" + currentEntry.plate + "</div></div>"); }
+				$("#plate_" + id).val(currentEntry.plate);
+					setTimeout( function(){
+						currentID = "";
+					}, 250);
 			}
-			else { $("#plate" + id).html("<div class='plate " + currentEntry.state + "'>" + currentEntry.plate + "</div></div>"); }
-			$("#plate_" + id).val(currentEntry.plate);
-		});
+		}
+		document.addEventListener('click', plateListener, true);
 	}
 }
 
 function edit_date(id){
 	new_current_entry(id);
-	if ( !$("#input_date" + id).is(":focus") ) {
+	if ( currentID != "date" + id ) {
+		currentID = "date" + id;
 		$("#date" + id).html("<input id='input_date" + id + "' class='main_font transparent_bg'/>");
-		//document.getElementById("input_date" + id).value = currentEntry.date;
-		//var formattedDate = format_date(currentEntry.date);
 		$("#input_date" + id).datetimepicker({value:currentEntry.date, format:'m/d/Y g:iA'});
 		$("#input_date" + id).focus();
 		$("#input_date" + id).focusout( function(){
 			currentEntry.date = $("#input_date" + id).val();
-			console.log(currentEntry.date);
 			$("#date" + id).html("<span>" + currentEntry.date + "</span>");
 			$("#date_" + id).val(currentEntry.date);
+			setTimeout( function(){
+				currentID = "";
+			}, 250);
 		});
 	}
 }
 
 function edit_streets(id){
 	new_current_entry(id);
-	if ( !$("#input_street1-" + id).is(":focus") && !$("#input_street2-" + id).is(":focus")) {
-		$("#streets" + id).html("<input id='input_street1-" + id + "' class='main_font'/> & <input id='input_street2-" + id + "' class='main_font'/>");
+	if ( currentID != "streets" + id ) {
+		currentID = "streets" + id;
+		$("#streets" + id).html("<input id='input_street1-" + id + "' class='main_font' style='width:100px'/> & <input id='input_street2-" + id + "' class='main_font' style='width:100px'/>");
 		$("#input_street1-" + id).val(currentEntry.street1);
 		$("#input_street2-" + id).val(currentEntry.street2);
 		$("#input_street1-" + id).focus();
-		$("#streets" + id).focusout( function(){
-			if ($(this).has(document.activeElement).length == 0) {
-				console.log("lost focus");
-				currentEntry.street1 = $("#input_street1-" + id).val();
-				currentEntry.street2 = $("#input_street2-" + id).val();				
+		
+		var streetsListener = function(e){
+			//var focus = document.activeElement.id;
+			if(e.target.id != 'input_street1-' + id && e.target.id != 'input_street2-' + id && e.target.id != 'streets' + id ){
+				document.removeEventListener('click', streetsListener, true);
+				currentEntry.street1 = $("#input_street1-" + id).val().toUpperCase();
+				currentEntry.street2 = $("#input_street2-" + id).val().toUpperCase();
 				var newContents = "<span>" + currentEntry.street1;
 				if (currentEntry.street2 != 0 && currentEntry.street2 != ""){ newContents+= " & " + currentEntry.street2; }
 				newContents += "</span>";
 				$("#streets" + id).html(newContents);
 				$("#street1_" + id).val(currentEntry.street1);
 				$("#street2_" + id).val(currentEntry.street2);
+				setTimeout( function(){
+					currentID = "";
+				}, 250);
 			}
-		});
+		}
+		
+		document.addEventListener('click', streetsListener, true);
+	}
+}
+
+function edit_gps(id){
+	new_current_entry(id);
+	if ( currentID != "gps" + id ) {
+		currentID = "gps" + id;
+		$("#gps_map_container_" + id).show();
+		initializeMaps(id);
+		var gpsListener = function(e){
+			if(e.target.className != 'leaflet-tile leaflet-tile-loaded'){
+				document.removeEventListener('click', gpsListener, true);
+				gps_map.remove();
+				$("#gps_map_container_" + id).hide();
+				setTimeout( function(){
+					currentID = "";
+				}, 250);
+			}
+		}
+		document.addEventListener('click', gpsListener, true);
 	}
 }
 
 function edit_comment(id){
-	new_current_entry(id);	
-	if ( !$("#textarea_comment" + id).is(":focus") ) {
+	new_current_entry(id);
+	if ( currentID != "comment" + id ) {
+		currentID = "comment" + id;
 		$("#comment" + id).html("<textarea id='textarea_comment" + id + "' class='main_font transparent_bg' style='width:100%' value=''></textarea>");
 		$("#textarea_comment" + id).val(currentEntry.comment);
 		$("#textarea_comment" + id).focus();
-		$("#textarea_comment" + id).focusout( function(){
-			currentEntry.comment = $("#textarea_comment" + id).val();
-			$("#comment" + id).html("<span>" + currentEntry.comment + "</span>");
-			$("#comment_" + id).val(currentEntry.comment);
-		});
+		var commentListener = function(e){
+			//console.log(currentEntry.comment);
+			document.removeEventListener('click', commentListener, true);
+			if(e.target.id != 'textarea_comment' + id && e.target.id != 'comment' + id){
+				currentEntry.comment = $("#textarea_comment" + id).val();
+				$("#comment" + id).html("<span>" + currentEntry.comment + "</span>");
+				$("#comment_" + id).val(currentEntry.comment);
+				setTimeout( function(){
+					currentID = "";
+				}, 250);
+			}
+		};
+		document.addEventListener('click', commentListener, true);
 	}
 }
 
 function new_current_entry(id){
 	if (currentEntry == null){
 		currentEntry = new Entry(0,0,0,0,0,0,0,0,0,0);
+	}
+	if (currentEntry.id != 0 && currentEntry.id != id ){
+		$("#save" + currentEntry.id).prop('disabled', true);
+		$("#save" + currentEntry.id).addClass("disabled");
+		/*TODO: ADD CODE TO RESET ALL VIEW VALUES FOR OLD ENTRY*/
 	}
 	if (currentEntry.id != id){
 		currentEntry = new Entry(
@@ -419,12 +468,74 @@ function new_current_entry(id){
 			$("#street2_" + id).val(),
 			$("#comment_" + id).val()
 		);
+		backupEntry = currentEntry;
 		$("#save" + id).prop('disabled', false);
 		$("#save" + id).removeClass("disabled");
 		return true;
 	}
 	else { return false; }
 }
+
+function initializeMaps(id) {
+	var divName = "gps_map" + id;
+	if (<?php echo $config['use_providers_plugin']; ?>) {		
+		gps_map = L.map(divName);
+		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
+		catch (err) { console.log(err); }
+	}
+	else if (<?php echo $config['use_google']; ?>) {
+		gps_map = L.map(divName);
+		<?php if ($config['use_google']){
+			echo "var options = ";
+			include $config_folder . '/google_style.php';
+			echo ";\n"; }
+		?>
+		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>
+		try { 
+			var tiles = new L.Google('ROADMAP', {
+					mapOptions: {
+						styles: options
+					}
+				}, extra);
+		}
+		catch (err) { console.log(err); }
+	}
+	else if (<?php echo $config['use_bing']; ?>) {
+		gps_map = L.map(divName);
+		imagerySet = '<?php echo $config['bing_imagery']; ?>';
+		bingApiKey = '<?php echo $config['bing_api_key']; ?>';
+		try { var tiles = new L.BingLayer(bingApiKey, {type: imagerySet}); }
+		catch (err) { console.log(err); }
+	}
+	else {
+		gps_map = L.map(divName);
+		try { var tiles = L.tileLayer('<?php echo $config['map_url']; ?>'); }
+		catch (err) { console.log(err); }
+	}
+	
+	gps_map.addLayer(tiles);
+	gps_map.setView([currentEntry.lat, currentEntry.lon], 12);
+	
+	markers = L.layerGroup().addTo(gps_map);
+	marker = new L.marker([currentEntry.lat, currentEntry.lon]).addTo(markers);
+	
+	gps_map.on('click', function(e){
+		gps_map.removeLayer(markers);
+		markers = L.layerGroup().addTo(gps_map);
+		marker = new L.marker(e.latlng).addTo(markers);
+		var gps_text = "<span>" + e.latlng.lat.toFixed(6) + " / " + e.latlng.lng.toFixed(6) + "</span>";
+		$("#gps" + id).html(gps_text);
+		currentEntry.lat = e.latlng.lat.toFixed(6)
+		currentEntry.lon = e.latlng.lng.toFixed(6)
+		$("#lat_" + id).val(e.latlng.lat.toFixed(6));
+		$("#lon_" + id).val(e.latlng.lng.toFixed(6));
+	});
+}
+
+//$(document).ready( function(){
+//	setInterval( function(){ console.log(document.activeElement); }, 1000);
+//});
+
 </script>
 
 </body>

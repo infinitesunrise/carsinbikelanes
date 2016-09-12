@@ -33,6 +33,20 @@ body.non_map {
 	margin: 10px 0px 10px 0px;
 }
 
+.gps_map {
+	width: 100%;
+	height: 100%;
+}
+
+.gps_map_container {
+	width: 400px;
+	height: 400px;
+	background-color: rgba(255, 255, 255, 0.8);
+	padding: 10px;
+	display: none;
+	position: absolute;
+}
+
 .plate_name {
 	display: flex;
 	justify-content: flex-start;
@@ -213,9 +227,7 @@ color: #000099;
 }
 
 .edit_comment {
-	min-width: 100%;
 	min-height: 24px;
-	max-width: 300px;
 }
 
 .edit_date, .edit_streets, .edit_gps {
@@ -225,6 +237,10 @@ color: #000099;
 	min-width: 100px;
 	min-height: 20px;
 	line-height: 20px;
+}
+
+.moderation_queue_details {
+	flex: 1;
 }
 
 .details_top {
