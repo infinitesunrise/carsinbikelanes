@@ -640,7 +640,7 @@ input.submit_button {
 }
 
 .moderation_queue_row, .settings_box {
-	background-color:rgba(255, 255, 255, 0.9);
+	background-color:rgba(255, 255, 255, 0.8);
 	width: 100%;
 	min-height: 50px;
 	padding: 10px;
@@ -656,6 +656,7 @@ input.submit_button {
 
 .mod_queue_img_container {
 	min-width: 200px;
+	min-height: 200px;
 	margin: 0px 10px 0px 10px;
 	display: flex;
 	align-items: center;

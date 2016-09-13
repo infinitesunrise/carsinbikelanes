@@ -34,66 +34,16 @@ if (isset($_SESSION['admin'])){
 <!-- license plate font by Dave Hansen -->
 <link href='../css/license-plate-font.css' rel='stylesheet' type='text/css'>
 
-<script type="text/javascript">
+<!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
+<script src="../scripts/leaflet-providers.js"></script>
 
-class Entry {
-	constructor(id, url, plate, state, date, lat, lon, street1, street2, comment) {
- 		this.id = id;
-		this.url = url;
- 		this.plate = plate;
-		this.state = state;
-		this.date = date;
- 		this.lat = lat;
- 		this.lon = lon;
- 		this.street1 = street1;
- 		this.street2 = street2;
- 		this.comment = comment;
- 	}
-}
+<!-- Google Javascript API with current key -->
+<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
 
-var zoomToggles = new Map();
-var rotations = new Map();
-var entries = new Map();
+<!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
+<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
+<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 
-function toggleImg(link,id) {
-	if (zoomToggles.has(id) && (zoomToggles.get(id))){
-		var newImg = "../thumbs/" + link;
-		var newHtml = "<img class='review' id='img" + id + "' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
-		$("#" + id + "").empty();
-		$("#" + id + "").html(newHtml);
-		rotate(0,id);
-		zoomToggles.set(id, false);
-	}
-	else {
-		var newImg = "../images/" + link;
-		var newHtml = "<img class='review' id='img" + id + "' src=\"" + newImg + "\" onclick=\"javascript:toggleImg('" + link + "'," + id + ");\" />";
-		$("#" + id + "").empty();
-		$("#" + id + "").html(newHtml);
-		rotate(0,id);
-		zoomToggles.set(id, true);
-	}
-}
-
-function rotate(angle, imgNumber){
-	var rotation = 0;
-	if (rotations.has(imgNumber)){ rotation = rotations.get(imgNumber); }
-	rotation += angle;
-	if (rotation > 360) { rotation -= 360; }
-	if (rotation < 0) { rotation += 360; }
-	rotations.set(imgNumber,rotation);
-	document.getElementById("img" + imgNumber).style.transform = "rotate(" + rotations.get(imgNumber) + "deg)";
-	setTimeout( function(){
-		var bounds = document.getElementById("img" + imgNumber).getBoundingClientRect();
-		document.getElementById(imgNumber).style.width = bounds.width;
-		document.getElementById(imgNumber).style.height = bounds.height;
-	}, 10);
-}
-
-$(document).ready( function() {
-	$(".disabled").prop('disabled', true);
-});
-
-</script>
 </head>
 <body id='body' class='non_map'>
 
@@ -101,14 +51,77 @@ $(document).ready( function() {
 
 require('config_pointer.php');
 
+if (isset($_POST['save'])){
+	if ($_POST['rotate'] != 0){
+		$image = imagecreatefromjpeg( '../images/' . $_POST['url'] );
+		$rotated_image_large = imagerotate( $image , $_POST['rotate'] - 360, 0 );
+		$file1 = imagejpeg($rotated_image_large, '../images/' . $_POST['url']);
+		$rotated_image_small = resize_image('../images/' . $_POST['url'], 200, 200);
+		$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $_POST['url']);
+	}
+	$result = $connection->query(
+	'UPDATE cibl_data ' .
+	'SET url="' . $_POST['url'] . '", ' .
+	'plate="' . $_POST['plate'] . '", ' .
+	'state="' . $_POST['state'] . '", ' .
+	'date_occurrence="' . date('Y-m-d H:i:s', strtotime($_POST['date'])) . '", ' .
+	'gps_lat=' . $_POST['lat'] . ', ' .
+	'gps_long=' . $_POST['lon'] . ', ' .
+	'street1="' . $_POST['street1'] . '", ' .
+	'street2="' . $_POST['street2'] . '", ' .
+	'description="' . $_POST['comment'] . '" ' .
+	'WHERE increment=' . $_POST['id']);
+}
+
+if (isset($_POST['delete'])){
+	$result = $connection->query(
+	'DELETE FROM cibl_data WHERE increment=' . $_POST['id']);
+}
+
+//IMAGE RESIZE FUNCTION	
+function resize_image($file, $w, $h, $crop=FALSE) {
+    list($width, $height) = getimagesize($file);
+    $r = $width / $height;
+    if ($crop) {
+        if ($width > $height) {
+            $width = ceil($width-($width*abs($r-$w/$h)));
+        } else {
+            $height = ceil($height-($height*abs($r-$w/$h)));
+        }
+        $newwidth = $w;
+        $newheight = $h;
+    } else {
+        if ($w/$h > $r) {
+            $newwidth = $h*$r;
+            $newheight = $h;
+        } else {
+            $newheight = $w/$r;
+            $newwidth = $w;
+        }
+    }
+    $info = getimagesize($file);
+    if ($info['mime'] == 'image/jpeg') 
+		$src = imagecreatefromjpeg($file);
+	elseif ($info['mime'] == 'image/gif') 
+		$src = imagecreatefromgif($file);
+	elseif ($info['mime'] == 'image/png') 
+		$src = imagecreatefrompng($file);
+    
+    $dst = imagecreatetruecolor($newwidth, $newheight);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+	
+    return $dst;
+}
+
 $per_page = $config['max_view'];
 if (isset($_GET['per_page'])){ $per_page = $_GET['per_page']; }
 $go_to_entry = 1;
 if (isset($_GET['go_to_entry'])){ $go_to_entry = $_GET['go_to_entry']; }
+if ($go_to_entry < 1){ $go_to_entry = 1; }
 
 $total_query = 'SELECT COUNT(*) FROM cibl_data';
 $total_entries = mysqli_fetch_array(mysqli_query($connection, $total_query))[0];
-
+	
 $result = $connection->query(
 	'SELECT *
 	FROM cibl_data
@@ -128,41 +141,58 @@ while ($row = mysqli_fetch_array($result)){
 
 ?>
 
-<form action='edit.php' method='GET'>
 <div class="flex_container_nav">
 <button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
 <button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
 <div class="nav_option">
-<span>Entries per page:</span>
-<input type="text" class="nav" name="per_page" value="<?php echo $per_page; ?>"/>
+<form action='edit.php' method='GET'>
+<span>Go to entry:</span>
+<input type="text" class="nav" name="go_to_entry" id='go_to_entry' value="<?php echo $go_to_entry; ?>"/>
 </div>
 <div class="nav_option">
-<span>Go to entry:</span>
-<input type="text" class="nav" name="go_to_entry" value="<?php echo $go_to_entry; ?>"/>
+<span>Entries per page:</span>
+<input type="text" class="nav" name="per_page" id='per_page' value="<?php echo $per_page; ?>"/>
 </div>
 <div class="nav_option">
 <span><?php echo 'Displaying ' . $entries[0][0] . ' - ' . $entries[count($entries)-1][0] . ' out of ' . $total_entries; ?></span>
 </div>
+<input type='submit' style='display:none'/>
+</form>
 <button class='bold_button_square' onclick='javascript:forward();'>&#10095</button>
 <button class='bold_button_square' onclick='javascript:end();'>&#10095&#10095</button>
-<input type='submit' name='nav_submit' style='display:none'/>
 </div>
-</form>
 
 <?php
+
+if (isset($_POST['save'])){
+	echo "\n\n <div class='moderation_queue_row' style='background-color: green'>";
+	echo "\n<span>";
+	echo "\n<br> " . $_POST['id'];
+	echo "\n<br> " . $_POST['url'];
+	echo "\n<br> " . $_POST['plate'];
+	echo "\n<br> " . $_POST['state'];
+	echo "\n<br> " . $_POST['date'];
+	echo "\n<br> " . $_POST['street1'];
+	echo "\n<br> " . $_POST['street2'];
+	echo "\n<br> " . $_POST['lat'];
+	echo "\n<br> " . $_POST['lon'];
+	echo "\n<br> " . $_POST['comment'];
+	echo "\n</span>";
+	echo "\n</div>";
+}
 
 $count = 0;
 while ($count < count($entries)){
 	
 	//BEGIN MOD QUEUE ROW
-	echo "\n\n <div class='moderation_queue_row'>";
+	echo "\n\n <div class='moderation_queue_row' id='moderation_queue_row" . $entries[$count][0] . "'>";
 	
 	//---SECTION 1: BUTTONS---
 	echo "\n <div class='moderation_queue_buttons'>";
-	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button disabled' onclick='javascript:accept(" . $entries[$count][0] . ");'>UPDATE ENTRY</button> <br>";
+	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button disabled' onclick='javascript:save(" . $entries[$count][0] . ");'>UPDATE ENTRY</button> <br>";
 	echo "\n <div class='delete_div'>";
-	echo "\n <span><label><input type='checkbox' style='height:20px'onClick='javascript:armForDelete(" . $entries[$count][0] . ");'>DELETE:</label></span>";
-	echo "\n <button id='delete" . $entries[$count][0] . "' class='bold_button disabled'  style='margin-top:0px' onClick='javascript:window.location = edit.php?delete=" . $entries[$count][0] . "'>DELETE</button><br>";
+	echo "\n <span><label><input id='checkbox" . $entries[$count][0] . "' type='checkbox' style='height:20px'onClick='javascript:armForDelete(" . $entries[$count][0] . ");'>DELETE:</label></span>";
+	echo "\n <button id='delete" . $entries[$count][0] . "' class='bold_button disabled'  style='margin-top:0px' onClick='javascript:remove(" . $entries[$count][0] . ")'>DELETE</button><br>";
 	echo "\n </div>";
 	echo "\n <div style='width:100%; display:flex;'>";
 	echo "<button class='rotate' onClick='rotate(-90," . $entries[$count][0] . ")'>&#10553</button>";
@@ -254,16 +284,19 @@ while ($count < count($entries)){
 <button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
 <button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
 <div class="nav_option">
-<span>Entries per page:</span>
-<input type="text" class="nav" name="per_page"/>
-</div>
-<div class="nav_option">
+<form action='edit.php' method='GET'>
 <span>Go to entry:</span>
-<input type="text" class="nav" name="go_to_entry"/>
+<input type="text" class="nav" name="go_to_entry" id='go_to_entry' value="<?php echo $go_to_entry; ?>"/>
 </div>
 <div class="nav_option">
-<span>Displaying 1 - 50</span>
+<span>Entries per page:</span>
+<input type="text" class="nav" name="per_page" id='per_page' value="<?php echo $per_page; ?>"/>
 </div>
+<div class="nav_option">
+<span><?php echo 'Displaying ' . $entries[0][0] . ' - ' . $entries[count($entries)-1][0] . ' out of ' . $total_entries; ?></span>
+</div>
+<input type='submit' style='display:none'/>
+</form>
 <button class='bold_button_square' onclick='javascript:forward();'>&#10095</button>
 <button class='bold_button_square' onclick='javascript:end();'>&#10095&#10095</button>
 </div>
@@ -280,46 +313,31 @@ echo "</div>";
 ?>
 
 <script type="text/javascript">
+
+var per_page = <?php echo $per_page; ?>;
+var first_entry = <?php echo $entries[0][0]; ?>;
+var last_entry = <?php echo $entries[count($entries)-1][0]; ?>;
+var total_entries = <?php echo $total_entries; ?>;
 var currentEntry;
 var currentID;
+var zoomToggles = new Map();
+var rotations = new Map();
+var entries = new Map();
 
-//IMAGE RESIZE FUNCTION	
-function resize_image($file, $w, $h, $crop=FALSE) {
-    list($width, $height) = getimagesize($file);
-    $r = $width / $height;
-    if ($crop) {
-        if ($width > $height) {
-            $width = ceil($width-($width*abs($r-$w/$h)));
-        } else {
-            $height = ceil($height-($height*abs($r-$w/$h)));
-        }
-        $newwidth = $w;
-        $newheight = $h;
-    } else {
-        if ($w/$h > $r) {
-            $newwidth = $h*$r;
-            $newheight = $h;
-        } else {
-            $newheight = $w/$r;
-            $newwidth = $w;
-        }
-    }
-    $info = getimagesize($file);
-    if ($info['mime'] == 'image/jpeg') 
-		$src = imagecreatefromjpeg($file);
-	elseif ($info['mime'] == 'image/gif') 
-		$src = imagecreatefromgif($file);
-	elseif ($info['mime'] == 'image/png') 
-		$src = imagecreatefrompng($file);
-    
-    $dst = imagecreatetruecolor($newwidth, $newheight);
-    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-	
-    return $dst;
-}
+//console.log('per_page: ' + $('#per_page').val() + ' first_entry: ' + first_entry + ' last_entry: ' + last_entry);
+//console.log((last_entry - per_page));
+
+function beginning(){ window.location = "edit.php?per_page=" + $('#per_page').val(); }
+
+function back(){ window.location = "edit.php?per_page=" + $('#per_page').val() + "&go_to_entry=" + (first_entry - $('#per_page').val()); }
+
+function forward(){ window.location.href = "edit.php?per_page=" + $('#per_page').val() + "&go_to_entry=" + (last_entry + 1); }
+
+function end(){ window.location = "edit.php?per_page=" + $('#per_page').val() + "&go_to_entry=" + (total_entries - per_page + 1); }
 
 //ARM (ENABLE) A DELETE BUTTON FOR ENTRY DELETION
 function armForDelete(id){
+	new_current_entry(id, false);
 	$("#delete" + id).prop('disabled', function(i, v) {
 		if (v){ $("#delete" + id).removeClass('disabled') }
 		else { $("#delete" + id).addClass('disabled'); }
@@ -431,9 +449,8 @@ function edit_comment(id){
 		$("#textarea_comment" + id).val(currentEntry.comment);
 		$("#textarea_comment" + id).focus();
 		var commentListener = function(e){
-			//console.log(currentEntry.comment);
-			document.removeEventListener('click', commentListener, true);
 			if(e.target.id != 'textarea_comment' + id && e.target.id != 'comment' + id){
+				document.removeEventListener('click', commentListener, true);
 				currentEntry.comment = $("#textarea_comment" + id).val();
 				$("#comment" + id).html("<span>" + currentEntry.comment + "</span>");
 				$("#comment_" + id).val(currentEntry.comment);
@@ -446,15 +463,68 @@ function edit_comment(id){
 	}
 }
 
-function new_current_entry(id){
+function new_current_entry(id, enableUpdate = true){
 	if (currentEntry == null){
 		currentEntry = new Entry(0,0,0,0,0,0,0,0,0,0);
 	}
+	//Reset any unsaved edits on other entries
 	if (currentEntry.id != 0 && currentEntry.id != id ){
+		$('#moderation_queue_row' + currentEntry.id).css('border', 'none');
 		$("#save" + currentEntry.id).prop('disabled', true);
 		$("#save" + currentEntry.id).addClass("disabled");
-		/*TODO: ADD CODE TO RESET ALL VIEW VALUES FOR OLD ENTRY*/
+		$("#delete" + currentEntry.id).prop('disabled', true);
+		$("#delete" + currentEntry.id).addClass("disabled");
+		$("#checkbox" + currentEntry.id).prop('checked', false);
+		
+		$("#id_" + currentEntry.id).val(backupEntry.id);
+		$("#url_" + currentEntry.id).val(backupEntry.url);
+		$("#plate_" + currentEntry.id).val(backupEntry.plate);
+		$("#state_" + currentEntry.id).val(backupEntry.state);
+		$("#date_" + currentEntry.id).val(backupEntry.date);
+		$("#lat_" + currentEntry.id).val(backupEntry.lat);
+		$("#lon_" + currentEntry.id).val(backupEntry.lon);
+		$("#street1_" + currentEntry.id).val(backupEntry.street1);
+		$("#street2_" + currentEntry.id).val(backupEntry.street2);
+		$("#comment_" + currentEntry.id).val(backupEntry.comment);
+		
+		var newHtml = "<img class='review' id='img" + backupEntry.id + "' src=\"" + "../thumbs/" + backupEntry.url + "\" onclick=\"javascript:toggleImg('" + backupEntry.url + "'," + backupEntry.id + ");\" />";
+		$("#" + backupEntry.id).empty();
+		$("#" + backupEntry.id).html(newHtml);
+		zoomToggles.set(backupEntry.id * 1, false);
+		rotations.set((backupEntry.id * 1), 0);
+		$("#img" + backupEntry.id).css('transform', 'rotate(0deg)');
+		var savedID = backupEntry.id;
+		setTimeout( function(){
+			var bounds = document.getElementById("img" + savedID).getBoundingClientRect();
+			document.getElementById(savedID).style.width = bounds.width;
+			document.getElementById(savedID).style.height = (bounds.height >= 200) ? bounds.height : 200;;
+		}, 10);
+		
+		if (backupEntry.state == "NYPD" && backupEntry.plate.length > 4){
+			var bigText = backupEntry.plate.slice(0,4);
+			var smallText = backupEntry.plate.slice(4,999);
+			$("#plate" + backupEntry.id).html("<div class='plate " + backupEntry.state + "'>" + bigText + "<span class='NYPDsuffix'>" + smallText + "</span></div></div>");
+		}
+		else { $("#plate" + backupEntry.id).html("<div class='plate " + backupEntry.state + "'>" + backupEntry.plate + "</div></div>"); }
+		
+		$("#date" + backupEntry.id).html("<span>" + backupEntry.date + "</span>");
+		
+		var oldStreets = "<span>" + backupEntry.street1;
+		if (backupEntry.street2 != 0 && backupEntry.street2 != ""){ oldStreets+= " & " + backupEntry.street2; }
+		oldStreets += "</span>";
+		$("#streets" + backupEntry.id).html(oldStreets);
+		
+		var old_gps_text = "<span>" + backupEntry.lat + " / " + backupEntry.lon + "</span>";
+		$("#gps" + backupEntry.id).html(old_gps_text);
+		
+		$("#comment" + backupEntry.id).html("<span>" + backupEntry.comment + "</span>");
 	}
+	//If method wasn't called from the delete checkbox, enable saving / updating
+	if (enableUpdate == true){
+		$("#save" + id).prop('disabled', false);
+		$("#save" + id).removeClass("disabled");
+	}
+	//New entry setup
 	if (currentEntry.id != id){
 		currentEntry = new Entry(
 			$("#id_" + id).val(),
@@ -468,9 +538,19 @@ function new_current_entry(id){
 			$("#street2_" + id).val(),
 			$("#comment_" + id).val()
 		);
-		backupEntry = currentEntry;
-		$("#save" + id).prop('disabled', false);
-		$("#save" + id).removeClass("disabled");
+		backupEntry = new Entry(
+			currentEntry.id,
+			currentEntry.url,
+			currentEntry.plate,
+			currentEntry.state,
+			currentEntry.date,
+			currentEntry.lat,
+			currentEntry.lon,
+			currentEntry.street1.toUpperCase(),
+			currentEntry.street2.toUpperCase(),
+			currentEntry.comment
+		);
+		$('#moderation_queue_row' + id).css('border', '3px dashed gray');
 		return true;
 	}
 	else { return false; }
@@ -532,9 +612,108 @@ function initializeMaps(id) {
 	});
 }
 
-//$(document).ready( function(){
-//	setInterval( function(){ console.log(document.activeElement); }, 1000);
-//});
+function toggleImg(link,id) {
+	if (zoomToggles.has(id) && (zoomToggles.get(id))){
+		var newHtml = "<img class='review' id='img" + id + "' src=\"../thumbs/" + link +
+		"\" onclick=\"javascript:toggleImg('" + link + "'," + id + ")\" style='transform:rotate(" + rotations.get(id) + "deg)' />";
+		$("#" + id).empty();
+		$("#" + id).html(newHtml);
+		$('#img' + id).on('load', function() {
+			update_img_container_size(id);
+		});
+		zoomToggles.set(id, false);
+	}
+	else {
+		var newHtml = "<img class='review' id='img" + id + "' src=\"../images/" + link +
+		"\" onclick=\"javascript:toggleImg('" + link + "'," + id + ")\" style='transform:rotate(" + rotations.get(id) + "deg)' />";
+		$("#" + id).empty();
+		$("#" + id).html(newHtml);
+		$('#img' + id).on('load', function() {
+			update_img_container_size(id);
+		});
+		zoomToggles.set(id, true);
+	}
+}
+
+function rotate(angle, id){
+	new_current_entry(id);
+	var rotation = 0;
+	if (rotations.has(id)){ rotation = rotations.get(id); }
+	rotation += angle;
+	if (rotation >= 360) { rotation -= 360; }
+	if (rotation < 0) { rotation += 360; }
+	rotations.set(id,rotation);
+	$("#img" + id).css("transform", "rotate(" + rotations.get(id) + "deg)");	
+	update_img_container_size(id);
+}
+
+function update_img_container_size(id){
+	var imgWidth = $('#img' + id).width();
+	var imgHeight = $('#img' + id).height();
+	if (rotations.get(id) == null || rotations.get(id) == 0 || rotations.get(id) == 180)
+	{ $('#' + id).width(imgWidth); $('#' + id).height(imgHeight); }
+	else 
+	{ $('#' + id).width(imgHeight); $('#' + id).height(imgWidth); }
+}
+
+
+function new_dimensions(obj, deg){
+	deg = deg || 0;
+	var w = obj.width() * Math.abs(Math.cos(deg)) + obj.height() * Math.abs(Math.sin(deg));
+	var h = obj.height() * Math.abs(Math.cos(deg)) + obj.width() * Math.abs(Math.sin(deg));
+	console.log(w + " / " + h);
+	return [w,h];
+}
+
+function save(id){
+	var form = $(
+	'<form action="edit.php" method="post" style="display:none">' +
+	'<input type="hidden" name="save" value="true" />' +
+	'<input type="hidden" name="id" value="' + currentEntry.id + '" />' +
+	'<input type="hidden" name="url" value="' + currentEntry.url + '" />' +
+	'<input type="hidden" name="plate" value="' + currentEntry.plate + '" />' +
+	'<input type="hidden" name="state" value="' + currentEntry.state + '" />' +
+	'<input type="hidden" name="date" value="' + currentEntry.date + '" />' +
+	'<input type="hidden" name="street1" value="' + currentEntry.street1 + '" />' +
+	'<input type="hidden" name="street2" value="' + currentEntry.street2 + '" />' +
+	'<input type="hidden" name="lat" value="' + currentEntry.lat + '" />' +
+	'<input type="hidden" name="lon" value="' + currentEntry.lon + '" />' +
+	'<input type="hidden" name="comment" value="' + currentEntry.comment + '" />' +
+	'<input type="hidden" name="rotate" value="' + rotations.get(currentEntry.id * 1) + '" />' +
+	'</form>');
+	$('body').append(form);
+	form.submit();
+}
+
+function remove(id){
+	var form = $(
+	'<form action="edit.php" method="post" style="display:none">' +
+	'<input type="hidden" name="delete" value="true" />' +
+	'<input type="hidden" name="id" value="' + currentEntry.id + '" />' +
+	'</form>');
+	$('body').append(form);
+	form.submit();
+}
+
+class Entry {
+	constructor(id, url, plate, state, date, lat, lon, street1, street2, comment) {
+ 		this.id = id;
+		this.url = url;
+ 		this.plate = plate;
+		this.state = state;
+		this.date = date;
+ 		this.lat = lat;
+ 		this.lon = lon;
+ 		this.street1 = street1;
+ 		this.street2 = street2;
+ 		this.comment = comment;
+ 	}
+}
+
+$(document).ready( function() {
+	$(".disabled").prop('disabled', true);
+	//setInterval( function(){ console.log(document.getElementById("img2").getBoundingClientRect()); }, 1000);
+});
 
 </script>
 
