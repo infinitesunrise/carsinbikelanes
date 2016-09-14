@@ -250,7 +250,6 @@ function load_entries() {
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
-		//markers.clearLayers();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
 		$( "#inner_container" ).load( load_url );
 		open_window('entry_list');

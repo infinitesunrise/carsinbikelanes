@@ -53,8 +53,8 @@ require('config_pointer.php');
 
 if (isset($_POST['save'])){
 	if ($_POST['rotate'] != 0){
-		$image = imagecreatefromjpeg( '../images/' . $_POST['url'] );
-		$rotated_image_large = imagerotate( $image , $_POST['rotate'] - 360, 0 );
+		$image_large = imagecreatefromjpeg( '../images/' . $_POST['url'] );
+		$rotated_image_large = imagerotate( $image_large , -$_POST['rotate'], 0 );
 		$file1 = imagejpeg($rotated_image_large, '../images/' . $_POST['url']);
 		$rotated_image_small = resize_image('../images/' . $_POST['url'], 200, 200);
 		$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $_POST['url']);
@@ -71,11 +71,16 @@ if (isset($_POST['save'])){
 	'street2="' . $_POST['street2'] . '", ' .
 	'description="' . $_POST['comment'] . '" ' .
 	'WHERE increment=' . $_POST['id']);
+	$save_success = $_POST['id'];
 }
 
 if (isset($_POST['delete'])){
-	$result = $connection->query(
-	'DELETE FROM cibl_data WHERE increment=' . $_POST['id']);
+	$url = mysqli_fetch_array($connection->query('SELECT url FROM cibl_data WHERE increment = ' . $_POST['id']))[0];	
+	$result = $connection->query('DELETE FROM cibl_data WHERE increment=' . $_POST['id']);
+	$file_thumb = "../thumbs/" . $url;
+	$file_image = "../images/" . $url;
+	unlink($file_thumb);
+	unlink($file_image);
 }
 
 //IMAGE RESIZE FUNCTION	
@@ -138,10 +143,15 @@ $entries = array();
 while ($row = mysqli_fetch_array($result)){
 	$entries[] = $row;
 }
+if ($total_entries > 0){ $first_entry = $entries[0][0]; }
+else { $first_entry = 0; }
+if($total_entries > 1) { $last_entry = $entries[count($entries)-1][0]; }
+else if($total_entries == 1){ $last_entry = 1; }
+else if($total_entries == 0){ $last_entry = 0; }
 
 ?>
 
-<div class="flex_container_nav">
+<div class="flex_container_nav list_nav">
 <button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
 <button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
 <div class="nav_option">
@@ -154,7 +164,7 @@ while ($row = mysqli_fetch_array($result)){
 <input type="text" class="nav" name="per_page" id='per_page' value="<?php echo $per_page; ?>"/>
 </div>
 <div class="nav_option">
-<span><?php echo 'Displaying ' . $entries[0][0] . ' - ' . $entries[count($entries)-1][0] . ' out of ' . $total_entries; ?></span>
+<span><?php echo 'Displaying ' . $first_entry . ' - ' . $last_entry . ' out of ' . $total_entries; ?></span>
 </div>
 <input type='submit' style='display:none'/>
 </form>
@@ -164,20 +174,13 @@ while ($row = mysqli_fetch_array($result)){
 
 <?php
 
-if (isset($_POST['save'])){
-	echo "\n\n <div class='moderation_queue_row' style='background-color: green'>";
-	echo "\n<span>";
-	echo "\n<br> " . $_POST['id'];
-	echo "\n<br> " . $_POST['url'];
-	echo "\n<br> " . $_POST['plate'];
-	echo "\n<br> " . $_POST['state'];
-	echo "\n<br> " . $_POST['date'];
-	echo "\n<br> " . $_POST['street1'];
-	echo "\n<br> " . $_POST['street2'];
-	echo "\n<br> " . $_POST['lat'];
-	echo "\n<br> " . $_POST['lon'];
-	echo "\n<br> " . $_POST['comment'];
-	echo "\n</span>";
+if ($save_success){
+	//echo "\n\n <div class='moderation_queue_row' style='background-color: green'>";
+	echo "\n<div class='settings_box' style='background-color: green'>";
+	echo "\n<div class='settings_group'>";
+	echo "\n<h3>Success:</h3>";
+	echo "\n<p>Entry # " . $save_success . " updated.</p>";
+	echo "\n</div>";
 	echo "\n</div>";
 }
 
@@ -280,7 +283,7 @@ while ($count < count($entries)){
 }
 ?>
 
-<div class="flex_container_nav">
+<div class="flex_container_nav list_nav">
 <button class='bold_button_square' onclick='javascript:beginning();'>&#10094&#10094</button>
 <button class='bold_button_square' onclick='javascript:back();'>&#10094</button>
 <div class="nav_option">
@@ -293,7 +296,7 @@ while ($count < count($entries)){
 <input type="text" class="nav" name="per_page" id='per_page' value="<?php echo $per_page; ?>"/>
 </div>
 <div class="nav_option">
-<span><?php echo 'Displaying ' . $entries[0][0] . ' - ' . $entries[count($entries)-1][0] . ' out of ' . $total_entries; ?></span>
+<span><?php echo 'Displaying ' . $first_entry . ' - ' . $last_entry . ' out of ' . $total_entries; ?></span>
 </div>
 <input type='submit' style='display:none'/>
 </form>
@@ -304,7 +307,7 @@ while ($count < count($entries)){
 <?php
 if ($count == 0){
 	echo "\n\n <div class='moderation_queue_row'>";
-	echo "\n <h2>No new submissions.</h2>";
+	echo "\n <h2>No entries found.</h2>";
 	echo "\n </div>";
 }
 
@@ -313,19 +316,15 @@ echo "</div>";
 ?>
 
 <script type="text/javascript">
-
 var per_page = <?php echo $per_page; ?>;
-var first_entry = <?php echo $entries[0][0]; ?>;
-var last_entry = <?php echo $entries[count($entries)-1][0]; ?>;
+var first_entry = <?php echo $first_entry; ?>;
+var last_entry = <?php echo $last_entry; ?>;
 var total_entries = <?php echo $total_entries; ?>;
 var currentEntry;
 var currentID;
 var zoomToggles = new Map();
 var rotations = new Map();
 var entries = new Map();
-
-//console.log('per_page: ' + $('#per_page').val() + ' first_entry: ' + first_entry + ' last_entry: ' + last_entry);
-//console.log((last_entry - per_page));
 
 function beginning(){ window.location = "edit.php?per_page=" + $('#per_page').val(); }
 
@@ -656,15 +655,6 @@ function update_img_container_size(id){
 	{ $('#' + id).width(imgHeight); $('#' + id).height(imgWidth); }
 }
 
-
-function new_dimensions(obj, deg){
-	deg = deg || 0;
-	var w = obj.width() * Math.abs(Math.cos(deg)) + obj.height() * Math.abs(Math.sin(deg));
-	var h = obj.height() * Math.abs(Math.cos(deg)) + obj.width() * Math.abs(Math.sin(deg));
-	console.log(w + " / " + h);
-	return [w,h];
-}
-
 function save(id){
 	var form = $(
 	'<form action="edit.php" method="post" style="display:none">' +
@@ -712,6 +702,9 @@ class Entry {
 
 $(document).ready( function() {
 	$(".disabled").prop('disabled', true);
+	if (total_entries == 0){
+		$('.list_nav').hide();
+	}
 	//setInterval( function(){ console.log(document.getElementById("img2").getBoundingClientRect()); }, 1000);
 });
 

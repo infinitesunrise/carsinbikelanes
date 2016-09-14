@@ -223,6 +223,9 @@ switch (bingImagery){
 
 var providers = L.TileLayer.Provider.providers;
 var providerOptions = "";
+providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
+providerOptions +=  "<option value='Google'>Google</option>\r\n";
+providerOptions +=  "<option value='Bing'>Bing</option>\r\n";
 var providerString = "";
 for (var provider in providers){
 	providerString = provider;
@@ -241,9 +244,6 @@ for (var provider in providers){
 		}
 	}
 }
-providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
-providerOptions +=  "<option value='Google'>Google</option>\r\n";
-providerOptions +=  "<option value='Bing'>Bing</option>\r\n";
 
 var select = document.getElementById("provider_select");
 select.innerHTML = providerOptions;

@@ -221,6 +221,11 @@ color: #000099;
 	border: 3px solid transparent;
 }
 
+.info {
+	padding: 5px;
+	border: 3px solid transparent;
+}
+
 .edit:hover {
 	border: 3px dashed gray;
 	box-shadow: 3px 3px 7px gray;
@@ -241,6 +246,7 @@ color: #000099;
 
 .moderation_queue_details {
 	flex: 1;
+	margin-left: 7px;
 }
 
 .details_top {
@@ -251,6 +257,7 @@ color: #000099;
 
 .details_bottom {
 	margin-top: 10px;
+	max-width: 450px;
 }
 
 .details_timeplace {
@@ -333,9 +340,10 @@ span.form {
 	top: 0px;
 	left: -565px;
 	margin: 10px;
-	width: 555px;
+	width: 685px;
 	height: 97%;
-	background-color: rgba(255,255,255,0.5);
+	background-color: rgba(0 ,0, 0, 0.2);
+	//background-color: rgba(255 ,255, 255, 0.2);
 	overflow: hidden;
 }
 
@@ -343,7 +351,7 @@ span.form {
 	width: 100%;
 	height: 100%;
 	overflow: auto;
-	padding-right: 15px;
+	padding-right: 16px;
 }
 
 .holder{
@@ -354,17 +362,22 @@ span.form {
 }
 
 .column_entry{
-	width: 535px;
+	width: 655px;
+	padding: 5px;
 	min-height: 150px;
 	margin: 10px;
 	background-color:rgba(255, 255, 255, 0.8);
+	display: flex;
+	justify-content: flex-start;
+	flex-wrap: nowrap;
 }
 
 .column_entry_thumbnail {
-	display: table-cell;
+	display: flex;
+	align-items: center;
 	vertical-align: middle;
-	width: 160px;
-	height: 150px;
+	min-width: 200px;
+	//height: 150px;
 	background: none;
 }
 
@@ -393,8 +406,8 @@ span.form {
 
 .thumbnail {
 	display:block;
-	max-width: 150px;
-	max-height: 150px;
+	//max-width: 150px;
+	//max-height: 150px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -426,6 +439,7 @@ span.form {
 	right: 0px;
 	text-align: right;
 	background-color:rgba(255, 255, 255, 0.8);
+	//background-color:rgba(0, 0, 0, 0.8);
 	margin-bottom: 10px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -460,13 +474,14 @@ span.form {
 	right: -565px;
 	margin: 10px;
 	width: 555px;
-	background-color:rgba(255, 255, 255, 0.5);
+	background-color: rgba(0 ,0, 0, 0.2);
+	//background-color: rgba(255 ,255, 255, 0.2);
 }
 
 .submission_form_container,
 .about_container,
 .results_form_container,
-.single_view_pane_container{
+.single_view_pane_container {
 	margin: 10px;
 	padding: 10px;
 	background-color:rgba(255, 255, 255, 0.8);
@@ -493,7 +508,7 @@ span.form {
 	top: 0px;
 	left: -865px;
 	max-height: 97%;
-	overflow-y: scroll;
+	overflow:hidden;
 	margin: 10px;
 	background-color:rgba(255, 255, 255, 0.5);
 }
@@ -542,7 +557,7 @@ input.submit_button {
 
 
 .leaflet-left {
-	padding-left: 565px !important;
+	padding-left: 695px !important;
 }
 
 .flex_container_scroll {
