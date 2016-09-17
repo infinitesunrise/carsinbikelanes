@@ -76,6 +76,8 @@ function calculate_centers() {
 	var center_long = (east + west) / 2;
 	document.getElementById("center_lat").value = center_lat.toFixed(4);
 	document.getElementById("center_long").value = center_long.toFixed(4);
+	document.getElementById("mobile_center_lat").value = center_lat.toFixed(4);
+	document.getElementById("mobile_center_long").value = center_long.toFixed(4);
 }
 </script>
 <div class='settings_box'>
@@ -111,12 +113,20 @@ echo "<div style='width:10px'></div>";
 echo "<input type='text' id='west_bounds' class='wide' name='west_bounds' value='" . $config['west_bounds'] . "' onChange='calculate_centers()'/><br>\n";
 echo "</div>\n";
 
-echo "<span>center map at: </span>\n";
+echo "<span>center desktop site map at: </span>\n";
 echo "<br>\n";
 echo "<div class='flex_container_oneline'>\n";
 echo "<input type='text' id='center_lat' class='wide' name='center_lat' value='" . $config['center_lat'] . "'/>\n";
 echo "<div style='width:10px'></div>";
 echo "<input type='text' id='center_long' class='wide' name='center_long' value='" . $config['center_long'] . "'/>\n";
+echo "</div>";
+
+echo "<span>center mobile site map at: </span>\n";
+echo "<br>\n";
+echo "<div class='flex_container_oneline'>\n";
+echo "<input type='text' id='mobile_center_lat' class='wide' name='mobile_center_lat' value='" . $config['mobile_center_lat'] . "'/>\n";
+echo "<div style='width:10px'></div>";
+echo "<input type='text' id='mobile_center_long' class='wide' name='mobile_center_long' value='" . $config['mobile_center_long'] . "'/>\n";
 echo "</div>";
 ?>
 

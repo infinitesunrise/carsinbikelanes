@@ -3,8 +3,9 @@
 <html>
 <head>
 
-<!-- main stylesheet -->
+<!--local stylesheets -->
 <link rel="stylesheet" type="text/css" href="../css/style.css" />
+<link rel="stylesheet" type="text/css" href="../css/plates.css" />
 
 <!-- jquery -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
@@ -42,6 +43,8 @@
 require('config_pointer.php');
 
 if (isset($_POST['save'])) {
+	error_log($_POST['comment']);
+	error_log(mysqli_real_escape_string($connection,  $_POST['comment']));
 	try {
 		//MOVE SUBMISSION TO MAIN TABLE, DELETE QUEUE SUBMISSION, UPDATE IMAGE NAMES AND URLS
 		$connection->begin_transaction();
@@ -53,9 +56,9 @@ if (isset($_POST['save'])) {
 		'date_occurrence="' . date('Y-m-d H:i:s', strtotime($_POST['date'])) . '", ' .
 		'gps_lat=' . $_POST['lat'] . ', ' .
 		'gps_long=' . $_POST['lon'] . ', ' .
-		'street1="' . $_POST['street1'] . '", ' .
-		'street2="' . $_POST['street2'] . '", ' .
-		'description="' . $_POST['comment'] . '" ' .
+		'street1="' . mysqli_real_escape_string($connection, $_POST['street1']) . '", ' .
+		'street2="' . mysqli_real_escape_string($connection, $_POST['street2']) . '", ' .
+		'description="' . mysqli_real_escape_string($connection, $_POST['comment']) . '" ' .
 		'WHERE increment=' . $_POST['id']);
 		$connection->query('INSERT INTO cibl_data 
 							SELECT * FROM cibl_queue 
@@ -233,6 +236,8 @@ while ($count < count($entries)){
 	echo "\n </div>";
 	echo "\n </div>";
 	
+	error_log(htmlentities($entries[$count][10], ENT_QUOTES));
+	
 	//ROW VALUES
 	echo "<input id='id_" . $entries[$count][0] . "' name='id_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][0] . "'/>";
 	echo "<input id='url_" . $entries[$count][0] . "' name='url_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][1] . "'/>";
@@ -241,9 +246,9 @@ while ($count < count($entries)){
 	echo "<input id='date_" . $entries[$count][0] . "' name='date_" . $entries[$count][0] . "' type='hidden' value='" . $datetime . "'/>";
 	echo "<input id='lat_" . $entries[$count][0] . "' name='lat_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][6] . "'/>";
 	echo "<input id='lon_" . $entries[$count][0] . "' name='lon_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][7] . "'/>";
-	echo "<input id='street1_" . $entries[$count][0] . "' name='street1_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][8] . "'/>";
-	echo "<input id='street2_" . $entries[$count][0] . "' name='street2_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][9] . "'/>";
-	echo "<input id='comment_" . $entries[$count][0] . "' name='comment_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][10] . "'/>";
+	echo "<input id='street1_" . $entries[$count][0] . "' name='street1_" . $entries[$count][0] . "' type='hidden' value='" . htmlentities($entries[$count][8], ENT_QUOTES) . "'/>";
+	echo "<input id='street2_" . $entries[$count][0] . "' name='street2_" . $entries[$count][0] . "' type='hidden' value='" . htmlentities($entries[$count][9], ENT_QUOTES) . "'/>";
+	echo "<input id='comment_" . $entries[$count][0] . "' name='comment_" . $entries[$count][0] . "' type='hidden' value='" . htmlentities($entries[$count][10], ENT_QUOTES) . "'/>";
 	//END MOD QUEUE ROW
 	$count++;
 }
@@ -669,15 +674,19 @@ function accept(id){
 	'<input type="hidden" name="plate" value="' + currentEntry.plate + '" />' +
 	'<input type="hidden" name="state" value="' + currentEntry.state + '" />' +
 	'<input type="hidden" name="date" value="' + currentEntry.date + '" />' +
-	'<input type="hidden" name="street1" value="' + currentEntry.street1 + '" />' +
-	'<input type="hidden" name="street2" value="' + currentEntry.street2 + '" />' +
+	'<input type="hidden" name="street1" value="' + htmlEntities(currentEntry.street1) + '" />' +
+	'<input type="hidden" name="street2" value="' + htmlEntities(currentEntry.street2) + '" />' +
 	'<input type="hidden" name="lat" value="' + currentEntry.lat + '" />' +
 	'<input type="hidden" name="lon" value="' + currentEntry.lon + '" />' +
-	'<input type="hidden" name="comment" value="' + currentEntry.comment + '" />' +
+	'<input type="hidden" name="comment" value="' + htmlEntities(currentEntry.comment) + '" />' +
 	'<input type="hidden" name="rotate" value="' + rotations.get(currentEntry.id * 1) + '" />' +
 	'</form>');
 	$('body').append(form);
 	form.submit();
+}
+
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function remove(id){

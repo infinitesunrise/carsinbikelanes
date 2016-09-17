@@ -116,7 +116,6 @@ echo "\n newCount++;";
 echo "\n });";
 echo "\n";
 echo "\n newMarkers.addLayer(marker" . $row[0] . ");";
-echo "\n console.log(\"" . $count . ": newMarkers.length: \" + newCount);";
 echo "\n }); ";
 echo "\n";
 echo "\n </script> ";

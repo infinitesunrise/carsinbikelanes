@@ -163,7 +163,9 @@ function update_coords(){
 			'east_bounds' => $_POST['east_bounds'],
 			'west_bounds' => $_POST['west_bounds'],
 			'center_lat' => $_POST['center_lat'],
-			'center_long' => $_POST['center_long']
+			'center_long' => $_POST['center_long'],
+			'mobile_center_lat' => $_POST['mobile_center_lat'],
+			'mobile_center_long' => $_POST['mobile_center_long']
 		);
 		
 		if($new_values['north_bounds'] <= 90 &&

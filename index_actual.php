@@ -15,8 +15,9 @@ include ('admin/config_pointer.php');
 <head>
 <meta charset="UTF-8"> 
  
-<!-- main stylesheet -->
+<!-- local stylesheets -->
 <link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet" type="text/css" href="css/plates.css" />
 
 <!-- jquery -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
@@ -73,7 +74,7 @@ $(document).ready(function() {
 	$("#about").hide();
 	$("#submission_form").hide();
 	$(".results_form").hide();
-	$(".entry_list").hide();
+	$('#entry_view').hide();
 	$(".single_view_pane").hide();
 	$(".right_menu").show();
 	setTimeout(function() { load_entries(); }, 250);
@@ -101,11 +102,12 @@ function zoomToEntry(lat,lng,id) {
 	single_view_url = "single_view.php?id=" + id;
 	$(".single_view_pane_container").load(single_view_url);
 	open_window('none', true);
-	body_map.panTo([lat,lng-.005]);
+	//body_map.panTo([lat,lng-.005]);
+	body_map.setView([lat,lng-.005], 17);
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
 	markers.clearLayers();
 	markers.addLayer(soloMarker);
-	body_map.setZoom(17);
+	//body_map.setZoom(17);
 	setTimeout(function() { open_window('single_view', true); }, 700);
 	setTimeout(function() { stop_load_entries = false; }, 500);	;
 }
@@ -125,7 +127,7 @@ function open_window(window, close_entry_list = false) {
 	windows.single_view = false; windows.about_view = false; windows.submit_view = false;
 	
 	if (windows.entry_list == true && close_entry_list == true) {
-		$('.entry_list').animate({opacity: 'toggle', left: '-565px'});
+		$('#entry_view').animate({opacity: 'toggle', left: '-565px'});
 		windows.entry_list = false;
 	}
 	if (window == 'single_view' && windows.single_view == false){
@@ -143,11 +145,9 @@ function open_window(window, close_entry_list = false) {
 		windows.submit_view = true;
 	}
 	if (window == 'entry_list' && windows.entry_list == false){
-		$('.entry_list').animate({opacity: 'toggle', left: '0px'});
+		$('#entry_view').animate({opacity: 'toggle', left: '0px'});
 		windows.entry_list = true;
 	}
-	
-	/*console.log("entry_list: " + windows.entry_list + " single_view: " + windows.single_view + " about_view: " + windows.about_view + " submit_view: " + windows.submit_view);*/
 }
 
 function initializeDateTimePicker() {
@@ -225,6 +225,7 @@ function submitForm(e) {
 	formData.append( 'street1', document.getElementById("street1").value );
 	formData.append( 'street2', document.getElementById("street2").value );
 	formData.append( 'description',document.getElementById("comments").value );
+	formData.append( 'source','desktop' );
 	$.ajax({
 	  url: '/submission.php',
 	  type: 'POST',
@@ -246,13 +247,13 @@ function submitForm(e) {
 
 function load_entries() {
 	if (stop_load_entries == false) {
+		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
 		var west = body_map.getBounds().getWest();
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
-		$( "#inner_container" ).load( load_url );
-		open_window('entry_list');
+		$( "#entry_list_content" ).load( load_url, function(){ open_window('entry_list'); $('#loading').css('background', 'none'); setTimeout(function(){resize_entry_list();}, 500); });
 	}
 }
 
@@ -263,6 +264,14 @@ function onSubmitClick(e) {
     document.getElementById("gps_coords").innerHTML = gps_text;
     document.getElementById("latitude").value = e.latlng.lat;
     document.getElementById("longitude").value = e.latlng.lng;
+}
+
+function resize_entry_list(){
+	total_height = 10;
+	$('.column_entry').map( function(){ total_height += $(this).outerHeight(); });
+	console.log(total_height);
+	if (total_height < document.body.clientHeight){ $('#entry_view').animate({ height: total_height }); }
+	else { $('#entry_view').animate({ height: '97vh' }); }
 }
 
 function limitText() {
@@ -396,6 +405,10 @@ if (isset($_GET['setup_success_dialog'])){
 <br>
 <div class="right_menu_item" id="about_link">
 <span>ABOUT</span>
+</div>
+<br>
+<div class="right_menu_item" id="loading">
+<span></span>
 </div>
 </div>
 
@@ -542,8 +555,8 @@ if (isset($_GET['setup_success_dialog'])){
 </div>
 
 <!-- LIST OF ENTRIES -->
-<div class="entry_list" id="entry_list">
-<div class="inner_container" id="inner_container">
+<div class="entry_view" id="entry_view">
+<div class="entry_list_content" id="entry_list_content">
 </div>
 </div>
 

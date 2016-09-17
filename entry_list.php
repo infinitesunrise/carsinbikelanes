@@ -46,13 +46,7 @@ if ($count == 0){
 while ($row = mysqli_fetch_array($entries)){
 	if (isset($_GET['plate'])) { $lat_total += $row[6]; $long_total += $row[7]; }
 	
-	//echo "\n\n <div class='moderation_queue_row' id='moderation_queue_row" . $entries[$count][0] . "'>";
 	echo "\n\n <div class='column_entry' onClick='zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");'>";
-	
-	//---SECTION 1: IMAGE---
-	//echo "\n <div id='" . $entries[$count][0] . "' class='mod_queue_img_container'>";
-	//echo "\n <img id='img" . $entries[$count][0] . "' class='review' src='../thumbs/" . $entries[$count][1] . "' onclick=\"javascript:toggleImg('" . $entries[$count][1] . "', //" . $entries[$count][0] . ");\"/>";
-	//echo "\n </div>";
 	
 	echo "\n <div class='column_entry_thumbnail'>";
 	echo "\n <img class='thumbnail' src=thumbs/" . $row[1] . " />";
@@ -91,9 +85,8 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "</div><br/>";
 	
 	if ($row[8] !== ''){
-		echo "\n<span>STREETS: </span>";
-		echo "<div id='streets" . $row[0] . "' class='info edit_streets main_font'>";
-		echo "<span>" . strtoupper($row[8]);
+		echo "<div id='streets" . $row[0] . "' class='info edit_streets'>";
+		echo "<span>STREETS: " . strtoupper($row[8]);
 		if ($row[9] !== ''){
 			echo " & " . strtoupper($row[9]);
 		}
@@ -117,6 +110,7 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </div>";
 	echo "\n </div>";
 	
+	//SCRIPT
 	echo "\n <script type='text/javascript'> ";
 	echo "\n $(document).ready(function() { ";
 	echo "\n var marker" . $row[0] . " = new L.marker([" . $row[6] . ", " . $row[7] . "], {title: '#" . $row[0] . ": " . strtoupper($row[2]) . "'});";
@@ -131,65 +125,18 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n });";
 	echo "\n";
 	echo "\n newMarkers.addLayer(marker" . $row[0] . ");";
-	echo "\n console.log(\"" . $count . ": newMarkers.length: \" + newCount);";
 	echo "\n }); ";
 	echo "\n";
 	echo "\n </script> ";
-	
-	/*
-	echo "\n <div class='column_entry' onClick='zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");'>";
-		
-	echo "\n <div class='column_entry_thumbnail'>";
-	echo "\n <img class='thumbnail' src=thumbs/" . $row[1] . " />";
-	echo "\n </div>";
-	
-	echo "\n <div class='column_entry_info'>";
-	if ($row[3] == "NYPD"){
-		$plate_split = str_split($row[2], 4);
-		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate NYPD'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $plate_split[0] . "</a><span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
-	}
-	else {
-		echo "\n <div class='plate_name'><div><h2>#" . $row[0] . ":</h2></div> <div class='plate ". $row[3] . "'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</a></div></div>";
-	}
-	$datetime = new DateTime($row[4]);
-	echo "\n <p class='entry_details'>" . strtoupper($datetime->format('m/d/Y g:ia')) . " @ <a class='coords' onclick='body_map.setZoomAround([" . $row[6] . "," . $row[7] . "], 17);'>";
-	
-	if ($row[8] !== ''){
-		echo strtoupper($row[8]);
-		if ($row[9] !== ''){
-			echo " & " . strtoupper($row[9]);
-		}
-	}
-	else { 
-		echo $row[6] . " / " . $row[7];
-	}
-	
-	echo "</a></p>\n";
-	echo "\n <p class='entry_comment'>" . nl2br($row[10]) . "</p>";
-	echo "\n </div>";
-	
-	echo "\n </div>";
-	echo "\n";
-	
-	echo "\n <script type='text/javascript'> ";
-	echo "\n $(document).ready(function() { ";
-	echo "\n var marker" . $row[0] . " = new L.marker([" . $row[6] . ", " . $row[7] . "], {title: '#" . $row[0] . ": " . strtoupper($row[2]) . "'});";
-	echo "\n";
-	echo "\n marker" . $row[0] . ".on('click', function(e) {";
-	echo "\n	zoomToEntry(" . $row[6] . ", " . $row[7] . ", " . $row[0] . ");";
-	echo "\n });";
-	echo "\n";
-	echo "\n var newCount = 0;";
-	echo "\n newMarkers.eachLayer(function (layer) {";
-    echo "\n newCount++;";
-	echo "\n });";
-	echo "\n";
-	echo "\n newMarkers.addLayer(marker" . $row[0] . ");";
-	echo "\n console.log(\"" . $count . ": newMarkers.length: \" + newCount);";
-	echo "\n }); ";
-	echo "\n";
-	echo "\n </script> "; */
 }
+echo "\n <script type='text/javascript'> ";
+echo "\n check = '" . isset($_GET['mobile']) . "';";
+echo "\n if(check){";
+echo "\n 	if(" . $count . " < 3){ resize_entry_list() }";
+echo "\n 	else { $('#entry_view').animate({ top: '50vh' }); }";
+echo "\n }";
+//echo "\n else { resize_entry_list(); }";
+echo "\n </script> ";
 
 if (isset($_GET['plate'])){
 $lat_average = $lat_total / $count;
@@ -202,7 +149,6 @@ echo "\n </script> ";
 
 echo "\n <script type='text/javascript'> ";
 echo "\n $(document).ready(function() {";
-echo "\n 	console.log('newMarkers.length: ' + newMarkers.length);";
 echo "\n 	newMarkers.eachLayer(function (marker) {";
 echo "\n 		if (markers.hasLayer(marker) == false){";
 echo "\n 			markers.addLayer(marker);";
