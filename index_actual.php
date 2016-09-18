@@ -62,20 +62,21 @@ windows = {
 	single_view: false,
 	about_view: false,
 	submit_view: false,
-	entry_list: false
+	entry_list: false,
+	stop_load_entries: false
 }
 marker = new L.marker();
-stop_load_entries = false;
+//stop_load_entries = false;
 noemail = true;
 
 $(document).ready(function() {
 	initializeMaps();
 	initializeDateTimePicker();
-	$("#about").hide();
+	$("#about_view").hide();
 	$("#submission_form").hide();
 	$(".results_form").hide();
 	$('#entry_view').hide();
-	$(".single_view_pane").hide();
+	$(".single_view").hide();
 	$(".right_menu").show();
 	setTimeout(function() { load_entries(); }, 250);
 	
@@ -98,26 +99,24 @@ $(document).ready(function() {
 });
 
 function zoomToEntry(lat,lng,id) {
-	stop_load_entries = true;
+	windows.stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
-	$(".single_view_pane_container").load(single_view_url);
+	$("#single_view").load(single_view_url);
 	open_window('none', true);
-	//body_map.panTo([lat,lng-.005]);
 	body_map.setView([lat,lng-.005], 17);
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
 	markers.clearLayers();
 	markers.addLayer(soloMarker);
-	//body_map.setZoom(17);
 	setTimeout(function() { open_window('single_view', true); }, 700);
-	setTimeout(function() { stop_load_entries = false; }, 500);	;
+	setTimeout(function() { windows.stop_load_entries = false; }, 500);	;
 }
 
 function open_window(window, close_entry_list = false) {
 	if (windows.single_view == true) {
-		$('.single_view_pane').animate({opacity: 'toggle', left: '-865px'});
+		$('#single_view').animate({opacity: 'toggle', left: '-865px'});
 	}
 	if (windows.about_view == true) {
-		$('#about').animate({opacity: 'toggle', right: '-565px'});
+		$('#about_view').animate({opacity: 'toggle', right: '-605px'});
 		$('.right_menu').delay(300).animate({opacity: 'toggle'});
 	}
 	if (windows.submit_view == true) {
@@ -131,11 +130,11 @@ function open_window(window, close_entry_list = false) {
 		windows.entry_list = false;
 	}
 	if (window == 'single_view' && windows.single_view == false){
-		$('.single_view_pane').animate({opacity: 'toggle', left: '0px'});
+		$('#single_view').animate({opacity: 'toggle', left: '0px'});
 		windows.single_view = true;
 	}
 	if (window == 'about_view' && windows.about_view == false){
-		$('#about').animate({opacity: 'toggle', right: '0px'});
+		$('#about_view').animate({opacity: 'toggle', right: '0px'});
 		$('.right_menu').hide();
 		windows.about_view = true;
 	}
@@ -246,14 +245,18 @@ function submitForm(e) {
 }
 
 function load_entries() {
-	if (stop_load_entries == false) {
+	if (windows.stop_load_entries == false) {
 		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
 		var west = body_map.getBounds().getWest();
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
-		$( "#entry_list_content" ).load( load_url, function(){ open_window('entry_list'); $('#loading').css('background', 'none'); setTimeout(function(){resize_entry_list();}, 500); });
+		$( "#entry_list_content" ).load( load_url, function(){ 
+				open_window('entry_list');
+				$('#loading').css('background', 'none');
+				setTimeout(function(){ resize_entry_list(); }, 500); 
+			});
 	}
 }
 
@@ -269,7 +272,6 @@ function onSubmitClick(e) {
 function resize_entry_list(){
 	total_height = 10;
 	$('.column_entry').map( function(){ total_height += $(this).outerHeight(); });
-	console.log(total_height);
 	if (total_height < document.body.clientHeight){ $('#entry_view').animate({ height: total_height }); }
 	else { $('#entry_view').animate({ height: '97vh' }); }
 }
@@ -412,12 +414,6 @@ if (isset($_GET['setup_success_dialog'])){
 </div>
 </div>
 
-<!-- SINGLE VIEW PANE -->
-<div class="single_view_pane" id="single_view_pane">
-<div class="single_view_pane_container">
-</div>
-</div>
-
 <!-- SUBMISSION FORM -->
 <div class="submission_form" id="submission_form">
 <div class="submission_form_container">
@@ -535,17 +531,16 @@ if (isset($_GET['setup_success_dialog'])){
 </div>
 </div>
 
-<!-- ABOUT BOX -->
-<div id="about">
-<div class="about_container">
+<!-- ABOUT VIEW -->
+<div id='about_view' class='about_view'>
 <div class="top_dialog_button" onClick="open_window('entry_list')">
 <span>&#x2A09</span>
 </div>
 <?php echo stripslashes(htmlspecialchars_decode($config['about_text'])); ?>
 </div>
-</div>
 
-<!-- RESULTS FORM -->
+
+<!-- RESULTS VIEW -->
 <div class="results_form" id="results_form">
 <div class="top_dialog_button" onClick="open_window('entry_list')">
 <span>&#x2A09</span>
@@ -554,11 +549,19 @@ if (isset($_GET['setup_success_dialog'])){
 </div>
 </div>
 
-<!-- LIST OF ENTRIES -->
+<!-- ENTRIES VIEW -->
 <div class="entry_view" id="entry_view">
 <div class="entry_list_content" id="entry_list_content">
 </div>
 </div>
+
+<!-- SINGLE VIEW -->
+<div class="single_view" id="single_view"></div>
+
+<!-- <div class="single_view_pane" id="single_view_pane">
+<div class="single_view_pane_container">
+</div>
+</div> -->
 
 </body>
 

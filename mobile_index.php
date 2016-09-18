@@ -299,12 +299,15 @@ function submit_map_click(e) {
 
 function load_entries() {
 	if (windows.stop_load_entries == false) {
+		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
 		var west = body_map.getBounds().getWest();
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north + "&mobile=true";
-		$( "#entry_view" ).load( load_url );
+		$( "#entry_view" ).load( load_url, function(){
+				$('#loading').css('background', 'none');
+		});
 		open_window('entry_view');
 	}
 }
@@ -320,8 +323,9 @@ function resize_entry_list(){
 function zoomToEntry(lat,lng,id) {
 	windows.stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
-	$(".single_view").load(single_view_url);
-	open_window('single_view');
+	$(".single_view").load(single_view_url, function(){
+		$('#fullsize').on('load', function(){ open_window('single_view'); });
+	});
 	body_map.panTo([lat-.002,lng]).setZoom(18);
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
 	markers.clearLayers();
@@ -329,20 +333,20 @@ function zoomToEntry(lat,lng,id) {
 	setTimeout(function() { windows.stop_load_entries = false; }, 500);
 }
 
-function open_window(window) {
-	if (window == 'submit_view'){ change_nav('submit'); }
-	else if (window == 'about_view'){ change_nav('about'); }
+function open_window(window_name) {
+	if (window_name == 'submit_view'){ change_nav('submit'); }
+	else if (window_name == 'about_view'){ change_nav('about'); }
 	else { change_nav('close'); }
 	
 	if (windows.entry_view == true) { 
-		if (window != 'entry_view'){ $('#entry_view').animate({opacity: 'toggle', top: '100vh'}); }
+		if (window_name != 'entry_view'){ $('#entry_view').animate({opacity: 'toggle', top: '100vh'}); }
 	}
 	if (windows.single_view == true) { 
 		$('#single_view').animate({opacity: 'toggle', top: '100vh'});
 	}
 	if (windows.about_view == true) { 
 		$('#about_view').animate({opacity: 'toggle', top: '100vh'});
-		if (window == 'about_view'){ 
+		if (window_name == 'about_view'){ 
 			windows.about_view = false;
 			open_window('entry_view');
 			return;
@@ -351,7 +355,7 @@ function open_window(window) {
 	if (windows.submit_view == true) { 
 		$('#submit_view').animate({opacity: 'toggle', top: '100vh'});
 		windows.stop_load_entries = false;
-		if (window == 'submit_view'){
+		if (window_name == 'submit_view'){
 			windows.submit_view = false;
 			open_window('entry_view');
 			return;
@@ -359,31 +363,35 @@ function open_window(window) {
 	}
 	if (windows.results_view == true) { 
 		$('#results_view').animate({opacity: 'toggle', top: '100vh'});
-		if (window == 'results_view'){ open_window('entry_view'); }
+		if (window_name == 'results_view'){ open_window('entry_view'); }
 	}
 	
-	if (window == 'entry_view' && windows.entry_view == false){
+	if (window_name == 'entry_view' && windows.entry_view == false){
 		$('#entry_view').animate({opacity: 'toggle', top: '50vh'});
 		windows.entry_view = true;
 		windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}
-	if (window == 'single_view' && windows.single_view == false){
-		$('#single_view').animate({opacity: 'toggle', top: '25vh'});
+	if (window_name == 'single_view' && windows.single_view == false){
+		console.log($(window).innerHeight() + " / " + $('#single_view').outerHeight());
+		var new_position = $(window).innerHeight() - $('#single_view').outerHeight();
+		$('#single_view').animate({opacity: 'toggle', top: new_position});
+		//console.log($('#single_view').outerHeight() + " / " + new_position);
+		console.log(new_position);
 		windows.single_view = true;
 		windows.entry_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}
-	if (window == 'about_view' && windows.about_view == false){
+	if (window_name == 'about_view' && windows.about_view == false){
 		$('#about_view').animate({opacity: 'toggle', top: '7vh'});
 		windows.about_view = true;
 		windows.entry_view = false; windows.single_view = false; windows.submit_view = false; windows.results_view = false;
 	}
-	if (window == 'submit_view' && windows.submit_view == false){
+	if (window_name == 'submit_view' && windows.submit_view == false){
 		$('#submit_view').animate({opacity: 'toggle', top: '7vh'});
 		windows.stop_load_entries = true;
 		windows.submit_view = true;
 		windows.entry_view = false; windows.single_view = false; windows.about_view = false; windows.results_view = false;
 	}
-	if (window == 'results_view' && windows.results_view == false){;
+	if (window_name == 'results_view' && windows.results_view == false){;
 		$('#results_view').animate({opacity: 'toggle', top: '25vh'});
 		windows.results_view = true;
 		windows.entry_view = false; windows.single_view = false; windows.about_view = false; windows.submit_view = false;
@@ -409,6 +417,9 @@ function limitText() {
 
 <div id='nav_container' class='nav_container'>
 <div id='nav' class='nav'>
+
+<div id='loading' class='nav_link'>
+</div>
 
 <div id='about_link_container' class='nav_link'>
 <div id='about_link'><span class='nav'>ABOUT <?php echo $config['site_name'] ?></span></div>
@@ -440,7 +451,11 @@ function limitText() {
 <form id="mobile_submission_form" action="submission.php" enctype="multipart/form-data">
 
 	<div id="form_row">
-    <div id="spacer"><span>IMAGE:</span></div> <input type="file" name="image_submission" id="image_submission">
+    <div id="spacer"><span>IMAGE:</span></div>
+	<label id="file_container">
+	<span>CLICK TO ADD</span>
+	<input type="file" name="image_submission" id="image_submission">
+	</label>
     </div>
     
     <div id="form_row">

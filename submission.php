@@ -10,6 +10,8 @@ if (empty($_FILES["image_submission"]["name"])){
 //CHECK IF ATTACHMENT IS AN IMAGE
 if(isset($_POST["submit"])) {
     $check = getimagesize($_FILES["image_submission"]["tmp_name"]);
+	error_log($_FILES["image_submission"]["tmp_name"]);
+	error_log(getimagesize($_FILES["image_submission"]["tmp_name"]));
     if($check !== false){
     	$target_extension = pathinfo(basename($_FILES["image_submission"]["name"]), PATHINFO_EXTENSION);
     	if($target_extension == "jpg" ||
@@ -71,7 +73,9 @@ if (!file_exists( "thumbs/" . $today['year'] . "/" . $today['mon'] . "/" . $toda
 
 //DETERMINE TARGET FILE NAME
 $target_dir = $today['year'] . "/" . $today['mon'] . "/" . $today['mday'] . "/";
-$target_increment = mysqli_fetch_array(mysqli_query($connection, "SELECT MAX(increment) AS increment FROM cibl_data"))[0] + 1;
+$target_increment1 = mysqli_fetch_array(mysqli_query($connection, "SELECT MAX(increment) AS increment FROM cibl_data"))[0] + 1;
+$target_increment2 = mysqli_fetch_array(mysqli_query($connection, "SELECT MAX(increment) AS increment FROM cibl_queue"))[0] + 1;
+$target_increment = ($target_increment1 > $target_increment2) ? $target_increment1 : $target_increment2;
 $target_extension = pathinfo(basename($_FILES["image_submission"]["name"]), PATHINFO_EXTENSION);
 $target_file = $target_dir . "queue_" . $target_increment . "." . $target_extension;
 $target_image = "images/" . $target_file;
@@ -107,6 +111,7 @@ $row_added = "INSERT INTO cibl_queue (increment, url, plate, state, date_occurre
 			$description_string . "')";
 //echo $row_added . "<br>";
 if ($connection->query($row_added) === FALSE) {
+	error_log($connection->error);
     error("mysql");
 }
 

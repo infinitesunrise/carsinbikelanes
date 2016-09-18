@@ -29,6 +29,13 @@ body {
 	margin: 0px 10px 0px 10px;
 }
 
+#loading {
+	width: 6vh;
+	height: 6vh;
+	background: none;
+	/*background: url('loader.svg') 100% no-repeat;*/
+}
+
 #submit_link, #about_link {
 	position: relative;
 	top: -5vh;
@@ -79,6 +86,10 @@ span.nav {
 	display: flex;
 	justify-content: flex-start;
 	flex-wrap: nowrap;
+}
+
+.column_entry a:hover {
+    text-decoration: underline;
 }
 
 .column_entry_thumbnail {
@@ -151,7 +162,7 @@ span.nav {
 	top: 100vh;
 	left: 1vw;
 	width: 92vw;
-	height: 70vh;
+	max-height: 70vh;
 	padding: 1vh;
 	background-color: rgba(255, 255, 255, 0.8);
 	border: 10px solid rgba(0, 0, 0, 0.2);
@@ -281,9 +292,28 @@ span {
 	padding: 0px;
 }
 
+#file_container {
+	height: 54px;
+	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+	font-size: 42px;
+	display: inline-block;
+	overflow: hidden;
+	background-color: lightgray;
+    box-shadow: inset -2px -2px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
+                inset 2px 2px 1px rgba(255,255,255,0.8); /*top internal highlight*/
+    cursor: pointer;
+}
+
+#street1, #street2, #file_container {
+	width: 30vw;
+}
+
 #image_submission {
-	width: 500px;
+	min-width: 100%;
+	min-height: 100%;
 	-webkit-appearance: none;
+	opacity: 0;
 }
 
 #form_row {

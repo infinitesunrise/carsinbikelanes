@@ -65,10 +65,10 @@ while ($row = mysqli_fetch_array($entries)){
 	
 	if ($row[3] == "NYPD"){
 		$plate_split = str_split($row[2], 4);
-		echo "\n <div class='plate NYPD'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></a></div></div>";
+		echo "\n <div class='plate NYPD'><a class='plate_text' onclick='plate_search(\"" . $row[2] . "\")'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></a></div></div>";
 	}
 	else {
-		echo "\n <div class='plate ". $row[3] . "'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</a></div></div>";
+		echo "\n <div class='plate ". $row[3] . "'><a class='plate_text' onclick='plate_search(\"" . $row[2] . "\")'>" . $row[2] . "</a></div></div>";
 	}
 
 	echo "\n </div>";
@@ -103,8 +103,10 @@ while ($row = mysqli_fetch_array($entries)){
 
 		//---SECTION 2.BOTTOM: COMMENT---
 	echo "\n <div>";
-	echo "\n <span>COMMENT:</span>";
-	echo "\n <div id='comment" . $row[0] . "'><span>" . nl2br($row[10]) . "</span></div>";
+	if (strlen($row[10]) > 0){
+		echo "\n <span>COMMENT:</span>";
+		echo "\n <div id='comment" . $row[0] . "'><span>" . nl2br($row[10]) . "</span></div>";
+	}
 	echo "\n </div>";
 	
 	echo "\n </div>";
@@ -135,19 +137,16 @@ echo "\n if(check){";
 echo "\n 	if(" . $count . " < 3){ resize_entry_list() }";
 echo "\n 	else { $('#entry_view').animate({ top: '50vh' }); }";
 echo "\n }";
-//echo "\n else { resize_entry_list(); }";
-echo "\n </script> ";
 
 if (isset($_GET['plate'])){
 $lat_average = $lat_total / $count;
 $long_average =  $long_total / $count;
-echo "\n <script type='text/javascript'> ";
-echo "\n body_map.setView([" . $lat_average . ", " . ($long_average - 0.05) . "], 12);";
-echo "\n setTimeout(function() { stop_load_entries = false; }, 1000);";
-echo "\n </script> ";
+echo "\n body_map.setView([" . $lat_average . ", " . $long_average . "], 12);";
+echo "\n setTimeout(function() { windows.stop_load_entries = false; }, 500);";
 }
 
-echo "\n <script type='text/javascript'> ";
+echo "\n\n";
+
 echo "\n $(document).ready(function() {";
 echo "\n 	newMarkers.eachLayer(function (marker) {";
 echo "\n 		if (markers.hasLayer(marker) == false){";
@@ -167,12 +166,16 @@ echo "\n 	e.stopPropagation();";
 echo "\n 	e.preventDefault();";
 echo "\n });";
 
-echo "\n function plateSearch(plate) {";
+echo "\n function plate_search(plate) {";
 echo "\n 	var load_url = 'entry_list.php?plate=' + plate;";
-echo "\n 	$( '#inner_container' ).load( load_url );";
-echo "\n 	stop_load_entries = true;";
-echo "\n 	markers.clearLayers();";
-echo "\n 	open_window('entry_list');";
+echo "\n 	if(check){";
+echo "\n 		load_url += '&mobile=true';";
+echo "\n 	}";
+echo "\n 	windows.stop_load_entries = true;"; //Will be set false again on next run when checking $_GET['plate']
+echo "\n 	if(check){ $( '#entry_view' ).load( load_url ); }";
+echo "\n 	else { $( '#entry_list_content' ).load( load_url, function(){";
+echo "\n		setTimeout(function(){ resize_entry_list(); }, 500);";	
+echo "\n 	}); }";
 echo "\n }";
 echo "\n </script>";
 ?>
