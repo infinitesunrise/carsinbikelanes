@@ -26,6 +26,8 @@ function config_write($new_config){
 		"mobile_center_lat" => 40.65,
 		"mobile_center_long" => -73.9637,
 		"site_name" => "CARSINBIKELANES",
+		"comments" => "",
+		"disqus" => "",
 		"about_text" => '&lt;h3&gt;About CARSINBIKELANES&lt;/h3&gt;
 &lt;p&gt;CIBL is a browsable geographic database for documenting crowdsourced traffic violation reports. Designed originally to publicly track illegal automotive encroachment into New York City bike lanes, this web app can be easily adapted for simple crowdsourced documentation of any geo-located event, particularly any sort of observable traffic violation.&lt;/p&gt;
 &lt;p&gt;In a LAMP environement CIBL will deploy itself out of the box via a simple setup wizard. Support for numerous free maps is provided by &lt;a href=&quot;https://github.com/leaflet-extras/leaflet-providers&quot;&gt;leaflet-providers&lt;/a&gt; and Google Maps support via &lt;a href=&quot;https://github.com/shramov/leaflet-plugins&quot;&gt;leaflet-plugins&lt;/a&gt;. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record. GPS coordinates and date/time are pulled from image exif data if available via the included exif.js library. Administrative credentials are protected with PHPass. CIBL\'s mobile view is designed for quick and easy capture and upload of records on the go. A submissions queue allows administrative users to accept or deny pending submissions.&lt;/p&gt;
@@ -70,6 +72,8 @@ function config_write($new_config){
 	"'mobile_center_lat' => " . $new_config['mobile_center_lat'] . ",\n" .
 	"'mobile_center_long' => " . $new_config['mobile_center_long'] . ",\n" .
 	"'site_name' => '" . $new_config['site_name'] . "',\n" .
+	"'comments' => '" . $new_config['comments'] . "',\n" .
+	"'disqus' => '" . $new_config['disqus'] . "',\n" .
 	"'about_text' => '" . addslashes(stripslashes($new_config['about_text'])) . "'\n" .
 	");\n\n" .
 	"\$connection = mysqli_connect(\$config['sqlhost'],\$config['sqluser'],\$config['sqlpass'],\$config['database']);\n\n" .

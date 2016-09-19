@@ -1,14 +1,16 @@
-<?php 
-
-if (isset($_GET["forcedesktop"]) == false){
-	include 'detectmobilebrowser.php';
-}
-else if ($_GET["forcedesktop"] == false) {
-	include 'detectmobilebrowser.php';
-}
-
+<?php
 include ('admin/config_pointer.php');
-
+$single_view_id = (isset($_GET['single_view'])) ? $_GET['single_view'] : 0;
+include ('mobile_detect.php');
+$single_view_details = '';
+if (isset($_GET['single_view'])){
+	$query = 'SELECT gps_lat, gps_long FROM cibl_data WHERE increment=' . $_GET['single_view'];
+	$result = mysqli_fetch_array($connection->query($query));
+	$single_view_lat = $result[0];
+	$single_view_long = $result[1];
+	$single_view_details = $single_view_lat . ', ' . $single_view_long . ', ' . $single_view_id;
+}
+include ('mobile_detect.php');
 ?>
 
 <html>
@@ -78,7 +80,10 @@ $(document).ready(function() {
 	$('#entry_view').hide();
 	$(".single_view").hide();
 	$(".right_menu").show();
-	setTimeout(function() { load_entries(); }, 250);
+	setTimeout(function() {
+		if(<?php echo $single_view_id; ?>){ zoomToEntry(<?php echo $single_view_details; ?>); }
+		else { load_entries(); }
+	}, 250);
 	
 	body_map.on('panend', function(e) { load_entries(); });
 	body_map.on('moveend', function(e) { load_entries(); });

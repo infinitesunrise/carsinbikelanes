@@ -3,6 +3,15 @@
 
 <?php
 include ('admin/config_pointer.php');
+$single_view_id = (isset($_GET['single_view'])) ? $_GET['single_view'] : 0;
+$single_view_details = '';
+if (isset($_GET['single_view'])){
+	$query = 'SELECT gps_lat, gps_long FROM cibl_data WHERE increment=' . $_GET['single_view'];
+	$result = mysqli_fetch_array($connection->query($query));
+	$single_view_lat = $result[0];
+	$single_view_long = $result[1];
+	$single_view_details = $single_view_lat . ', ' . $single_view_long . ', ' . $single_view_id;
+}
 ?>
 
 <!-- local stylesheets -->
@@ -68,7 +77,8 @@ $(document).ready(function() {
 	
 	initialize_body_map();
 	
-	load_entries();
+	if(<?php echo $single_view_id; ?>){ zoomToEntry(<?php echo $single_view_details; ?>); }
+	else{ load_entries(); }
 	
 	$('#submit_link').click(function(){ open_window('submit_view'); initialize_submit_view(); });
 	$('#about_link').click(function(){ open_window('about_view'); });
@@ -324,7 +334,10 @@ function zoomToEntry(lat,lng,id) {
 	windows.stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
 	$(".single_view").load(single_view_url, function(){
-		$('#fullsize').on('load', function(){ open_window('single_view'); });
+		$('#fullsize').on('load', function(){ 
+			open_window('single_view');
+			$('#single_view').css('max-height', $('#single_view').outerHeight());
+		});
 	});
 	body_map.panTo([lat-.002,lng]).setZoom(18);
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
@@ -372,11 +385,11 @@ function open_window(window_name) {
 		windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}
 	if (window_name == 'single_view' && windows.single_view == false){
-		console.log($(window).innerHeight() + " / " + $('#single_view').outerHeight());
+		//console.log($(window).innerHeight() + " / " + $('#single_view').outerHeight());
 		var new_position = $(window).innerHeight() - $('#single_view').outerHeight();
 		$('#single_view').animate({opacity: 'toggle', top: new_position});
 		//console.log($('#single_view').outerHeight() + " / " + new_position);
-		console.log(new_position);
+		//console.log(new_position);
 		windows.single_view = true;
 		windows.entry_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}

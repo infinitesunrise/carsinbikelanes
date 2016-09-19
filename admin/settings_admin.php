@@ -148,6 +148,25 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 </form>
 </div>
 </div>
+
+<div class='settings_box'>
+<div class='settings_group'>
+<h3>Comments</h3>
+<form action='settings_update.php' method='post'>
+<input type='hidden' name='update_comments' value='true'>
+<?php
+if ($config['comments'] == TRUE) {
+	echo "<span>allow comments: </span><input type='checkbox' id='comments' name='comments' checked='checked'/>"; }
+else { 
+	echo "<span>allow comments: </span><input type='checkbox' id='comments' name='comments'/>"; }
+?>
+<br>
+<span>disqus shortname: </span><input type='text' class='wide' id='disqus' name='disqus' value='<?php echo $config['disqus']; ?>'/>
+<p class="tinytext">Disqus comments are supported. Enter your Disqus site's shortname above to connect.</p>
+<input type='submit' class='wide' name='update_comments' value='Update Comments'/>
+</form>
+</div>
+</div>
  
 <div class='settings_box'>
 <div class="settings_group">

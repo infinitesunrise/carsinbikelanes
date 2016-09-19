@@ -52,7 +52,7 @@ if (isset($_GET['error'])){
 <span>username: </span><input class='wide' type="text" name="sqluser"/><br>
 <span>password: </span><input class='wide' type="password" name="sqlpass"/><br>
 <span>database: </span><input class='wide' type="text" name="database" placeholder="carsinbikelanes"/><br>
-<p class="tinytext">Note: Database must not already exist.</p>
+<p class="tinytext">If database already exists it should be formatted as UTF-8.</p>
 </div>
 </div>
 

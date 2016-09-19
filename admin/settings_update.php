@@ -11,6 +11,7 @@ if (isset($_POST['update_users'])){ update_users($connection); }
 if (isset($_POST['update_identity'])){ update_identity(); }
 if (isset($_POST['update_coords'])){ update_coords(); }
 if (isset($_POST['update_about'])){ update_about(); }
+if (isset($_POST['update_comments'])){ update_comments(); }
 if (isset($_POST['update_map'])){ update_map($config_folder); }
 if (isset($_POST['update_database'])){ update_database(); }
 
@@ -143,6 +144,7 @@ function update_users($connection){
 		}
 		$index++;
 	}
+	return_message("User list updated.");
 }
 
 function update_identity(){
@@ -190,6 +192,17 @@ function update_about(){
 		$new_values = array( 'about_text' => $new_text) ;
 		config_write($new_values);
 		return_message("Updated about box text.");
+	}
+}
+
+function update_comments(){
+	if(isset($_POST['update_comments'])){
+		$new_values = array(
+			'comments' => $_POST['comments'],
+			'disqus' => $_POST['disqus']
+		);
+		config_write($new_values);
+		return_message("Comment settings updated.");
 	}
 }
 

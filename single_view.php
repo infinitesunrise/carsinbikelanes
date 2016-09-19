@@ -74,6 +74,8 @@ echo "\n </div>";
 echo "\n </div>";
 echo "\n </div>";
 
+if ($config['comments']){ include 'comment.php'; }
+
 echo "\n <script type='text/javascript'> ";
 echo "\n $(document).ready(function() { ";
 echo "\n var marker" . $row[0] . " = new L.marker([" . $row[6] . ", " . $row[7] . "], {title: '#" . $row[0] . ": " . strtoupper($row[2]) . "'});";

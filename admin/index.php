@@ -43,8 +43,6 @@
 require('config_pointer.php');
 
 if (isset($_POST['save'])) {
-	error_log($_POST['comment']);
-	error_log(mysqli_real_escape_string($connection,  $_POST['comment']));
 	try {
 		//MOVE SUBMISSION TO MAIN TABLE, DELETE QUEUE SUBMISSION, UPDATE IMAGE NAMES AND URLS
 		$connection->begin_transaction();
@@ -85,7 +83,6 @@ if (isset($_POST['save'])) {
 		}
 	}
 	catch (Exception $e) {
-		error_log('MySQL transaction exception: ' . $e);
 		$connection->rollback();
 	}
 }
@@ -235,8 +232,6 @@ while ($count < count($entries)){
 	
 	echo "\n </div>";
 	echo "\n </div>";
-	
-	error_log(htmlentities($entries[$count][10], ENT_QUOTES));
 	
 	//ROW VALUES
 	echo "<input id='id_" . $entries[$count][0] . "' name='id_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][0] . "'/>";

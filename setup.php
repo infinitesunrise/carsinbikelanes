@@ -25,33 +25,6 @@ if ($password1 !== $password2){
 }
 else { $password = $password1; }
 
-//MAKE SURE CONFIG FOLDER PATH IS VALID AND DOES NOT ALREADY EXIST
-$path_parts = explode('/', $config_folder);
-array_pop($path_parts);
-$config_parent = implode('/', $path_parts);
-if (!file_exists($config_parent)){
-	return_error("Config folder path not valid");
-}
-if (file_exists($config_folder)){
-	return_error("Configuration folder already exists at specified location.");
-}
-
-//MOVE AND RENAME CONFIG FOLDER
-if (!rename('config', $config_folder)){
-	return_error("Problem setting up configuration folder.");
-}
-
-//CREATE POINTER TO CONFIG FILE
-$config_pointer = fopen('admin/config_pointer.php', 'w');
-$pointer_contents = 
-	"<?php \n" . 
-	"include ('" . $config_folder . "/config.php');\n" . 
-	"\$config_folder = '" . $config_folder . "';\n" .  
-	"\$config_location = '" . $config_folder . "/config.php';\n" .
-	"?>";
-fwrite($config_pointer, $pointer_contents);
-fclose($config_pointer);
-
 //CREATE MYSQL CONNECTION
 $connection = new mysqli($config['sqlhost'], $config['sqluser'], $config['sqlpass']);
 if ($connection->connect_error) {
@@ -59,14 +32,14 @@ if ($connection->connect_error) {
 } 
 
 //CREATE MYSQL DATABASE
-$query = "CREATE DATABASE " . $config['database'] . " CHARACTER SET utf8 COLLATE utf8_general_ci;";
+$query = "CREATE DATABASE IF NOT EXISTS " . $config['database'] . " CHARACTER SET utf8 COLLATE utf8_general_ci;";
 if ($connection->query($query) === TRUE) {
 	$query = "USE " . $config['database'];
 	if ($connection->query($query) === TRUE) {
-		$progress .= "Database " . $config['database'] . " created successfully.<br>";
+		$progress .= "Database " . $config['database'] . " set up successfully.<br>";
 	}
 } else {
-	return_error("MySQL connection successful but error creating database: " . $connection->connect_error);
+	return_error("MySQL connection successful but error setting up database: " . $connection->error);
 }
 
 //CREATE MYSQL RECORDS TABLE
@@ -86,7 +59,7 @@ description text NOT NULL
 if ($connection->query($query) === TRUE) {
     $progress .= "Records table populated successfully.<br>";
 } else {
-	return_error("MySQL error populating database: " . $connection->connect_error);
+	return_error("MySQL error populating database: " . $connection->error);
 }
 
 //CREATE SUBMISSION QUEUE TABLE
@@ -133,6 +106,33 @@ if ($connection->query($query) === TRUE) {
 }
 
 $connection->close();
+
+//MAKE SURE CONFIG FOLDER PATH IS VALID AND DOES NOT ALREADY EXIST
+$path_parts = explode('/', $config_folder);
+array_pop($path_parts);
+$config_parent = implode('/', $path_parts);
+if (!file_exists($config_parent)){
+	return_error("Config folder path not valid");
+}
+if (file_exists($config_folder)){
+	return_error("Configuration folder already exists at specified location.");
+}
+
+//MOVE AND RENAME CONFIG FOLDER
+if (!rename('config', $config_folder)){
+	return_error("Problem setting up configuration folder.");
+}
+
+//CREATE POINTER TO CONFIG FILE
+$config_pointer = fopen('admin/config_pointer.php', 'w');
+$pointer_contents = 
+	"<?php \n" . 
+	"include ('" . $config_folder . "/config.php');\n" . 
+	"\$config_folder = '" . $config_folder . "';\n" .  
+	"\$config_location = '" . $config_folder . "/config.php';\n" .
+	"?>";
+fwrite($config_pointer, $pointer_contents);
+fclose($config_pointer);
 
 //CREATE CONFIG FILE, CREATE EMPTY DIRECTORIES, SWAP SETUP AND MAIN INDEX PAGE
 config_write($config);

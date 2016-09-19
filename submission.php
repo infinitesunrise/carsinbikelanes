@@ -98,14 +98,15 @@ $street2 = mysqli_real_escape_string($connection, $_POST["street2"]);
 $description_string = mysqli_real_escape_string($connection, $_POST["description"]);
 
 //INSERT NEW RECORD INTO DATABASE
+$state = $_POST["state"]; $gps_lat = $_POST["lat"]; $gps_long = $_POST["lng"];
 $row_added = "INSERT INTO cibl_queue (increment, url, plate, state, date_occurrence, gps_lat, gps_long, street1, street2, description)
 	VALUES (" . $target_increment . ", '" .
 			$target_file . "', '" .
 			$plate . "', '" .
-			$_POST["state"] . "', '" .
+			$state . "', '" .
 			$time . "', " .
-			$_POST["lat"] . ", " .
-			$_POST["lng"] . ", '" .
+			$gps_lat . ", " .
+			$gps_long . ", '" .
 			$street1 . "', '" .
 			$street2 . "', '" .
 			$description_string . "')";
@@ -125,7 +126,18 @@ if ($save_image == false){
 	error("mysql");
 }
 
-success();
+$submission_details = array(
+	'id' => $target_increment,
+	'plate' => $plate,
+	'state' => $state,
+	'date' => $time,
+	'lat' => $gps_lat,
+	'lon' => $gps_long,
+	'street1' => $street1,
+	'street2' => $street2,
+	'description' => $description_string
+);
+success($config, $connection, $submission_details);
 
 //IMAGE RESIZE FUNCTION	
 function resize_image($file, $w, $h, $crop=FALSE) {
@@ -211,7 +223,9 @@ function error($type, $message = '') {
 	die();
 }
 
-function success() {
+function success($config, $connection, $submission_details) {
+		include 'email_notify.php';
+	
 		echo "\n <div class=\"top_dialog_button\" id=\"close\">";
 		echo "\n <span>&#x2A09</span>";
 		echo "\n </div>";
