@@ -34,4 +34,6 @@ Map providers currently supported:
 - OpenStreetMap (Including dozens of third-party OSM tile hosts)  
 - Custom (Self-hosted or third-party hosted tiles, such as Mapbox)  
 - Bing  
-- Google  
+- Google
+
+CIBL uses the GNU General Public License v3.0
