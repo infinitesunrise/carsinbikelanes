@@ -17,23 +17,23 @@ Features:
 Adapt CIBL for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!    
   
 Dependencies:  
-PHP 5.2+  
-MySQL 5.5+  
-Apache  
+- PHP 5.2+  
+- MySQL 5.5+  
+- Apache  
   
 Included FOSS / third-party libraries and plugins:  
-jquery datetimepicker plugin by Valeriy (https://github.com/xdan)  
-exif library plugin by Jacob Seidelin (https://github.com/jseidelin)  
-leaflet-providers by leaflet-extras (https://github.com/leaflet-extras)  
-leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins)  
-Leaflet (https://github.com/Leaflet/Leaflet)  
-Mapbox (https://github.com/mapbox)  
-Google fonts & Google Javascript API  
-Bing maps API  
-license plate font by Dave Hansen  
+- jquery datetimepicker plugin by Valeriy (https://github.com/xdan)  
+- exif library plugin by Jacob Seidelin (https://github.com/jseidelin)  
+- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras)  
+- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins)  
+- Leaflet (https://github.com/Leaflet/Leaflet)  
+- Mapbox (https://github.com/mapbox)  
+- Google fonts & Google Javascript API  
+- Bing maps API  
+- license plate font by Dave Hansen  
   
-Map providers currently supporter:  
-OpenStreetMap (Including dozens of third-party OSM tile hosts)  
-Custom (Self-hosted or third-party hosted tiles, such as Mapbox)  
-Bing  
-Google  
+Map providers currently supported:  
+- OpenStreetMap (Including dozens of third-party OSM tile hosts)  
+- Custom (Self-hosted or third-party hosted tiles, such as Mapbox)  
+- Bing  
+- Google  
