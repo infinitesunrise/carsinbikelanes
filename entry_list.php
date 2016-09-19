@@ -133,10 +133,10 @@ while ($row = mysqli_fetch_array($entries)){
 }
 echo "\n <script type='text/javascript'> ";
 echo "\n check = '" . isset($_GET['mobile']) . "';";
-echo "\n if(check){";
-echo "\n 	if(" . $count . " < 3){ resize_entry_list() }";
-echo "\n 	else { $('#entry_view').animate({ top: '50vh' }); }";
-echo "\n }";
+//echo "\n if(check){";
+//echo "\n 	if(" . $count . " < 3){ resize_entry_list() }";
+//echo "\n 	else { $('#entry_view').animate({ top: '50vh' }); }";
+//echo "\n }";
 
 if (isset($_GET['plate'])){
 $lat_average = $lat_total / $count;

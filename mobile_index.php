@@ -168,7 +168,6 @@ function initialize_body_map() {
 	body_map.on('panend', function(e) { load_entries(); });
 	body_map.on('moveend', function(e) { load_entries(); });
 	body_map.on('click', function(e) { load_entries(); });
-	body_map.on('click', function(e) { $('#submit-link').css('background-color', 'red'); });
 	markers = L.layerGroup().addTo(body_map);
 	newMarkers = L.layerGroup();
 }
@@ -317,17 +316,24 @@ function load_entries() {
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north + "&mobile=true";
 		$( "#entry_view" ).load( load_url, function(){
 				$('#loading').css('background', 'none');
+				resize_entry_list();
 		});
 		open_window('entry_view');
 	}
 }
 
 function resize_entry_list(){
-	total_height = 0;
 	column_entries = document.getElementsByClassName("column_entry");
-	for (i = 0; i < column_entries.length; i++) { total_height += column_entries[i].offsetHeight; }
-	total_height = document.body.clientHeight - total_height;
-	$('#entry_view').animate({ top: total_height });
+	if (column_entries.length < 4){
+		total_height = 0;
+		for (i = 0; i < column_entries.length; i++) { 
+			if ($(column_entries[i]).hasClass("single_view_column_entry") == false) {
+				total_height += column_entries[i].offsetHeight;
+			}			
+		}
+		$('#entry_view').animate({ height: total_height, bottom: '0vh' });
+	}
+	else { $('#entry_view').animate({ height: '50vh', bottom: '0vh' }); }
 }
 
 function zoomToEntry(lat,lng,id) {
@@ -336,7 +342,6 @@ function zoomToEntry(lat,lng,id) {
 	$(".single_view").load(single_view_url, function(){
 		$('#fullsize').on('load', function(){ 
 			open_window('single_view');
-			$('#single_view').css('max-height', $('#single_view').outerHeight());
 		});
 	});
 	body_map.panTo([lat-.002,lng]).setZoom(18);
@@ -352,7 +357,7 @@ function open_window(window_name) {
 	else { change_nav('close'); }
 	
 	if (windows.entry_view == true) { 
-		if (window_name != 'entry_view'){ $('#entry_view').animate({opacity: 'toggle', top: '100vh'}); }
+		if (window_name != 'entry_view'){ $('#entry_view').animate({opacity: 'toggle', bottom: '-50vh'}); }
 	}
 	if (windows.single_view == true) { 
 		$('#single_view').animate({opacity: 'toggle', top: '100vh'});
@@ -380,7 +385,7 @@ function open_window(window_name) {
 	}
 	
 	if (window_name == 'entry_view' && windows.entry_view == false){
-		$('#entry_view').animate({opacity: 'toggle', top: '50vh'});
+		$('#entry_view').animate({opacity: 'toggle', bottom: '50vh'});
 		windows.entry_view = true;
 		windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}

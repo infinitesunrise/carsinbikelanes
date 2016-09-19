@@ -11,7 +11,7 @@ $row = mysqli_fetch_array($entries);
 $image_url = $row[1];
 echo '<img src="images/' . $image_url . '" id="fullsize" class="fullsize" />';
 
-echo "\n\n <div class='column_entry' style='background: transparent');'>";
+echo "\n\n <div class='column_entry single_view_column_entry' style='background: transparent');'>";
 
 //---SECTION 2: DETAILS---
 echo "\n <div class='moderation_queue_details'>";

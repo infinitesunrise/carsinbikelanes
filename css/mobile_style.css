@@ -68,14 +68,15 @@ span.nav {
 .entry_view {
 	position: absolute;
 	z-index: 100;
-	top: 100vh;
+	bottom: -50vh;
 	left: 1vw;
 	width: 96vw;
 	height: 50vh;
+	max-height: 50vh;
 	background-color: rgba(0, 0, 0, 0.2);
 	border: 10px solid rgba(0, 0, 0, 0.2);
 	background-clip: padding-box;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 .column_entry {
