@@ -1,8 +1,39 @@
 CARS IN BIKE LANES
 ------------------
 
-CIBL is a browsable geographic database for documenting crowdsourced traffic violation reports. Designed originally to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, it has become apparent that this web app can be easily adapted for simple crowdsourced documentation of any geo-located event, particularly any sort of observable traffic violation.
+CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted for to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL's setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser.
 
-In a LAMP environement CIBL will deploy itself out of the box via a simple setup wizard. The Mapbox map API is currently supported, while support for other map services in the near future is planned. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record. GPS coordinates and date/time are pulled from image exif data if available via the included exif.js library. Administrative credentials are protected with PHPass. CIBL's mobile view is designed for quick and easy capture and upload of records on the go. A submissions queue allows administrative users to accept or deny pending submissions.
+Features:
+- Responsive desktop site built with jQuery
+- Quick and intuitive mobile site encourages on-the-go submissions
+- Support for a long list of map providers
+- Automatic detection of time, date and GPS information from image EXIF data
+- Comments on induvidual submissions via Disqus
+- Multiple moderators and email alerts
+- Submission moderation queue
+- Edit prior entries
+- Custom project boundaries, site identity and 'about' info.
 
-CIBL was designed by a cyclist, inspired by the need for cycling advocacy in a city where law enforcement sentiment toward biking reads as apathetic, dismissive, and harmful. With enough public interest an active CIBL database has the potential to change hearts and minds, and expose endemic traffic and safety issues. Adapt it for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!
+Adapt CIBL for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!
+
+Dependencies:
+PHP 5.2+
+MySQL 5.5+
+Apache
+
+Included FOSS / third-party libraries and plugins:
+jquery datetimepicker plugin by Valeriy (https://github.com/xdan)
+exif library plugin by Jacob Seidelin (https://github.com/jseidelin)
+leaflet-providers by leaflet-extras (https://github.com/leaflet-extras)
+leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins)
+Leaflet (https://github.com/Leaflet/Leaflet)
+Mapbox (https://github.com/mapbox)
+Google fonts & Google Javascript API
+Bing maps API
+license plate font by Dave Hansen
+
+Map providers currently supporter:
+OpenStreetMap (Including dozens of third-party OSM tile hosts)
+Custom (Self-hosted or third-party hosted tiles, such as Mapbox)
+Bing
+Google
