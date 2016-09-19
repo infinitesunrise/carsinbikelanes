@@ -68,10 +68,13 @@ if (isset($_GET['error'])){
 <form action='settings_update.php' method='post'>
 <input type='hidden' name='update_email' value='true'>
 <span>address: </span><input type='text' class='wide' name='email' value='<?php
-$query = "SELECT email FROM cibl_users WHERE username = '" . $_SESSION['username'] . "'";
-$email = mysqli_fetch_array($connection->query($query))[0];
-echo $email;
+$query = "SELECT email, submit_notify FROM cibl_users WHERE username = '" . $_SESSION['username'] . "'";
+$row = mysqli_fetch_array($connection->query($query));
+echo $row[0];
 ?>'/><br>
+<span>Send email notification of new submissions:<input type='checkbox' name='email_notify' id='email_notify' <?php
+if ($row[1]){ echo "checked='checked'"; }
+?>/>
 <input type='submit' class='wide' name='update_email' value='Update Email'/>
 </form>
 </div>

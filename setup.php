@@ -13,7 +13,9 @@ $config = array(
 $username = $_POST["username"];
 $password1 = $_POST["password1"];
 $password2 = $_POST["password2"];
-$email = $_POST["email"];
+$email = (filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) ? $_POST['email'] : '');
+if ($email != $_POST['email']){ return_error('Invalid email address.'); }
+$submit_notify = ($email != '' ? TRUE : FALSE);
 $config_folder = $_POST["config_folder"];
 
 $progress = "";
@@ -79,7 +81,7 @@ description text NOT NULL
 if ($connection->query($query) === TRUE) {
     $progress .= "Submission queue table populated successfully.<br>";
 } else {
-	return_error("MySQL error populating database: " . $connection->connect_error);
+	return_error("MySQL error populating database: " . $connection->error);
 }
 
 //CREATE MYSQL LOGINS TABLE
@@ -87,22 +89,23 @@ $query = "CREATE TABLE cibl_users (
 username CHAR(30) NOT NULL,
 hash CHAR(60) NOT NULL,
 admin BOOLEAN NOT NULL,
+submit_notify BOOLEAN NOT NULL,
 email CHAR(255)
 )";
 if ($connection->query($query) === TRUE) {
     $progress .= "Logins table populated successfully.<br>";
 } else {
-	return_error("MySQL error populating database: " . $connection->connect_error);
+	return_error("MySQL error populating database: " . $connection->error);
 }
 
 //SAVE ADMIN CREDENTIALS
 $hasher = new PasswordHash(8, false);
 $hash = $hasher->HashPassword($password);
-$query = "INSERT INTO cibl_users VALUES ('" . $username . "', '" . $hash . "', TRUE, '" . $email . "');";
+$query = "INSERT INTO cibl_users VALUES ('" . $username . "', '" . $hash . "', TRUE, " . $submit_notify . ", '" . $email . "');";
 if ($connection->query($query) === TRUE) {
     $progress .= "Admin credentials saved.<br>";
 } else {
-	return_error("MySQL error saving admin credentials: " . $connection->connect_error);
+	return_error("MySQL error saving admin credentials: " . $connection->error);
 }
 
 $connection->close();

@@ -224,6 +224,7 @@ function error($type, $message = '') {
 }
 
 function success($config, $connection, $submission_details) {
+		$email_op = 'new_submission';
 		include 'email_notify.php';
 	
 		echo "\n <div class=\"top_dialog_button\" id=\"close\">";

@@ -5,8 +5,8 @@ require 'config_pointer.php';
 require 'config_write.php';
 
 if (isset($_POST['reset_password'])){ update_password($connection); }
-if (isset($_POST['update_email'])){ update_email($connection); }
-if (isset($_POST['new_user'])){ new_user($connection); }
+if (isset($_POST['update_email'])){ update_email($connection, $config); }
+if (isset($_POST['new_user'])){ new_user($connection, $config); }
 if (isset($_POST['update_users'])){ update_users($connection); }
 if (isset($_POST['update_identity'])){ update_identity(); }
 if (isset($_POST['update_coords'])){ update_coords(); }
@@ -49,21 +49,15 @@ function update_password($connection) {
 	}
 }
 
-function update_email($connection) {
+function update_email($connection, $config) {
 	if(isset($_POST['email'])){
 		$email = $_POST['email'];
 		if (filter_var($email, FILTER_VALIDATE_EMAIL)){
 			$current_user = $_SESSION['username'];
 			$query = "UPDATE cibl_users SET email='" . $email . "' WHERE username='" . $current_user . "'";
 			if ($connection->query($query) === TRUE) {
-			/*	$to      = $email;
-				$subject = 'You updated your email address on CIBL';
-				$message = 'Great job.';
-				$headers = 'From: webmaster@example.com' . "\r\n" .
-					'Reply-To: webmaster@example.com' . "\r\n" .
-					'X-Mailer: PHP/' . phpversion();
-				$sent = mail($to, $subject, $message, $headers);
-				*/
+				$email_op = 'edit_email';
+				include '../email_notify.php';
 				if ($sent){
 					return_message("Email address updated.");
 				}
@@ -77,11 +71,13 @@ function update_email($connection) {
 	}
 }
 
-function new_user($connection) {
+function new_user($connection, $config) {
 	$newusername = $_POST['newusername'];
 	$newpass1 = $_POST['newpass1'];
 	$newpass2 = $_POST['newpass2'];
-	$email = $_POST['email'];
+	$email = (filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) ? $_POST['email'] : '');
+	if ($email != $_POST['email']){ return_error('Invalid email address.'); }
+	$submit_notify = ($email != '' ? TRUE : FALSE);
 	$password = "";
 	$query = "SELECT EXISTS(SELECT username FROM cibl_users WHERE username = '" . $newusername . "')";
 	$result = $connection->query($query);
@@ -96,8 +92,10 @@ function new_user($connection) {
 		$password = $newpass1;
 		$hasher = new PasswordHash(8, false);
 		$hash = $hasher->HashPassword($password);
-		$query = "INSERT INTO cibl_users VALUES ('" . $newusername . "', '" . $hash . "', FALSE, '" . $email . "');";
+		$query = "INSERT INTO cibl_users VALUES ('" . $newusername . "', '" . $hash . "', FALSE, " . $submit_notify . ", '" . $email . "');";
 		if ($connection->query($query) === TRUE) {
+			$email_op = 'new_user';
+			include '../email_notify.php';
     		return_message("New user " . $newusername . " created.");
 		} else {
 			return_error("MySQL error: " . $connection->error);

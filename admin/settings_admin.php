@@ -40,7 +40,7 @@ while ($row = mysqli_fetch_array($user_list)) {
 	if ($row[2] == TRUE) { echo "<input type='checkbox' name='admin[" . $counter . "]' checked='checked'/>"; }
 	else { echo "<input type='checkbox' name='admin[" . $counter . "]' />"; }
 	echo "</div>";
-	echo "<div class='user_list_email'>" . $row[3] . "</div>";
+	echo "<div class='user_list_email'>" . $row[4] . "</div>";
 	echo "<input type='hidden' name='delete[" . $counter . "]' />";
 	echo "<div class='user_list_delete'><input type='checkbox' name='delete[" . $counter . "]'/></div>";
 	echo "</div>\n";
