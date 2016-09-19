@@ -8,7 +8,7 @@ Features:
 - Quick and intuitive mobile site encourages on-the-go submissions
 - Support for a long list of map providers
 - Automatic detection of time, date and GPS information from image EXIF data
-- Comments on induvidual submissions via Disqus
+- Comments on individual submissions via Disqus
 - Multiple moderators and email alerts
 - Submission moderation queue
 - Edit prior entries
