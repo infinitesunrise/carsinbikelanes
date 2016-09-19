@@ -1,7 +1,7 @@
 CARS IN BIKE LANES
 ------------------
 
-CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted for to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL's setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser. Adapt CIBL for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!   
+CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL's setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser. Adapt CIBL for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!   
   
 Features:  
 - Responsive desktop site built with jQuery
