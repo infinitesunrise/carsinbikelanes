@@ -55,7 +55,7 @@ body.non_map {
 	left: -565px;
 	margin: 10px;
 	width: 685px;
-	height: 96vh;
+	max-height: 96vh;
 	background-color: rgba(0, 0, 0, 0.2);
 	border: 10px solid rgba(0, 0, 0, 0.2);
 	background-clip: padding-box;

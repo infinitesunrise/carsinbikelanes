@@ -170,13 +170,16 @@ else {
  
 <div class='settings_box'>
 <div class="settings_group">
-<h3>Map Data</h3>
+<h3>Map Settings</h3>
 <form id='map_form' name='map_form' action='settings_update.php' method='post'>
 <input type='hidden' name='update_map' value='true'>
 <input type='hidden' id='use_providers_plugin' name='use_providers_plugin' value='<?php echo $config['use_providers_plugin']; ?>'>
 <input type='hidden' id='leaflet_provider' name='leaflet_provider' value='<?php echo $config['leaflet_provider']; ?>'>
 <input type='hidden' id='use_google' name='use_google' value='<?php echo $config['use_google']; ?>'>
 <input type='hidden' id='use_bing' name='use_bing' value='<?php echo $config['use_bing']; ?>'>
+
+<span>default number of results shown: </span>
+<input type='text' class='wide' id='max_view' name='max_view' value='<?php echo $config['max_view']; ?>'/>
 
 <span>tile provider: </span>
 <select name='provider' class="wide" id='provider_select' onChange='switch_map()' value='<?php echo $config['leaflet_provider']; ?>'></select>

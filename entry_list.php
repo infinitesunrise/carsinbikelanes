@@ -23,13 +23,15 @@ else {
 	$north = $_GET["north"];
 }
 
+$mobile = isset($_GET['mobile']);
+$max_view = (isset($_GET['max_view']) ? $_GET['max_view'] : $config['max_view']);
 $gps_query = " WHERE (gps_lat BETWEEN " . $south . " AND " . $north . ") AND (gps_long BETWEEN " . $west . " AND " . $east . ") ";
 $full_query =
 "SELECT *
 FROM cibl_data 
 " . $gps_query . $plate_query . "
 ORDER BY date_added DESC 
-LIMIT " . $config['max_view'] . "
+LIMIT " . $max_view . "
 OFFSET 0";
 
 $entries = mysqli_query($connection, $full_query);
@@ -41,6 +43,19 @@ if ($count == 0){
 	echo "\n <div class='column_entry'>";
 	echo "<h3 style='padding:10px'>No records found here.</h3>";
 	echo "\n </div>";
+}
+else if(!$mobile) {
+	echo "\n <div class='column_entry' style='max-height:30px;min-height:30px;display:flex;justify-content:space-between;'>";
+	
+	echo "\n<div style='margin-left:10px'>";
+	echo "\n<span>" . $count . " most recent entires within view returned. </span>";
+	echo "\n</div>";
+
+	echo "\n<div style='margin-right:10px'>";
+	echo "\n<span> Max: </span><input type='text' class='max_view' id='max_view' value='" . $max_view . "' style='width:60px'/>";
+	echo "\n </div>";
+	
+	echo "\n</div>";
 }
 
 while ($row = mysqli_fetch_array($entries)){
@@ -132,11 +147,7 @@ while ($row = mysqli_fetch_array($entries)){
 	echo "\n </script> ";
 }
 echo "\n <script type='text/javascript'> ";
-echo "\n check = '" . isset($_GET['mobile']) . "';";
-//echo "\n if(check){";
-//echo "\n 	if(" . $count . " < 3){ resize_entry_list() }";
-//echo "\n 	else { $('#entry_view').animate({ top: '50vh' }); }";
-//echo "\n }";
+echo "\n mobile = '" . $mobile . "';";
 
 if (isset($_GET['plate'])){
 $lat_average = $lat_total / $count;
@@ -148,6 +159,14 @@ echo "\n setTimeout(function() { windows.stop_load_entries = false; }, 500);";
 echo "\n\n";
 
 echo "\n $(document).ready(function() {";
+echo "\n 	if(!mobile){";
+echo "\n 		$('#max_view').change( function(){";
+echo "\n			console.log(max_view);";
+echo "\n			max_view = $('#max_view').val();";
+echo "\n			console.log(max_view);";
+echo "\n			load_entries();";
+echo "\n 		});";
+echo "\n 	}";
 echo "\n 	newMarkers.eachLayer(function (marker) {";
 echo "\n 		if (markers.hasLayer(marker) == false){";
 echo "\n 			markers.addLayer(marker);";
@@ -168,11 +187,11 @@ echo "\n });";
 
 echo "\n function plate_search(plate) {";
 echo "\n 	var load_url = 'entry_list.php?plate=' + plate;";
-echo "\n 	if(check){";
+echo "\n 	if(mobile){";
 echo "\n 		load_url += '&mobile=true';";
 echo "\n 	}";
 echo "\n 	windows.stop_load_entries = true;"; //Will be set false again on next run when checking $_GET['plate']
-echo "\n 	if(check){ $( '#entry_view' ).load( load_url ); }";
+echo "\n 	if(mobile){ $( '#entry_view' ).load( load_url ); }";
 echo "\n 	else { $( '#entry_list_content' ).load( load_url, function(){";
 echo "\n		setTimeout(function(){ resize_entry_list(); }, 500);";	
 echo "\n 	}); }";

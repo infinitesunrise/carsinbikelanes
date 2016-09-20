@@ -68,8 +68,7 @@ windows = {
 	stop_load_entries: false
 }
 marker = new L.marker();
-//stop_load_entries = false;
-noemail = true;
+max_view = <?php echo $config['max_view']; ?>;
 
 $(document).ready(function() {
 	initializeMaps();
@@ -169,14 +168,6 @@ function initializeDateTimePicker() {
 	document.getElementById('datetimepicker').value = date_string;
 }
 
-function showEmail(e) {
-	if (noemail == true){
-		e.preventDefault();
-		$("#feedback").load("contact.php");
-		noemail = false;
-	}
-}
-
 function fillExifFields(e) {
 	EXIF.getData(e.target.files[0], function() {			
 		//Auto-enter location data
@@ -256,7 +247,7 @@ function load_entries() {
 		var east = body_map.getBounds().getEast();
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
-		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north;
+		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north + "&max_view=" + max_view;
 		$( "#entry_list_content" ).load( load_url, function(){ 
 				open_window('entry_list');
 				$('#loading').css('background', 'none');

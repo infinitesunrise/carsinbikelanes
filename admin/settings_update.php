@@ -207,6 +207,7 @@ function update_comments(){
 function update_map($config_folder){
 	if(isset($_POST['update_map'])){
 		$new_values = array(
+			'max_view' => $_POST['max_view'],
 			'use_providers_plugin' => $_POST['use_providers_plugin'],
 			'leaflet_provider' => $_POST['leaflet_provider'],
 			'use_google' => $_POST['use_google'],
