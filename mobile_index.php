@@ -324,7 +324,7 @@ function load_entries() {
 
 function resize_entry_list(){
 	column_entries = document.getElementsByClassName("column_entry");
-	if (column_entries.length < 4){
+	if (column_entries.length < 3){
 		total_height = 0;
 		for (i = 0; i < column_entries.length; i++) { 
 			if ($(column_entries[i]).hasClass("single_view_column_entry") == false) {
@@ -333,7 +333,7 @@ function resize_entry_list(){
 		}
 		$('#entry_view').animate({ height: total_height, bottom: '0vh' });
 	}
-	else { $('#entry_view').animate({ height: '50vh', bottom: '0vh' }); }
+	else { $('#entry_view').animate({ height: '33vh', bottom: '0vh' }); }
 }
 
 function zoomToEntry(lat,lng,id) {

@@ -71,8 +71,8 @@ span.nav {
 	bottom: -50vh;
 	left: 1vw;
 	width: 96vw;
-	height: 50vh;
-	max-height: 50vh;
+	height: 33vh;
+	max-height: 33vh;
 	background-color: rgba(0, 0, 0, 0.2);
 	border: 10px solid rgba(0, 0, 0, 0.2);
 	background-clip: padding-box;
