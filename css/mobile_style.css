@@ -131,20 +131,6 @@ body {
 	background-clip: padding-box;
 }
 
-.about_view {
-	position: absolute;
-	z-index: 100;
-	top: 100vh;
-	left: 10vw;
-	width: 80vw;
-	height: 90vh;
-	background-color: rgba(0, 0, 0, 0.2);
-	overflow-y: scroll;
-	background-color: rgba(255, 255, 255, 0.8);
-	border: 10px solid rgba(0, 0, 0, 0.2);
-	background-clip: padding-box;
-}
-
 .results_view h2, .about_view h2 {
 	margin-top: 6vh;
 	font-size: 5vh;
@@ -159,6 +145,24 @@ body {
 	margin-left: 3vw;
 	margin-right: 3vw;
 	font-size: 3vh;
+}
+
+.about_view {
+	position: absolute;
+	z-index: 100;
+	top: 100vh;
+	left: 10vw;
+	width: 80vw;
+	height: 90vh;
+	background-color: rgba(0, 0, 0, 0.2);
+	overflow-y: scroll;
+	background-color: rgba(255, 255, 255, 0.8);
+	border: 10px solid rgba(0, 0, 0, 0.2);
+	background-clip: padding-box;
+}
+
+.about_view a {
+	color: black;
 }
 
 .single_view {
