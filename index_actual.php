@@ -106,16 +106,16 @@ function zoomToEntry(lat,lng,id) {
 	windows.stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
 	$("#single_view").load(single_view_url);
-	open_window('none', true);
+	open_window('none');
 	body_map.setView([lat,lng-.005], 17);
 	soloMarker = L.marker([lat,lng]).addTo(body_map);
 	markers.clearLayers();
 	markers.addLayer(soloMarker);
-	setTimeout(function() { open_window('single_view', true); }, 700);
+	setTimeout(function() { open_window('single_view'); }, 700);
 	setTimeout(function() { windows.stop_load_entries = false; }, 500);	;
 }
 
-function open_window(window, close_entry_list = false) {
+function open_window(window) {
 	if (windows.single_view == true) {
 		$('#single_view').animate({opacity: 'toggle', left: '-865px'});
 	}
@@ -129,7 +129,7 @@ function open_window(window, close_entry_list = false) {
 	}
 	windows.single_view = false; windows.about_view = false; windows.submit_view = false;
 	
-	if (windows.entry_list == true && close_entry_list == true) {
+	if (windows.entry_list == true && window == 'none') {
 		$('#entry_view').animate({opacity: 'toggle', left: '-565px'});
 		windows.entry_list = false;
 	}
