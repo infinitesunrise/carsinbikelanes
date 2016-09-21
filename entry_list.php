@@ -184,18 +184,6 @@ echo "\n $('.coords, .plate_text').click(function(e) {";
 echo "\n 	e.stopPropagation();";
 echo "\n 	e.preventDefault();";
 echo "\n });";
-
-echo "\n function plate_search(plate) {";
-echo "\n 	var load_url = 'entry_list.php?plate=' + plate;";
-echo "\n 	if(mobile){";
-echo "\n 		load_url += '&mobile=true';";
-echo "\n 	}";
-echo "\n 	windows.stop_load_entries = true;"; //Will be set false again on next run when checking $_GET['plate']
-echo "\n 	if(mobile){ $( '#entry_view' ).load( load_url ); }";
-echo "\n 	else { $( '#entry_list_content' ).load( load_url, function(){";
-echo "\n		setTimeout(function(){ resize_entry_list(); }, 500);";	
-echo "\n 	}); }";
-echo "\n }";
 echo "\n </script>";
 ?>
 

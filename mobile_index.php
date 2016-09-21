@@ -324,6 +324,18 @@ function load_entries() {
 	}
 }
 
+function plate_search(plate) {
+	if (windows.stop_load_entries == false) {
+		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
+		var load_url = 'entry_list.php?plate=' + plate + '&mobile=true';
+		windows.stop_load_entries = true; //Will be set false again by entry_list.php
+		$( '#entry_view' ).load( load_url, function(){
+			$('#loading').css('background', 'none');
+			resize_entry_list();
+		});
+	}
+}
+
 function resize_entry_list(){
 	column_entries = document.getElementsByClassName("column_entry");
 	if (column_entries.length < 3){
