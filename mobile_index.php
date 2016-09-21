@@ -14,6 +14,8 @@ if (isset($_GET['single_view'])){
 }
 ?>
 
+<meta name="viewport" content="user-scalable=0"/>
+
 <!-- local stylesheets -->
 <link rel="stylesheet" type="text/css" href="css/mobile_style.css" />
 <link rel="stylesheet" type="text/css" href="css/plates.css" />
@@ -121,7 +123,7 @@ function change_nav(operation){
 
 function flip(element, content, key, value){
 	element.animate({'top': '-5vh'}, function(){
-		element.html("<span class='nav'>" + content + "</span>");
+		element.html("<span class='navspan'>" + content + "</span>");
 	})
 	.animate({'top': '0vh'});
 	if (key == 'submit_link_clicked'){windows.submit_link_clicked = value; }
@@ -440,11 +442,11 @@ function limitText() {
 </div>
 
 <div id='about_link_container' class='nav_link'>
-<div id='about_link'><span class='nav'><?php echo $config['site_name'] ?></span></div>
+<div id='about_link'><span class='navspan'><?php echo $config['site_name']; ?></span></div>
 </div>
 
 <div id='submit_link_container' class='nav_link'>
-<div id='submit_link'><span class='nav'>SUBMIT</span></div>
+<div id='submit_link'><span class='navspan'>SUBMIT</span></div>
 </div>
 
 </div>

@@ -1,10 +1,12 @@
 html {
+	overflow: hidden;
 	padding: 0px;
 	margin: 0px;
 }
 
 body {
 	overflow: hidden;
+	position: relative;
 	margin: 0px;
 }
 
@@ -18,7 +20,7 @@ body {
 .nav{
 	position: relative;
 	display: flex;
-	width: 50%;
+	width: 90vw;
 	margin: 0 auto;
 	justify-content: space-around;
 	background: transparent;
@@ -40,6 +42,8 @@ body {
 	position: relative;
 	top: -5vh;
 	background-color: rgba(255, 255, 255, 0.8);
+	width: 100%;
+	text-align: center;
 }
 
 #submit_link_container {
@@ -49,12 +53,12 @@ body {
 }
 
 #about_link_container {
-	min-width: 42vh;
+	min-width: 30vh;
 	display: flex;
 	justify-content: center;
 }
 
-span.nav {
+.navspan {
 	font-size: 4vh;
 	white-space: nowrap;
 }
