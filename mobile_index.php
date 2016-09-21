@@ -91,12 +91,12 @@ function change_nav(operation){
 				flip($('#submit_link'), 'SUBMIT', 'submit_link_clicked', false);
 			}
 			if (windows.about_link_clicked){
-				flip($('#about_link'), 'ABOUT <?php echo $config['site_name'] ?>', 'about_link_clicked', false);
+				flip($('#about_link'), '<?php echo $config['site_name'] ?>', 'about_link_clicked', false);
 			}
 			break;
 		case 'about':
 			if (windows.about_link_clicked){
-				flip($('#about_link'), 'ABOUT <?php echo $config['site_name'] ?>', 'about_link_clicked', false);
+				flip($('#about_link'), '<?php echo $config['site_name'] ?>', 'about_link_clicked', false);
 			}
 			else {
 				flip($('#about_link'), 'BACK TO MAP', 'about_link_clicked', true);
@@ -113,7 +113,7 @@ function change_nav(operation){
 				flip($('#submit_link'), 'MAP', 'submit_link_clicked', true);
 			}
 			if (windows.about_link_clicked){
-				flip($('#about_link'), 'ABOUT <?php echo $config['site_name'] ?>', 'about_link_clicked', false);
+				flip($('#about_link'), '<?php echo $config['site_name'] ?>', 'about_link_clicked', false);
 			}
 			break;
 	}
@@ -385,7 +385,7 @@ function open_window(window_name) {
 	}
 	
 	if (window_name == 'entry_view' && windows.entry_view == false){
-		$('#entry_view').animate({opacity: 'toggle', bottom: '50vh'});
+		$('#entry_view').animate({opacity: 'toggle', bottom: '0vh'});
 		windows.entry_view = true;
 		windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}
@@ -440,7 +440,7 @@ function limitText() {
 </div>
 
 <div id='about_link_container' class='nav_link'>
-<div id='about_link'><span class='nav'>ABOUT <?php echo $config['site_name'] ?></span></div>
+<div id='about_link'><span class='nav'><?php echo $config['site_name'] ?></span></div>
 </div>
 
 <div id='submit_link_container' class='nav_link'>
