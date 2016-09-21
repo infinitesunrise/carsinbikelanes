@@ -256,6 +256,19 @@ function load_entries() {
 	}
 }
 
+function plate_search(plate) {
+	if (windows.stop_load_entries == false) {
+		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
+		var load_url = 'entry_list.php?plate=' + plate;
+		windows.stop_load_entries = true; //Will be set false again by entry_list.php
+		$( "#entry_list_content" ).load( load_url, function(){ 
+				open_window('entry_list');
+				$('#loading').css('background', 'none');
+				setTimeout(function(){ resize_entry_list(); }, 500); 
+			});;
+	}
+}
+
 function onSubmitClick(e) {
     submit_map.removeLayer(marker);
     marker = new L.marker(e.latlng).addTo(submit_map);
@@ -426,7 +439,7 @@ if (isset($_GET['setup_success_dialog'])){
 	
 	<div class="submit_form_row">
 	<div>
-    <span class="submit_form_item">Plate: </span><input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="8">
+    <span class="submit_form_item">Plate: </span><input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="7">
 	</div>
 	
 	<div>
