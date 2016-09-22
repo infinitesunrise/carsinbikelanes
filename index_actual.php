@@ -567,11 +567,6 @@ if (isset($_GET['setup_success_dialog'])){
 <!-- SINGLE VIEW -->
 <div class="single_view" id="single_view"></div>
 
-<!-- <div class="single_view_pane" id="single_view_pane">
-<div class="single_view_pane_container">
-</div>
-</div> -->
-
 </body>
 
 </html>

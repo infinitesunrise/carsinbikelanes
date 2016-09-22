@@ -86,6 +86,11 @@ body.non_map {
 	overflow-y: auto;
 }
 
+.disqus_thread {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
 .edit {
 	padding: 5px;
 	border: 3px solid transparent;
