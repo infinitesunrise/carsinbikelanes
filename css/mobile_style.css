@@ -314,6 +314,11 @@ span {
     cursor: pointer;
 }
 
+#plate {
+	background: white;
+	background-size: 50%;
+}
+
 #street1, #street2, #file_container {
 	width: 30vw;
 }

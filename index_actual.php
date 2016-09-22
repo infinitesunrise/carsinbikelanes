@@ -97,7 +97,10 @@ $(document).ready(function() {
 	
 	$('#submission_form').submit( function(e) { submitForm(e) } );
 	
-	$("#image_submission").on("change", function(e) { fillExifFields(e) } );
+	$('#image_submission').on('change', function(e) {
+		fill_plate_and_state();
+		fillExifFields(e);
+	});
 	
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
 });
@@ -166,6 +169,54 @@ function initializeDateTimePicker() {
 	var min = d.getMinutes();
 	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
 	document.getElementById('datetimepicker').value = date_string;
+}
+
+function fill_plate_and_state(){
+	var openalpr = '<?php echo $config['openalpr_api_key']; ?>';
+	if (!openalpr) { return; }
+	$('#plate').css('background', 'url(\'css/loader.svg\') 50% no-repeat');
+	$('#plate').css('background-size', '50%');
+	$('#plate').css('background-color', 'white');
+	var url = 'https://api.openalpr.com/v1/recognize';
+	var data = new FormData();
+	data.append('secret_key', openalpr);
+	data.append('tasks', ['plate']);
+	data.append('image', $('#image_submission')[0].files[0]);
+	data.append('country', 'us');
+	var reply;
+	
+	function listener() {
+		var reply = JSON.parse(this.responseText);	
+		var x1 = reply['plate']['img_width'] / 2;
+		var y1 = reply['plate']['img_height'] / 2;
+		var results = reply['plate']['results'];
+		var smallest_distance = (x1 >= y1) ? x1 : y1;
+		var best = 0;
+		$.each( results, function(i) {
+			var x2 = (results[i]['coordinates'][0]['x'] +
+					results[i]['coordinates'][1]['x'] +
+					results[i]['coordinates'][2]['x'] +
+					results[i]['coordinates'][3]['x']) / 4;
+			var y2 = (results[i]['coordinates'][0]['y'] +
+					results[i]['coordinates'][1]['y'] +
+					results[i]['coordinates'][2]['y'] +
+					results[i]['coordinates'][3]['y']) / 4;
+			var x = x1 - x2;
+			var y = y1 - y2;
+			var distance = Math.sqrt(x*x + y*y);;
+			if (distance < smallest_distance){
+				best = i;
+				smallest_distance = distance;
+			}
+		});
+		$('#plate').css('background', 'white');
+		$('#plate').val(reply['plate']['results'][best]['plate']);
+		$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+	}
+	var request = new XMLHttpRequest();
+	request.addEventListener('load', listener);
+	request.open('POST', url);
+	request.send(data);
 }
 
 function fillExifFields(e) {

@@ -12,6 +12,7 @@ if (isset($_POST['update_identity'])){ update_identity(); }
 if (isset($_POST['update_coords'])){ update_coords(); }
 if (isset($_POST['update_about'])){ update_about(); }
 if (isset($_POST['update_comments'])){ update_comments(); }
+if (isset($_POST['update_openalpr'])){ update_openalpr(); }
 if (isset($_POST['update_map'])){ update_map($config_folder); }
 if (isset($_POST['update_database'])){ update_database(); }
 
@@ -230,6 +231,16 @@ function update_map($config_folder){
 		fclose($style_file);
 		
 		return_message("Updated map service.");
+	}
+}
+
+function update_openalpr(){
+	if(isset($_POST['update_openalpr'])){
+		$new_values = array(
+			'openalpr_api_key' => $_POST['openalpr_api_key']
+		);
+		config_write($new_values);
+		return_message("OpenALPR settings updated.");
 	}
 }
 

@@ -1,4 +1,4 @@
-<div id="disqus_thread"></div>
+<div id='disqus_thread' class='disqus_thread'></div>
 <script>
 var disqus_url = '<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/index.php?single_view=' . $row[0]; ?>';
 var disqus_id = disqus_url;

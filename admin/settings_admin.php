@@ -233,7 +233,7 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 </div>
 </div>
 
-<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="google_api_link" src="http://maps.googleapis.com/maps/api/js?key=<?php echo $config['google_api_key']; ?>&v=3"></script>
 <script id="leaflet_plugins_google" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
 <script id="leaflet_plugins_bing" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 <script src="../scripts/leaflet-providers.js"></script>
@@ -357,7 +357,7 @@ function switch_map(option){
 		var options = <?php include $config_folder . '/google_style.php'; ?>;
 		var extra = document.getElementById("google_extra_layer").value;
 		settings_map.remove();
-		document.getElementById("settings_map").innerHTML = "";
+		document.getElementById("settings_map").innerHTML = "";;
 		var tiles = new L.Google('ROADMAP', {
 			mapOptions: {
 				styles: options
@@ -411,11 +411,23 @@ function switch_map(option){
 
 function update_google_api(){
 	var key = document.getElementById("google_api_key").value;
-	var googleURL = "http://maps.google.com/maps/api/js?key=" + key;
+	var googleURL = "https://maps.googleapis.com/maps/api/js?key=" + key + "&v=3";
 	document.getElementById("google_api_link").src = googleURL;
 	switch_map();
 }
 </script>
+
+<div class='settings_box'>
+<div class='settings_group'>
+<h3>OpenALPR</h3>
+<form action='settings_update.php' method='post'>
+<input type='hidden' name='update_openalpr' value='true'>
+<span>openalpr api key: </span><input type='text' class='wide' name='openalpr_api_key' value='<?php echo $config['openalpr_api_key']; ?>'/>
+<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='http://www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
+<input type='submit' class='wide' name='update_openalpr' value='Update OpenALPR'/>
+</form>
+</div>
+</div>
 
 <div class='settings_box'>
 <div class='settings_group'>
