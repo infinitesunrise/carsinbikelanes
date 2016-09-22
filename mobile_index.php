@@ -243,6 +243,7 @@ function initialize_submit_view() {
 				var gps_lng = -(lng_deg+(((lng_min*60)+lng_sec))/3600); //DMS to decimal
 				document.getElementById("latitude").value = gps_lat;
 				document.getElementById("longitude").value = gps_lng;
+				fill_streets();
 				submit_map.removeLayer(marker);
 				marker = new L.marker([gps_lat, gps_lng]).addTo(submit_map);
 				submit_map.panTo([gps_lat, gps_lng]);
@@ -342,6 +343,28 @@ function fill_plate_and_state(){
 		$('#plate').css('background', 'white');
 		$('#plate').val(reply['plate']['results'][best]['plate']);
 		$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+	}
+	var request = new XMLHttpRequest();
+	request.addEventListener('load', listener);
+	request.open('POST', url);
+	request.send(data);
+}
+
+function fill_streets(){
+	var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
+	var location = '{x:' + $('#longitude').val() + ',y:' + $('#latitude').val() + '}';
+	var data = new FormData();
+	data.append('location', location);
+	data.append('distance', '150');
+	data.append('returnIntersection', 'true');
+	data.append('f', 'json');
+	var reply;
+	function listener() {
+		var response = JSON.parse(this.responseText);
+		var intersection = response['address']['Address'].split(" & ");		
+		console.log(intersection[0] + " / " + intersection[1]);
+		$('#street1').val(intersection[0]);
+		$('#street2').val(intersection[1]);
 	}
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', listener);
