@@ -330,7 +330,10 @@ function load_entries() {
 		$( "#entry_list_content" ).load( load_url, function(){ 
 				open_window('entry_list');
 				$('#loading').css('background', 'none');
-				setTimeout(function(){ resize_entry_list(); }, 500); 
+				setTimeout(function(){ 
+					resize_entry_list();
+					$('#entry_list_content').css('overflow-y','scroll'); //fixes bug where firefox doesn't scroll first list loaded
+				}, 500); 
 			});
 	}
 }
