@@ -42,6 +42,9 @@
 <?php
 require('config_pointer.php');
 
+$success_string = '';
+$error_string = '';
+
 if (isset($_POST['save'])) {
 	try {
 		//MOVE SUBMISSION TO MAIN TABLE, DELETE QUEUE SUBMISSION, UPDATE IMAGE NAMES AND URLS
@@ -81,19 +84,27 @@ if (isset($_POST['save'])) {
 			$rotated_image_small = resize_image('../images/' . $new_url, 200, 200);
 			$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $new_url);
 		}
+		$success_string = "Submission #" . $_POST['id'] . " has been saved to the map.";
 	}
 	catch (Exception $e) {
 		$connection->rollback();
+		$error_string = "Problem adding submission #" . $_POST['id'] . " to the map: " . $e;
 	}
 }
 
 if (isset($_POST['delete'])){
-	$url = mysqli_fetch_array($connection->query('SELECT url FROM cibl_queue WHERE increment = ' . $_POST['id']))[0];	
-	$result = $connection->query('DELETE FROM cibl_queue WHERE increment=' . $_POST['id']);
-	$file_thumb = "../thumbs/" . $url;
-	$file_image = "../images/" . $url;
-	unlink($file_thumb);
-	unlink($file_image);
+	$url = mysqli_fetch_array($connection->query('SELECT url FROM cibl_queue WHERE increment = ' . $_POST['id']))[0];
+	if ($url){
+		$result = $connection->query('DELETE FROM cibl_queue WHERE increment=' . $_POST['id']);
+		$file_thumb = "../thumbs/" . $url;
+		$file_image = "../images/" . $url;
+		unlink($file_thumb);
+		unlink($file_image);
+		$success_string = "Submission #" . $_POST['id'] . " deleted.";
+	}
+	else {
+		$error_string = "Problem adding submission #" . $_POST['id'] . " to the map: " . $e;
+	}
 }
 
 $per_page = $config['max_view'];
@@ -115,7 +126,26 @@ $result = $connection->query(
 
 echo "\n <div class='flex_container_scroll'>";
 echo "\n <div class='moderation_queue' id='moderation_queue'>";
+
 include 'nav.php';
+
+if ($success_string){
+	echo "\n\n <div class='flex_container_nav' style='background-color:green !important'>";
+	echo "\n <div>";
+	echo "\n <h3> Success:</h3>";
+	echo "\n <span>" . $success_string . "</span>";
+	echo "\n </div>";
+	echo "\n </div>";
+}
+
+if ($error_string){
+	echo "\n\n <div class='flex_container_nav' style='background-color:red !important'>";
+	echo "\n <div>";
+	echo "\n <h3> Error:</h3><br>";
+	echo "\n <span>" . $error_string . "</span>";
+	echo "\n </div>";
+	echo "\n </div>";
+}
 
 $entries = array();
 while ($row = mysqli_fetch_array($result)){
