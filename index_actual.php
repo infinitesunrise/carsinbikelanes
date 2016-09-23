@@ -521,7 +521,7 @@ if (isset($_GET['setup_success_dialog'])){
 	
 	<div class="submit_form_row">
 	<div>
-    <span class="submit_form_item">Plate: </span><input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="7">
+    <span class="submit_form_item">Plate: </span><input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="8">
 	</div>
 	
 	<div>
