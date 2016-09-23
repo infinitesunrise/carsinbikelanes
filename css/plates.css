@@ -180,3 +180,19 @@
 	box-shadow: 0px 0px 0px 3px white;
 	color: #000099;
 }
+
+.IA {
+	background: linear-gradient(
+	  180deg,
+	  #00b8e6,
+	  #ffffff 25px,
+	  #ffffff 38px,
+	  #e6e6e6 48px,
+	  #e6e6e6 53px,
+	  #ffffff 53px,
+	  #ffffff 60px
+	);
+	color: #0047b3;
+	border: 1px solid #e6f0ff;
+	box-shadow: 0px 0px 0px 2px white;
+}

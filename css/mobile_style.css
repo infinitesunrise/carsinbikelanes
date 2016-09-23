@@ -35,7 +35,6 @@ body {
 	width: 6vh;
 	height: 6vh;
 	background: none;
-	/*background: url('loader.svg') 100% no-repeat;*/
 }
 
 #submit_link, #about_link {
@@ -110,9 +109,11 @@ body {
 	top: 100vh;
 	left: 1vw;
 	width: 94vw;
+	max-width: 94vw;
 	height: 90vh;
 	padding: 1vw;
 	background-color: rgba(0, 0, 0, 0.2);
+	overflow-x: hidden;
 	overflow-y: scroll;
 	background-color: rgba(255, 255, 255, 0.8);
 	border: 10px solid rgba(0, 0, 0, 0.2);
@@ -151,9 +152,10 @@ body {
 	position: absolute;
 	z-index: 100;
 	top: 100vh;
-	left: 10vw;
-	width: 80vw;
+	left: 1vw;
+	width: 94vw;
 	height: 90vh;
+	padding: 1vw;
 	background-color: rgba(0, 0, 0, 0.2);
 	overflow-y: scroll;
 	background-color: rgba(255, 255, 255, 0.8);
@@ -288,11 +290,18 @@ span {
 	font-size: 2vh;
 }
 
-.wide {
-	width: 100%;
-	margin-top: 20px;
-	font-size: 3vh;
+.medium {
+	padding: 0px;
+	margin: 0px;
 	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+	font-size: 3vh !important;
+}
+
+.wide {
+	display: block;
+	width: 100%;
+	margin-bottom: 5vh;
 }
 
 #character_limit {
@@ -301,100 +310,79 @@ span {
 	padding: 0px;
 }
 
-#file_container {
-	height: 54px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 42px;
-	display: inline-block;
+.file_container {
+	height: 30vh;
+	margin: 1vh auto 5vh auto;
+	display: block;
 	overflow: hidden;
+	cursor: pointer;
+	text-align: center;
+	line-height: 30vh;
 	background-color: lightgray;
     box-shadow: inset -2px -2px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
                 inset 2px 2px 1px rgba(255,255,255,0.8); /*top internal highlight*/
-    cursor: pointer;
 }
 
-#plate {
-	background: white;
-	background-size: 50%;
+.submit_view span {
+	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+	font-size: 5vh;
 }
 
-#street1, #street2, #file_container {
-	width: 30vw;
+.v-centered {
+	display: inline-block;
+    vertical-align: middle;
+    line-height: inherit;
 }
 
 #image_submission {
-	min-width: 100%;
-	min-height: 100%;
+	visibility: hidden;
+	position: absolute;
 	-webkit-appearance: none;
 	opacity: 0;
 }
 
-#form_row {
-	display: inline-block;
-	white-space: nowrap;
-	width: 100%;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 42px;
-}
-
 #plate {
-	width: 270px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 42px;
 	text-transform: uppercase;
-}
-
-#state {
-	width: 150px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	font-size: 42px;
-	text-transform: uppercase;
+	background: white;
+	background-size: 100%;
+	height: 20vh;
+	font-size: 15vh;
+	font-family: 'License-Plate';
 	-webkit-appearance: none;
+	padding: 0px;
 }
 
-#datetimepicker {
-	width: 350px;
+#state, #datetimepicker, #street1, #street2{
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	font-size: 42px;
+	height: 12vh;
+	font-size: 6vh;
 	text-transform: uppercase;
-}
-
-form span {
-	font-size: 42px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-}
-
-input {
-	font-size: 42px;
-	font-family: 'Oswald', sans-serif;
-	font-weight: 400;
-	-webkit-appearance: none;
+	background: white;
+	-webkit-appearance: none
 }
 
 textarea.comments {
 	width: 100%;
-	height: 200px;
-	margin-bottom: 10px; 
+	height: 40vh;
+	margin-bottom: 2vh; 
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: 5vh;
 	-webkit-appearance: none;
 }
 
 input.submit_button {
 	width: 100%;
+	height: 40vh;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	font-size: 42px;
+	font-size: 5vh;
 	-webkit-appearance: none;
+	background-color: lightgray;
+    box-shadow: inset -2px -2px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
+                inset 2px 2px 1px rgba(255,255,255,0.8); /*top internal highlight*/
 }
 
 #spacer {
@@ -414,6 +402,20 @@ input.submit_button {
 	width: 100%;
 	height: 100%;
 	background-color: white;
+}
+
+#submit_another {
+	display: block;
+	width: 90%;
+	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+	font-size: 5vh;
+	margin: 0 auto;
+	margin-bottom: 1vh;
+	-webkit-appearance: none;
+	background-color: lightgray;
+    box-shadow: inset -2px -2px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
+                inset 2px 2px 1px rgba(255,255,255,0.8); /*top internal highlight*/
 }
 
 .p_wrap {

@@ -3,15 +3,15 @@
 require 'admin/config_pointer.php';
 
 //VERIFY ATTACHMENT
-if (empty($_FILES["image_submission"]["name"])){
+if (empty($_FILES["image_submission"]["tmp_name"])){
 	error("noimage");
 }
 
 //CHECK IF ATTACHMENT IS AN IMAGE
-if(isset($_POST["submit"])) {
+if(isset($_POST['upload'])) {
     $check = getimagesize($_FILES["image_submission"]["tmp_name"]);
-	error_log($_FILES["image_submission"]["tmp_name"]);
-	error_log(getimagesize($_FILES["image_submission"]["tmp_name"]));
+	//error_log($_FILES["image_submission"]["tmp_name"]);
+	//error_log(getimagesize($_FILES["image_submission"]["tmp_name"]));
     if($check !== false){
     	$target_extension = pathinfo(basename($_FILES["image_submission"]["name"]), PATHINFO_EXTENSION);
     	if($target_extension == "jpg" ||
@@ -23,7 +23,7 @@ if(isset($_POST["submit"])) {
     		$target_extension == "gif" ||
     		$target_extension == "GIF")
     	{	
-        	echo "File is good: " . basename($_FILES["image_submission"]["name"]) . " (". $check["mime"] . "). <br>";
+        	//echo "File is good: " . basename($_FILES["image_submission"]["name"]) . " (". $check["mime"] . "). <br>";
         }
 		else
 		{
@@ -235,7 +235,7 @@ function success($config, $connection, $submission_details) {
 		echo "\n <p class=\"submit_detail\">Thank you for contributing!
 		All submissions require moderator approval before being added to the map.
 		Expect yours to show up within 24 hours.</p>";
-		echo "\n <button class='wide' id='submit_another'>Submit Another</button>";
+		echo "\n <button id='submit_another'>Submit Another</button>";
 		
 		echo "\n\n<script>";
 		
@@ -256,14 +256,14 @@ function success($config, $connection, $submission_details) {
 			echo "\n $(document).ready(function() {";
 			echo "\n	 $('#close').click( function() {";
 			echo "\n 		document.getElementById(\"mobile_submission_form\").reset();";
+			echo "\n 		$('#image_prompt').html('TAP TO ADD AN IMAGE');";
+			echo "\n		$('#submit_view').scrollTop(0);";
 			echo "\n		open_window('entry_view');";
-			//echo "\n 		$(\"#results_message\").empty();";
 			echo "\n 	});";
 			echo "\n });";
 			
 			echo "\n $('#submit_another').click( function() {";
-			echo "\n 	document.getElementById(\"mobile_submission_form\").reset();";
-			echo "\n	open_window('submit_view');";
+			echo "\n 		reset_form();";
 			echo "\n });";
 		}
 		

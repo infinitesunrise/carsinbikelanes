@@ -70,6 +70,12 @@ windows = {
 	stop_load_entries: false
 }
 
+auto_complete = {
+	plate: false,
+	exif: false,
+	streets: false
+}
+
 $(document).ready(function() {
 	$('#entry_view').hide();
 	$('#submit_view').hide();
@@ -227,6 +233,10 @@ function initialize_submit_view() {
 	jQuery('#datetimepicker').datetimepicker({format:'m/d/Y g:iA'});
 	
 	document.getElementById("image_submission").onchange = function(e) {
+		$('#image_prompt').html('ATTACHED!');
+		
+		auto_scroll('reset');
+		
 		fill_plate_and_state();
 		
 		EXIF.getData(e.target.files[0], function() {
@@ -250,6 +260,7 @@ function initialize_submit_view() {
 				var gps_text = "Latitude: " + gps_lat.toFixed(6) + " Longitude: " + gps_lng.toFixed(6);
 				document.getElementById("gps_coords").innerHTML = gps_text;
 				document.getElementById("map_prompt").innerHTML = "Location detected:";
+				auto_scroll('exif');
 			}
 		
 			//Auto-enter time and date
@@ -283,6 +294,7 @@ function initialize_submit_view() {
 		formData.append( 'street1', document.getElementById("street1").value );
 		formData.append( 'street2', document.getElementById("street2").value );
 		formData.append( 'description',document.getElementById("comments").value );
+		formData.append( 'upload','true' );
 		formData.append( 'source','mobile' );
 		$.ajax({
 		  url: '/submission.php',
@@ -300,6 +312,33 @@ function initialize_submit_view() {
 		  }
 		});
 	});
+}
+
+function auto_scroll(autofilled){
+	switch(autofilled){
+		case 'plate':
+			auto_complete.plate = true;
+			break;
+		case 'exif':
+			auto_complete.exif = true;
+			break;
+		case 'streets':
+			auto_complete.streets = true;
+			break;
+		case 'reset':
+			auto_complete.plate = false;
+			auto_complete.exif = false;
+			auto_complete.streets = false;
+			break;
+	}
+	if (auto_complete.plate == true &&
+		auto_complete.exif == true &&
+		auto_complete.streets == true){
+		var offset = -100;
+		$('#submit_view').animate({
+			scrollTop: $("#description-title").offset().top + offset
+		}, 2000);
+	}
 }
 
 function fill_plate_and_state(){
@@ -321,28 +360,35 @@ function fill_plate_and_state(){
 		var x1 = reply['plate']['img_width'] / 2;
 		var y1 = reply['plate']['img_height'] / 2;
 		var results = reply['plate']['results'];
-		var smallest_distance = (x1 >= y1) ? x1 : y1;
-		var best = 0;
-		$.each( results, function(i) {
-			var x2 = (results[i]['coordinates'][0]['x'] +
-					results[i]['coordinates'][1]['x'] +
-					results[i]['coordinates'][2]['x'] +
-					results[i]['coordinates'][3]['x']) / 4;
-			var y2 = (results[i]['coordinates'][0]['y'] +
-					results[i]['coordinates'][1]['y'] +
-					results[i]['coordinates'][2]['y'] +
-					results[i]['coordinates'][3]['y']) / 4;
-			var x = x1 - x2;
-			var y = y1 - y2;
-			var distance = Math.sqrt(x*x + y*y);;
-			if (distance < smallest_distance){
-				best = i;
-				smallest_distance = distance;
-			}
-		});
-		$('#plate').css('background', 'white');
-		$('#plate').val(reply['plate']['results'][best]['plate']);
-		$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+		if (results.length > 0){
+			var smallest_distance = (x1 >= y1) ? x1 : y1;
+			var best = 0;
+			$.each( results, function(i) {
+				var x2 = (results[i]['coordinates'][0]['x'] +
+						results[i]['coordinates'][1]['x'] +
+						results[i]['coordinates'][2]['x'] +
+						results[i]['coordinates'][3]['x']) / 4;
+				var y2 = (results[i]['coordinates'][0]['y'] +
+						results[i]['coordinates'][1]['y'] +
+						results[i]['coordinates'][2]['y'] +
+						results[i]['coordinates'][3]['y']) / 4;
+				var x = x1 - x2;
+				var y = y1 - y2;
+				var distance = Math.sqrt(x*x + y*y);;
+				if (distance < smallest_distance){
+					best = i;
+					smallest_distance = distance;
+				}
+			});
+			$('#plate').css('background', 'white');
+			$('#plate').val(reply['plate']['results'][best]['plate']);
+			$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+			auto_scroll('plate');
+		}
+		else {
+			auto_scroll('reset');
+			$('#plate').css('background', 'white');
+		}
 	}
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', listener);
@@ -362,9 +408,9 @@ function fill_streets(){
 	function listener() {
 		var response = JSON.parse(this.responseText);
 		var intersection = response['address']['Address'].split(" & ");		
-		console.log(intersection[0] + " / " + intersection[1]);
 		$('#street1').val(intersection[0]);
 		$('#street2').val(intersection[1]);
+		auto_scroll('streets');
 	}
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', listener);
@@ -477,11 +523,8 @@ function open_window(window_name) {
 		windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}
 	if (window_name == 'single_view' && windows.single_view == false){
-		//console.log($(window).innerHeight() + " / " + $('#single_view').outerHeight());
 		var new_position = $(window).innerHeight() - $('#single_view').outerHeight();
 		$('#single_view').animate({opacity: 'toggle', top: new_position});
-		//console.log($('#single_view').outerHeight() + " / " + new_position);
-		//console.log(new_position);
 		windows.single_view = true;
 		windows.entry_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
 	}
@@ -512,6 +555,15 @@ function limitText() {
 		var count = comments.value.length;
 		document.getElementById("character_limit").innerHTML = 200 - count;
 	}
+}
+
+function reset_form() {
+	$('#mobile_submission_form')[0].reset();
+	open_window('submit_view');
+	setTimeout(function(){
+		$('#image_prompt').html('TAP TO ADD AN IMAGE');
+		$('#submit_view').scrollTop(0);
+	},200); 
 }
 
 </script>
@@ -555,21 +607,16 @@ function limitText() {
 <div id='submit_view' class='submit_view'>
 <form id="mobile_submission_form" action="submission.php" enctype="multipart/form-data">
 
-	<div id="form_row">
-    <div id="spacer"><span>IMAGE:</span></div>
-	<label id="file_container">
-	<span>CLICK TO ADD</span>
-	<input type="file" name="image_submission" id="image_submission">
+	<label id='file_container' class='file_container'>
+	<span id='image_prompt' class='v-centered'>TAP TO ADD AN IMAGE</span>
+	<input type="file" name="image_submission" id="image_submission"/>
 	</label>
-    </div>
+	
+    <span>PLATE:</span>
+	<input type="text" name="plate" id="plate" class='wide' maxlength="8"/>
     
-    <div id="form_row">
-    <div id="spacer"><span>PLATE:</span></div> <input type="text" name="plate" id="plate" maxlength="7">
-    </div>
-    
-    <div id="form_row">
-    <div id="spacer"><span> STATE: </span></div>
-    <select name="state" id="state">
+    <span> STATE: </span>
+    <select name="state" id="state" class='wide'>
     <option value="NY">NY</option>
     <option value="NJ">NJ</option>
     <option value="NYPD">NYPD</option>
@@ -625,36 +672,33 @@ function limitText() {
     <option value="WI">WI</option>
     <option value="WY">WY</option>
     <option value="OTHER">OTHER</option>
+	<option value="NONE">NONE</option>
     </select>
-    </div>
 
-    <div id="form_row">
-    <div id="spacer"><span> DATE:</span></div> <input type="text" name="date" id="datetimepicker">
-    </div>
+    <span>DATE:</span>
+	<input type="text" name="date" class='wide' id="datetimepicker"/>
     
-    <div id="form_row">
-	<div id="spacer"><span>STREETS (OPTIONAL):</span></div> <input type="text" name="street1" id="street1"> <br>
-	<div id="spacer"><span>&amp</span></div> <input type="text" name="street2" id="street2"><br>
-	</div>
+	<span>STREET 1 (OPTIONAL):</span>
+	<input type="text" name="street1" id="street1" class='wide'/>
+	
+	<span>STREET 2 (OPTIONAL):</span>
+	<input type="text" name="street2" id="street2" class='wide'/>
     
-    <div id="form_row">
-    <span id="map_prompt">Tap to mark location if not detected:</span><br>
+    <span id="map_prompt" class='medium'>Tap to mark location if not detected:</span><br>	
 	<div id="submit_map"></div>
-	<span id="gps_coords">Latitude: ... Longitude: ...</span>
-	</div>
+	<span id="gps_coords" class='medium'>Latitude: ... Longitude: ...</span>
 	<br>
-	<div id="form_row">
-	<span>ANY ADDITIONAL INFO (
-	<div id="character_limit">200</div> characters):</span><br>
+	<br>
+	<br>
+	
+	<span id='description-title'>DESCRIPTION (Optional)</span><br>
+	<span  class='medium'><div id="character_limit">200</div> characters</span><br>
 	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="comments" id="comments"></textarea><br>
-	</div>
-	<br>
+	
 	<input type="hidden" name="lat" id="latitude">
 	<input type="hidden" name="lng" id="longitude">
 	
-	<div id="form_row">
-	<input type="submit" class="submit_button" value="SUBMIT" name="submit"><br>
-	</div>
+	<input type="submit" class="submit_button" value="UPLOAD!" name="upload"/>
 	
 </form>
 </div>

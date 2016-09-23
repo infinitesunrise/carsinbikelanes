@@ -190,28 +190,33 @@ function fill_plate_and_state(){
 		var x1 = reply['plate']['img_width'] / 2;
 		var y1 = reply['plate']['img_height'] / 2;
 		var results = reply['plate']['results'];
-		var smallest_distance = (x1 >= y1) ? x1 : y1;
-		var best = 0;
-		$.each( results, function(i) {
-			var x2 = (results[i]['coordinates'][0]['x'] +
-					results[i]['coordinates'][1]['x'] +
-					results[i]['coordinates'][2]['x'] +
-					results[i]['coordinates'][3]['x']) / 4;
-			var y2 = (results[i]['coordinates'][0]['y'] +
-					results[i]['coordinates'][1]['y'] +
-					results[i]['coordinates'][2]['y'] +
-					results[i]['coordinates'][3]['y']) / 4;
-			var x = x1 - x2;
-			var y = y1 - y2;
-			var distance = Math.sqrt(x*x + y*y);;
-			if (distance < smallest_distance){
-				best = i;
-				smallest_distance = distance;
-			}
-		});
-		$('#plate').css('background', 'white');
-		$('#plate').val(reply['plate']['results'][best]['plate']);
-		$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+		if (results.length > 0){
+			var smallest_distance = (x1 >= y1) ? x1 : y1;
+			var best = 0;
+			$.each( results, function(i) {
+				var x2 = (results[i]['coordinates'][0]['x'] +
+						results[i]['coordinates'][1]['x'] +
+						results[i]['coordinates'][2]['x'] +
+						results[i]['coordinates'][3]['x']) / 4;
+				var y2 = (results[i]['coordinates'][0]['y'] +
+						results[i]['coordinates'][1]['y'] +
+						results[i]['coordinates'][2]['y'] +
+						results[i]['coordinates'][3]['y']) / 4;
+				var x = x1 - x2;
+				var y = y1 - y2;
+				var distance = Math.sqrt(x*x + y*y);;
+				if (distance < smallest_distance){
+					best = i;
+					smallest_distance = distance;
+				}
+			});
+			$('#plate').css('background', 'white');
+			$('#plate').val(reply['plate']['results'][best]['plate']);
+			$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+		}
+		else {
+			$('#plate').css('background', 'white');
+		}
 	}
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', listener);
@@ -231,7 +236,6 @@ function fill_streets(){
 	function listener() {
 		var response = JSON.parse(this.responseText);
 		var intersection = response['address']['Address'].split(" & ");		
-		console.log(intersection[0] + " / " + intersection[1]);
 		$('#street1').val(intersection[0]);
 		$('#street2').val(intersection[1]);
 	}
@@ -294,6 +298,7 @@ function submitForm(e) {
 	formData.append( 'street1', document.getElementById("street1").value );
 	formData.append( 'street2', document.getElementById("street2").value );
 	formData.append( 'description',document.getElementById("comments").value );
+	formData.append( 'upload','true' );
 	formData.append( 'source','desktop' );
 	$.ajax({
 	  url: '/submission.php',
@@ -607,7 +612,7 @@ if (isset($_GET['setup_success_dialog'])){
 	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="description" id="comments"></textarea>
 	
 	<div class="submit_form_row">
-	<input type="submit" class="submit_form_item" style="width:100%" value="SUBMIT" name="submit">
+	<input type="submit" class="submit_form_item" style="width:100%" value="SUBMIT" name="upload">
 	</div>
 	
 </form>
