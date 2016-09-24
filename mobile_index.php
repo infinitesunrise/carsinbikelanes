@@ -33,8 +33,8 @@ if (isset($_GET['single_view'])){
 <script src="scripts/exif.js"></script>
 
 <!-- leaflet -->
-<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 
 <!-- mapbox -->
 <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>

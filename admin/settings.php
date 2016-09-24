@@ -14,8 +14,8 @@ require 'config_pointer.php';
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <!-- leaflet -->
-<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 
 <!-- google fonts -->
 <link href="//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One" rel="stylesheet" type="text/css"/>
