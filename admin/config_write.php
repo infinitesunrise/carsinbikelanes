@@ -9,7 +9,7 @@ function config_write($new_config){
 		"database" => "carsinbikelanes",
 		"use_providers_plugin" => 1,
 		"leaflet_provider" => "OpenStreetMap",
-		"map_url" => 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		"map_url" => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		"use_google" => 0,
 		"google_api_key" => "",
 		"google_extra_layer" => "NONE",
@@ -31,18 +31,18 @@ function config_write($new_config){
 		"openalpr_api_key" => "",
 		"about_text" => '&lt;h3&gt;About CARSINBIKELANES&lt;/h3&gt;
 &lt;p&gt;CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted for to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL\'s setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser.&lt;/p&gt;' );
-		
+
 	if (file_exists(__DIR__ . '/config_pointer.php')){
 		include '' . __DIR__ . '/config_pointer.php';
 	}
 	else{
 		return_error('There was a problem loading the configuration file. We are in ' . __DIR__);
 	}
-	
+
 	$new_config = array_merge($config, $new_config);
 	$config_file = fopen($config_location, "w")
 		or return_error("PHP error. Issues creating config file. Are permissions set correctly?");
-	$text = 
+	$text =
 	"<?php\n\n" .
 	"//----------------------------------------------//\n" .
 	"// CONFIGURATION\n" .

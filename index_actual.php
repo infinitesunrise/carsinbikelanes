@@ -15,8 +15,8 @@ include ('mobile_detect.php');
 
 <html>
 <head>
-<meta charset="UTF-8"> 
- 
+<meta charset="UTF-8">
+
 <!-- local stylesheets -->
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 <link rel="stylesheet" type="text/css" href="css/plates.css" />
@@ -34,16 +34,16 @@ include ('mobile_detect.php');
 <script src="scripts/exif.js"></script>
 
 <!-- leaflet -->
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 
 <!-- mapbox -->
 <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
 
 <!-- google fonts -->
-<link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'> 
+<link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
 <!-- license plate font by Dave Hansen -->
 <link href='css/license-plate-font.css' rel='stylesheet' type='text/css'>
@@ -52,7 +52,7 @@ include ('mobile_detect.php');
 <script src="scripts/leaflet-providers.js"></script>
 
 <!-- Google Javascript API with current key -->
-<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="google_api_link" src="<?php echo '//maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
 
 <!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
@@ -83,25 +83,25 @@ $(document).ready(function() {
 		if(<?php echo $single_view_id; ?>){ zoomToEntry(<?php echo $single_view_details; ?>); }
 		else { load_entries(); }
 	}, 250);
-	
+
 	body_map.on('panend', function(e) { load_entries(); });
 	body_map.on('moveend', function(e) { load_entries(); });
 	body_map.on('click', function(e) { load_entries(); });
 	submit_map.on('click', onSubmitClick);
-	
+
 	$("#submit_link").click( function() { open_window('submit_view') } );
-	
+
 	$("#about_link").click( function() {open_window('about_view')} );
-	
+
 	$("#feedback").click( function(e) { showEmail(e) } );
-	
+
 	$('#submission_form').submit( function(e) { submitForm(e) } );
-	
+
 	$('#image_submission').on('change', function(e) {
 		fill_plate_and_state();
 		fillExifFields(e);
 	});
-	
+
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
 });
 
@@ -131,7 +131,7 @@ function open_window(window) {
 		$('.right_menu').delay(300).animate({opacity: 'toggle'});
 	}
 	windows.single_view = false; windows.about_view = false; windows.submit_view = false;
-	
+
 	if (windows.entry_list == true && window == 'none') {
 		$('#entry_view').animate({opacity: 'toggle', left: '-565px'});
 		windows.entry_list = false;
@@ -184,9 +184,9 @@ function fill_plate_and_state(){
 	data.append('image', $('#image_submission')[0].files[0]);
 	data.append('country', 'us');
 	var reply;
-	
+
 	function listener() {
-		var reply = JSON.parse(this.responseText);	
+		var reply = JSON.parse(this.responseText);
 		var x1 = reply['plate']['img_width'] / 2;
 		var y1 = reply['plate']['img_height'] / 2;
 		var results = reply['plate']['results'];
@@ -225,7 +225,7 @@ function fill_plate_and_state(){
 }
 
 function fill_streets(){
-	var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
+	var url = '//geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
 	var location = '{x:' + $('#longitude').val() + ',y:' + $('#latitude').val() + '}';
 	var data = new FormData();
 	data.append('location', location);
@@ -235,7 +235,7 @@ function fill_streets(){
 	var reply;
 	function listener() {
 		var response = JSON.parse(this.responseText);
-		var intersection = response['address']['Address'].split(" & ");		
+		var intersection = response['address']['Address'].split(" & ");
 		$('#street1').val(intersection[0]);
 		$('#street2').val(intersection[1]);
 	}
@@ -246,7 +246,7 @@ function fill_streets(){
 }
 
 function fillExifFields(e) {
-	EXIF.getData(e.target.files[0], function() {			
+	EXIF.getData(e.target.files[0], function() {
 		//Auto-enter location data
 		if(EXIF.getTag(this, "GPSLatitude")){
 			var lat_deg = EXIF.getTag(this, "GPSLatitude")[0];
@@ -327,13 +327,13 @@ function load_entries() {
 		var south = body_map.getBounds().getSouth();
 		var north = body_map.getBounds().getNorth();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north + "&max_view=" + max_view;
-		$( "#entry_list_content" ).load( load_url, function(){ 
+		$( "#entry_list_content" ).load( load_url, function(){
 				open_window('entry_list');
 				$('#loading').css('background', 'none');
-				setTimeout(function(){ 
+				setTimeout(function(){
 					resize_entry_list();
 					$('#entry_list_content').css('overflow-y','scroll'); //fixes bug where firefox doesn't scroll first list loaded
-				}, 500); 
+				}, 500);
 			});
 	}
 }
@@ -343,10 +343,10 @@ function plate_search(plate) {
 		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
 		var load_url = 'entry_list.php?plate=' + plate;
 		windows.stop_load_entries = true; //Will be set false again by entry_list.php
-		$( "#entry_list_content" ).load( load_url, function(){ 
+		$( "#entry_list_content" ).load( load_url, function(){
 				open_window('entry_list');
 				$('#loading').css('background', 'none');
-				setTimeout(function(){ resize_entry_list(); }, 500); 
+				setTimeout(function(){ resize_entry_list(); }, 500);
 			});;
 	}
 }
@@ -380,13 +380,13 @@ function limitText() {
 
 function initializeMaps() {
 
-	if (<?php echo $config['use_providers_plugin']; ?>) {		
+	if (<?php echo $config['use_providers_plugin']; ?>) {
 		body_map = L.map('body_map');
 		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-				
+
 		submit_map = L.map('submit_map');
 		try { var tiles2 = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
 		catch (err) { console.log(err); }
@@ -401,7 +401,7 @@ function initializeMaps() {
 			echo ";\n"; }
 		?>
 		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>
-		try { 
+		try {
 			var tiles = new L.Google('ROADMAP', {
 					mapOptions: {
 						styles: options
@@ -411,9 +411,9 @@ function initializeMaps() {
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-		
+
 		submit_map = L.map('submit_map');
-		try { 
+		try {
 			var tiles2 = new L.Google('ROADMAP', {
 					mapOptions: {
 						styles: options
@@ -432,7 +432,7 @@ function initializeMaps() {
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-		
+
 		submit_map = L.map('submit_map');
 		try { var tiles2 = new L.BingLayer(bingApiKey, {type: imagerySet}); }
 		catch (err) { console.log(err); }
@@ -445,14 +445,14 @@ function initializeMaps() {
 		catch (err) { console.log(err); }
 		body_map.addLayer(tiles);
 		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-		
+
 		submit_map = L.map('submit_map');
 		try { var tiles2 = L.tileLayer('<?php echo $config['map_url']; ?>'); }
 		catch (err) { console.log(err); }
 		submit_map.addLayer(tiles2);
 		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
-	
+
 	markers = L.layerGroup().addTo(body_map);
 	newMarkers = L.layerGroup();
 }
@@ -471,8 +471,8 @@ if (isset($_GET['setup_success_dialog'])){
 	echo "<div class=\"settings_group\">\n";
 	echo "<h3>Setup Complete!</h3>\n";
 	echo "<p>The site is now be ready to receive submissions.</p>\n";
-	echo "<p>To change site settings and approve user submissions, 
-		point your browser at the <a href=\"/admin\">/admin</a> directory 
+	echo "<p>To change site settings and approve user submissions,
+		point your browser at the <a href=\"/admin\">/admin</a> directory
 		and log in with the credentials created during setup.</p>";
 	echo "<p>Happy reporting!</p>\n";
 	echo "</div>\n";
@@ -518,12 +518,12 @@ if (isset($_GET['setup_success_dialog'])){
 	<div style="width: 100%">
     <span class="submit_form_item">Image: </span><input type="file" class="submit_form_item" name="image_submission" id="image_submission"><br>
 	</div>
-	
+
 	<div class="submit_form_row">
 	<div>
     <span class="submit_form_item">Plate: </span><input type="text" name="plate" id="plate" class="submit_form_item" style="width:70px" maxlength="8">
 	</div>
-	
+
 	<div>
     <span class="submit_form_item"> State: </span>
     <select name="state" id="state" class="submit_form_item">
@@ -584,12 +584,12 @@ if (isset($_GET['setup_success_dialog'])){
     <option value="OTHER">OTHER</option>
     </select>
 	</div>
-	
+
 	<div>
     <span class="submit_form_item"> When:</span> <input type="text" name="date" class="submit_form_item" id="datetimepicker">
 	</div>
 	</div>
-	
+
 	<div class="submit_form_row">
 	<div>
 	<span class="submit_form_item">Cross streets (optional): </span>
@@ -600,24 +600,24 @@ if (isset($_GET['setup_success_dialog'])){
 	<input type="text" name="street2" id="street2" class="submit_form_item" style="width:140px">
 	</div>
 	</div>
-	
+
     <span id="map_prompt">Click to mark location:</span>
 	<div id="submit_map"></div>
 	<span id="gps_coords">Latitude: ... Longitude: ...</span>
 	<input type="hidden" name="lat" id="latitude">
 	<input type="hidden" name="lng" id="longitude">
-	
+
 	<div class="submit_form_row">
 	<span class="submit_form_item">Any additional info (
 	<div id="character_limit">200</div> characters):</span>
 	</div>
-	
+
 	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="description" id="comments"></textarea>
-	
+
 	<div class="submit_form_row">
 	<input type="submit" class="submit_form_item" style="width:100%" value="SUBMIT" name="upload">
 	</div>
-	
+
 </form>
 </div>
 </div>
