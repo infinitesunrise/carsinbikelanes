@@ -15,7 +15,7 @@ Features:
 - Custom project boundaries, site identity and 'about' info. 
   
 Dependencies:  
-- PHP 5.2+  
+- PHP 5.5+  
 - MySQL 5.5+  
 - Apache  
   
