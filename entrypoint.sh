@@ -11,4 +11,12 @@ $config_location = '/var/www/cibl_config/config/config.php';
 ?>
 EOF
 
+cp /etc/php5/apache2/php.ini.template /etc/php5/apache2/php.ini
+
+PARAMETERS=$(printenv | awk -F "=" '{print $1}' |grep CIBL_.*)
+for name in $PARAMETERS; do
+   eval value=\$$name
+   sed -i "s|\${${name}}|${value}|g" /etc/php5/apache2/php.ini
+done
+
 apache2ctl -D FOREGROUND

@@ -17,7 +17,7 @@ RUN ln -sf /dev/stdout /var/log/apache2/access.log && \
 
 
 
-ADD php.ini /etc/php5/apache2/php.ini
+ADD php.ini /etc/php5/apache2/php.ini.template
 
 RUN rm -rf /var/www/html/*
 ADD *.php /var/www/html/
@@ -38,11 +38,12 @@ VOLUME /var/www/cibl_config
 VOLUME /var/www/html/images
 VOLUME /var/www/html/thumbs
 
-
-ENV NORTH "47.29"
-ENV SOUTH "47.141"
-ENV EAST "-1.43"
-ENV WEST "-1.66"
+ENV CIBL_SMTP_SERVER "localhost"
+ENV CIBL_SMTP_PORT "25"
+ENV CIBL_NORTH "47.29"
+ENV CIBL_SOUTH "47.141"
+ENV CIBL_EAST "-1.43"
+ENV CIBL_WEST "-1.66"
 
 ADD entrypoint.sh /entrypoint.sh
 
