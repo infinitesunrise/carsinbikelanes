@@ -12,16 +12,16 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <!-- leaflet -->
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 
 <!-- jquery datetimepicker plugin by Valeriy (https://github.com/xdan) -->
 <script src="../scripts/jquery.datetimepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="../css/jquery.datetimepicker.css"/ >
 
 <!-- google fonts -->
-<link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'> 
+<link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
 <!-- license plate font by Dave Hansen -->
 <link href='../css/license-plate-font.css' rel='stylesheet' type='text/css'>
@@ -30,7 +30,7 @@
 <script src="../scripts/leaflet-providers.js"></script>
 
 <!-- Google Javascript API with current key -->
-<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="google_api_link" src="<?php echo '//maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
 
 <!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
@@ -58,13 +58,13 @@ if (isset($_POST['save'])) {
 		'street2="' . mysqli_real_escape_string($connection, $_POST['street2']) . '", ' .
 		'description="' . mysqli_real_escape_string($connection, $_POST['comment']) . '" ' .
 		'WHERE increment=' . $_POST['id']);
-		$connection->query('INSERT INTO cibl_data 
-							SELECT * FROM cibl_queue 
+		$connection->query('INSERT INTO cibl_data
+							SELECT * FROM cibl_queue
 							WHERE increment = ' . $_POST['id']);
 		$id = $connection->insert_id;
 		$old_url = mysqli_fetch_array($connection->query(
-							'SELECT url 
-							FROM cibl_queue 
+							'SELECT url
+							FROM cibl_queue
 							WHERE increment = ' . $_POST['id']))[0];
 		$new_url = pathinfo($old_url)['dirname'] . '/' . $id . '.' . pathinfo($old_url)['extension'];
 		$connection->query('UPDATE cibl_data SET url=\'' . $new_url . '\' WHERE increment=' . $id);
@@ -73,7 +73,7 @@ if (isset($_POST['save'])) {
 		$connection->commit();
 		rename('../thumbs/' . $old_url, '../thumbs/' . $new_url);
 		rename('../images/' . $old_url, '../images/' . $new_url);
-		
+
 		if ($_POST['rotate'] != 0){
 			$image_large = imagecreatefromjpeg( '../images/' . $new_url );
 			$rotated_image_large = imagerotate( $image_large , -$_POST['rotate'], 0 );
@@ -88,7 +88,7 @@ if (isset($_POST['save'])) {
 }
 
 if (isset($_POST['delete'])){
-	$url = mysqli_fetch_array($connection->query('SELECT url FROM cibl_queue WHERE increment = ' . $_POST['id']))[0];	
+	$url = mysqli_fetch_array($connection->query('SELECT url FROM cibl_queue WHERE increment = ' . $_POST['id']))[0];
 	$result = $connection->query('DELETE FROM cibl_queue WHERE increment=' . $_POST['id']);
 	$file_thumb = "../thumbs/" . $url;
 	$file_image = "../images/" . $url;
@@ -104,7 +104,7 @@ if ($go_to_entry < 1){ $go_to_entry = 1; }
 
 $total_query = 'SELECT COUNT(*) FROM cibl_queue';
 $total_entries = mysqli_fetch_array(mysqli_query($connection, $total_query))[0];
-	
+
 $result = $connection->query(
 	'SELECT *
 	FROM cibl_queue
@@ -152,10 +152,10 @@ else if($total_entries == 0){ $last_entry = 0; }
 <?php
 $count = 0;
 while ($count < count($entries)){
-	
+
 	//BEGIN MOD QUEUE ROW
 	echo "\n\n <div class='moderation_queue_row' id='moderation_queue_row" . $entries[$count][0] . "'>";
-	
+
 	//---SECTION 1: BUTTONS---
 	echo "\n <div class='moderation_queue_buttons'>";
 	echo "\n <button id='save" . $entries[$count][0] . "' class='bold_button' onclick='javascript:accept(" . $entries[$count][0] . ");'>ACCEPT</button> <br>";
@@ -169,23 +169,23 @@ while ($count < count($entries)){
 	echo "<button class='rotate' onClick='rotate(90," . $entries[$count][0] . ")'>&#10552</button>";
 	echo "</div>";
 	echo "\n </div>";
-	
+
 	//---SECTION 2: IMAGE---
 	echo "\n <div id='" . $entries[$count][0] . "' class='mod_queue_img_container'>";
 	echo "\n <img id='img" . $entries[$count][0] . "' class='review' src='../thumbs/" . $entries[$count][1] . "' onclick=\"javascript:toggleImg('" . $entries[$count][1] . "', " . $entries[$count][0] . ");\"/>";
 	echo "\n </div>";
-	
+
 	//---SECTION 3: DETAILS---
 	echo "\n <div class='moderation_queue_details'>";
 
 		//---SECTION 3.TOP: PLATE AND DETAILS---
 	echo "\n <div class='details_top'>";
-	
+
 			//---SECTION 3.TOP.LEFT: PLATE---
-	echo "\n <div class='details_plate'>";	
+	echo "\n <div class='details_plate'>";
 	echo "\n <div class='plate_name'><div><br/><h2>#" . $entries[$count][0] . ":</h2></div>";
 	echo "\n <div class='edit edit_plate' id='plate" . $entries[$count][0] . "' onclick='javascript:edit_plate(" . $entries[$count][0] . ")'>";
-	
+
 	if ($entries[$count][3] == "NYPD"){
 		$plate_split = str_split($entries[$count][2], 4);
 		echo "\n <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
@@ -201,12 +201,12 @@ while ($count < count($entries)){
 	echo "<div class='details_timeplace'>";
 	$datetime = new DateTime($entries[$count][4]);
 	$datetime = strtoupper($datetime->format('m/d/Y g:ia'));
-	
+
 	echo "\n<span>TIME: </span>";
 	echo "<div class='edit edit_date' id='date" . $entries[$count][0] . "' onclick='javascript:edit_date(" . $entries[$count][0] . ")'>";
 	echo "<span>" . $datetime . "</span>";
 	echo "</div><br/>";
-	
+
 	echo "\n<span>STREETS: </span>";
 	echo "<div id='streets" . $entries[$count][0] . "' class='edit edit_streets main_font' onclick='javascript:edit_streets(" . $entries[$count][0] . ")'>";
 	echo "<span>" . strtoupper($entries[$count][8]);
@@ -214,25 +214,25 @@ while ($count < count($entries)){
 		echo " & " . strtoupper($entries[$count][9]);
 	}
 	echo "</span></div><br/>";
-	
+
 	echo "\n<span>GPS: </span>";
 	echo "<div id='gps" . $entries[$count][0] . "' class='edit edit_gps' onclick='javascript:edit_gps(" . $entries[$count][0] . ")'><span>";
 	echo $entries[$count][6] . " / " . $entries[$count][7];
 	echo "</span></div>";
 	echo "\n<div style='position:relative'><div id='gps_map_container_" . $entries[$count][0] . "' class='gps_map_container'><div id='gps_map" . $entries[$count][0] . "' class='gps_map'></div></div></div>";
-	
+
 	echo "\n</div>";
 	echo "\n</div>";
 
 		//---SECTION 3.BOTTOM: COMMENT---
 	echo "\n <div class='details_bottom'>";
 	echo "\n <span style='margin-left:7px'>COMMENT:</span>";
-	echo "\n <div class='edit edit_comment' id='comment" . $entries[$count][0] . "' onclick='javascript:edit_comment(" . $entries[$count][0] . ")'><span>" . nl2br($entries[$count][10]) . "</span></div>";	
+	echo "\n <div class='edit edit_comment' id='comment" . $entries[$count][0] . "' onclick='javascript:edit_comment(" . $entries[$count][0] . ")'><span>" . nl2br($entries[$count][10]) . "</span></div>";
 	echo "\n </div>";
-	
+
 	echo "\n </div>";
 	echo "\n </div>";
-	
+
 	//ROW VALUES
 	echo "<input id='id_" . $entries[$count][0] . "' name='id_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][0] . "'/>";
 	echo "<input id='url_" . $entries[$count][0] . "' name='url_" . $entries[$count][0] . "' type='hidden' value='" . $entries[$count][1] . "'/>";
@@ -280,7 +280,7 @@ if ($count == 0){
 echo "\n\n</div>";
 echo "</div>";
 
-//IMAGE RESIZE FUNCTION	
+//IMAGE RESIZE FUNCTION
 function resize_image($file, $w, $h, $crop=FALSE) {
     list($width, $height) = getimagesize($file);
     $r = $width / $height;
@@ -302,16 +302,16 @@ function resize_image($file, $w, $h, $crop=FALSE) {
         }
     }
     $info = getimagesize($file);
-    if ($info['mime'] == 'image/jpeg') 
+    if ($info['mime'] == 'image/jpeg')
 		$src = imagecreatefromjpeg($file);
-	elseif ($info['mime'] == 'image/gif') 
+	elseif ($info['mime'] == 'image/gif')
 		$src = imagecreatefromgif($file);
-	elseif ($info['mime'] == 'image/png') 
+	elseif ($info['mime'] == 'image/png')
 		$src = imagecreatefrompng($file);
-    
+
     $dst = imagecreatetruecolor($newwidth, $newheight);
     imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-	
+
     return $dst;
 }
 
@@ -350,7 +350,7 @@ function armForDelete(id){
 
 function edit_plate(id){
 	new_current_entry(id);
-	if ( currentID != "plate" + id ) {	
+	if ( currentID != "plate" + id ) {
 		currentID = "plate" + id;
 		$("#plate" + id).html("<input id='input_plate" + id + "' class='plate " + currentEntry.state + "' style='width:146px'/>");
 		$("#input_plate" + id).val(currentEntry.plate);
@@ -401,7 +401,7 @@ function edit_streets(id){
 		$("#input_street1-" + id).val(currentEntry.street1);
 		$("#input_street2-" + id).val(currentEntry.street2);
 		$("#input_street1-" + id).focus();
-		
+
 		var streetsListener = function(e){
 			//var focus = document.activeElement.id;
 			if(e.target.id != 'input_street1-' + id && e.target.id != 'input_street2-' + id && e.target.id != 'streets' + id ){
@@ -419,7 +419,7 @@ function edit_streets(id){
 				}, 250);
 			}
 		}
-		
+
 		document.addEventListener('click', streetsListener, true);
 	}
 }
@@ -478,7 +478,7 @@ function new_current_entry(id, enableUpdate = true){
 		$("#delete" + currentEntry.id).prop('disabled', true);
 		$("#delete" + currentEntry.id).addClass("disabled");
 		$("#checkbox" + currentEntry.id).prop('checked', false);
-		
+
 		$("#id_" + currentEntry.id).val(backupEntry.id);
 		$("#url_" + currentEntry.id).val(backupEntry.url);
 		$("#plate_" + currentEntry.id).val(backupEntry.plate);
@@ -489,7 +489,7 @@ function new_current_entry(id, enableUpdate = true){
 		$("#street1_" + currentEntry.id).val(backupEntry.street1);
 		$("#street2_" + currentEntry.id).val(backupEntry.street2);
 		$("#comment_" + currentEntry.id).val(backupEntry.comment);
-		
+
 		var newHtml = "<img class='review' id='img" + backupEntry.id + "' src=\"" + "../thumbs/" + backupEntry.url + "\" onclick=\"javascript:toggleImg('" + backupEntry.url + "'," + backupEntry.id + ");\" />";
 		$("#" + backupEntry.id).empty();
 		$("#" + backupEntry.id).html(newHtml);
@@ -502,24 +502,24 @@ function new_current_entry(id, enableUpdate = true){
 			document.getElementById(savedID).style.width = bounds.width;
 			document.getElementById(savedID).style.height = (bounds.height >= 200) ? bounds.height : 200;;
 		}, 10);
-		
+
 		if (backupEntry.state == "NYPD" && backupEntry.plate.length > 4){
 			var bigText = backupEntry.plate.slice(0,4);
 			var smallText = backupEntry.plate.slice(4,999);
 			$("#plate" + backupEntry.id).html("<div class='plate " + backupEntry.state + "'>" + bigText + "<span class='NYPDsuffix'>" + smallText + "</span></div></div>");
 		}
 		else { $("#plate" + backupEntry.id).html("<div class='plate " + backupEntry.state + "'>" + backupEntry.plate + "</div></div>"); }
-		
+
 		$("#date" + backupEntry.id).html("<span>" + backupEntry.date + "</span>");
-		
+
 		var oldStreets = "<span>" + backupEntry.street1;
 		if (backupEntry.street2 != 0 && backupEntry.street2 != ""){ oldStreets+= " & " + backupEntry.street2; }
 		oldStreets += "</span>";
 		$("#streets" + backupEntry.id).html(oldStreets);
-		
+
 		var old_gps_text = "<span>" + backupEntry.lat + " / " + backupEntry.lon + "</span>";
 		$("#gps" + backupEntry.id).html(old_gps_text);
-		
+
 		$("#comment" + backupEntry.id).html("<span>" + backupEntry.comment + "</span>");
 	}
 	//If method wasn't called from the delete checkbox, enable saving / updating
@@ -561,7 +561,7 @@ function new_current_entry(id, enableUpdate = true){
 
 function initializeMaps(id) {
 	var divName = "gps_map" + id;
-	if (<?php echo $config['use_providers_plugin']; ?>) {		
+	if (<?php echo $config['use_providers_plugin']; ?>) {
 		gps_map = L.map(divName);
 		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
 		catch (err) { console.log(err); }
@@ -574,7 +574,7 @@ function initializeMaps(id) {
 			echo ";\n"; }
 		?>
 		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>
-		try { 
+		try {
 			var tiles = new L.Google('ROADMAP', {
 					mapOptions: {
 						styles: options
@@ -595,13 +595,13 @@ function initializeMaps(id) {
 		try { var tiles = L.tileLayer('<?php echo $config['map_url']; ?>'); }
 		catch (err) { console.log(err); }
 	}
-	
+
 	gps_map.addLayer(tiles);
 	gps_map.setView([currentEntry.lat, currentEntry.lon], 12);
-	
+
 	markers = L.layerGroup().addTo(gps_map);
 	marker = new L.marker([currentEntry.lat, currentEntry.lon]).addTo(markers);
-	
+
 	gps_map.on('click', function(e){
 		gps_map.removeLayer(markers);
 		markers = L.layerGroup().addTo(gps_map);
@@ -646,7 +646,7 @@ function rotate(angle, id){
 	if (rotation >= 360) { rotation -= 360; }
 	if (rotation < 0) { rotation += 360; }
 	rotations.set(id,rotation);
-	$("#img" + id).css("transform", "rotate(" + rotations.get(id) + "deg)");	
+	$("#img" + id).css("transform", "rotate(" + rotations.get(id) + "deg)");
 	update_img_container_size(id);
 }
 
@@ -655,7 +655,7 @@ function update_img_container_size(id){
 	var imgHeight = $('#img' + id).height();
 	if (rotations.get(id) == null || rotations.get(id) == 0 || rotations.get(id) == 180)
 	{ $('#' + id).width(imgWidth); $('#' + id).height(imgHeight); }
-	else 
+	else
 	{ $('#' + id).width(imgHeight); $('#' + id).height(imgWidth); }
 }
 

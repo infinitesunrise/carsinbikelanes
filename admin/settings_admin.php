@@ -18,7 +18,7 @@
 <form action='settings_update.php' method='post'>
 <input type='hidden' name='update_users' value='true'>
 <p class="tinytext">
-Note: Users do not have access to this settings page unless their admin box below is checked. 
+Note: Users do not have access to this settings page unless their admin box below is checked.
 Non-admin users only have access to the submission queue.</p>
 <div class="user_list_row">
 <div class='user_list_name'>NAME</div>
@@ -85,7 +85,7 @@ function calculate_centers() {
 <h3>Project Bounds</h3>
 <form action='settings_update.php' method='post'>
 <input type='hidden' name='update_coords' value='true'>
-<p class="tinytext">GPS coordinates representing the maximum north, south, east and west boundaries for user submissions. 
+<p class="tinytext">GPS coordinates representing the maximum north, south, east and west boundaries for user submissions.
 Submissions outside of these bounds will be rejected with an error message.</p>
 
 <?php
@@ -157,7 +157,7 @@ echo "<textarea class='settings' name='about_text'>" . $config['about_text'] . "
 <?php
 if ($config['comments'] == TRUE) {
 	echo "<span>allow comments: </span><input type='checkbox' id='comments' name='comments' checked='checked'/>"; }
-else { 
+else {
 	echo "<span>allow comments: </span><input type='checkbox' id='comments' name='comments'/>"; }
 ?>
 <br>
@@ -167,7 +167,7 @@ else {
 </form>
 </div>
 </div>
- 
+
 <div class='settings_box'>
 <div class="settings_group">
 <h3>Map Settings</h3>
@@ -224,7 +224,7 @@ terms of service</a>.
 <div class="holder" id="map_options_custom">
 <span>tiles url: </span>
 <input type='text' class='wide' id='custom_url' name='map_url' onChange='switch_map()' value='<?php echo $config['map_url']; ?>'/><br>
-<p class="tinytext"> If you have your own tile provider URL you may paste it above instead of using one of the presets. 
+<p class="tinytext"> If you have your own tile provider URL you may paste it above instead of using one of the presets.
 Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiled web maps</a> for more information about this schema.</p>
 </div>
 
@@ -233,7 +233,7 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 </div>
 </div>
 
-<script id="google_api_link" src="http://maps.googleapis.com/maps/api/js?key=<?php echo $config['google_api_key']; ?>&v=3"></script>
+<script id="google_api_link" src="//maps.googleapis.com/maps/api/js?key=<?php echo $config['google_api_key']; ?>&v=3"></script>
 <script id="leaflet_plugins_google" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
 <script id="leaflet_plugins_bing" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 <script src="../scripts/leaflet-providers.js"></script>
@@ -292,9 +292,9 @@ switch_map();
 
 function switch_map(option){
 	var newProvider = document.getElementById("provider_select").options[provider_select.selectedIndex].value;
-	
+
 	console.log("Switched map to type: " + newProvider);
-	
+
 	if (newProvider == "Custom"){
 		document.getElementById("map_options_custom").style.display = "block";
 		document.getElementById("map_options_google").style.display = "none";
@@ -303,7 +303,7 @@ function switch_map(option){
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_google").value = 0;
 		document.getElementById("use_bing").value = 0;
-		document.getElementById("leaflet_provider").value = newProvider;	
+		document.getElementById("leaflet_provider").value = newProvider;
 		settings_map.remove();
 		document.getElementById("settings_map").innerHTML = "";
 		var url = document.getElementById("custom_url").value;
@@ -321,7 +321,7 @@ function switch_map(option){
 		document.getElementById("use_bing").value = 0;
 		document.getElementById("use_google").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
-		
+
 		if (option == 'google1' || option == 'google2' || option == 'google3'){
 			google_bicycling = document.getElementById("google_bicycling");
 			google_transit = document.getElementById("google_transit");
@@ -353,7 +353,7 @@ function switch_map(option){
 					break;
 			}
 		}
-		
+
 		var options = <?php include $config_folder . '/google_style.php'; ?>;
 		var extra = document.getElementById("google_extra_layer").value;
 		settings_map.remove();
@@ -403,7 +403,7 @@ function switch_map(option){
 		var tiles = L.tileLayer.provider(newProvider);
 		settings_map = L.map('settings_map')
 		.addLayer(tiles)
-		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);	
+		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 		document.getElementById("use_providers_plugin").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
 	}
@@ -423,7 +423,7 @@ function update_google_api(){
 <form action='settings_update.php' method='post'>
 <input type='hidden' name='update_openalpr' value='true'>
 <span>openalpr api key: </span><input type='text' class='wide' name='openalpr_api_key' value='<?php echo $config['openalpr_api_key']; ?>'/>
-<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='http://www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
+<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='//www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
 <input type='submit' class='wide' name='update_openalpr' value='Update OpenALPR'/>
 </form>
 </div>

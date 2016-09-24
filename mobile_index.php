@@ -33,16 +33,16 @@ if (isset($_GET['single_view'])){
 <script src="scripts/exif.js"></script>
 
 <!-- leaflet -->
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 
 <!-- mapbox -->
 <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
 
 <!-- google fonts -->
-<link href='http://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'> 
+<link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
 <!-- license plate font by Dave Hansen -->
 <link href='css/license-plate-font.css' rel='stylesheet' type='text/css'>
@@ -51,7 +51,7 @@ if (isset($_GET['single_view'])){
 <script src="scripts/leaflet-providers.js"></script>
 
 <!-- Google Javascript API with current key -->
-<script id="google_api_link" src="<?php echo 'http://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="google_api_link" src="<?php echo '//maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
 
 <!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
@@ -82,12 +82,12 @@ $(document).ready(function() {
 	$('#about_view').hide();
 	$('#single_view').hide();
 	$('#results_view').hide();
-	
+
 	initialize_body_map();
-	
+
 	if(<?php echo $single_view_id; ?>){ zoomToEntry(<?php echo $single_view_details; ?>); }
 	else{ load_entries(); }
-	
+
 	$('#submit_link').click(function(){ open_window('submit_view'); initialize_submit_view(); });
 	$('#about_link').click(function(){ open_window('about_view'); });
 });
@@ -137,7 +137,7 @@ function flip(element, content, key, value){
 }
 
 function initialize_body_map() {
-	if (<?php echo $config['use_providers_plugin']; ?>) {		
+	if (<?php echo $config['use_providers_plugin']; ?>) {
 		body_map = L.map('body_map', { zoomControl:false });
 		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
 		catch (err) { console.log(err); }
@@ -150,7 +150,7 @@ function initialize_body_map() {
 			echo ";\n"; }
 		?>
 		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>
-		try { 
+		try {
 			var tiles = new L.Google('ROADMAP', {
 					mapOptions: {
 						styles: options
@@ -181,7 +181,7 @@ function initialize_body_map() {
 }
 
 function initialize_submit_view() {
-	if (<?php echo $config['use_providers_plugin']; ?>) {		
+	if (<?php echo $config['use_providers_plugin']; ?>) {
 		submit_map = L.map('submit_map', { zoomControl:false });
 		try { var tiles2 = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
 		catch (err) { console.log(err); }
@@ -190,7 +190,7 @@ function initialize_submit_view() {
 	}
 	else if (<?php echo $config['use_google']; ?>) {
 		submit_map = L.map('submit_map', { zoomControl:false });
-		try { 
+		try {
 			var tiles2 = new L.Google('ROADMAP', {
 					mapOptions: {
 						styles: options
@@ -215,9 +215,9 @@ function initialize_submit_view() {
 		submit_map.addLayer(tiles2);
 		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
-	
+
 	submit_map.on('click', submit_map_click);
-	
+
 	var d = new Date();
 	var month = d.getMonth()+1;
 	var day = d.getDate();
@@ -229,18 +229,18 @@ function initialize_submit_view() {
 	var min = d.getMinutes();
 	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
 	document.getElementById('datetimepicker').value = date_string;
-	
+
 	jQuery('#datetimepicker').datetimepicker({format:'m/d/Y g:iA'});
-	
+
 	document.getElementById("image_submission").onchange = function(e) {
 		$('#image_prompt').html('ATTACHED!');
-		
+
 		auto_scroll('reset');
-		
+
 		fill_plate_and_state();
-		
+
 		EXIF.getData(e.target.files[0], function() {
-		
+
 			//Auto-enter location data
 			if(EXIF.getTag(this, "GPSLatitude")){
 				var lat_deg = EXIF.getTag(this, "GPSLatitude")[0];
@@ -262,7 +262,7 @@ function initialize_submit_view() {
 				document.getElementById("map_prompt").innerHTML = "Location detected:";
 				auto_scroll('exif');
 			}
-		
+
 			//Auto-enter time and date
 			if(EXIF.getTag(this, "DateTimeOriginal")){
 				var capture_time = EXIF.getTag(this, "DateTimeOriginal");
@@ -281,7 +281,7 @@ function initialize_submit_view() {
 			}
 		});
 	}
-	
+
 	$('#mobile_submission_form').submit( function(e) {
 		e.preventDefault();
 		var formData = new FormData();
@@ -354,9 +354,9 @@ function fill_plate_and_state(){
 	data.append('image', $('#image_submission')[0].files[0]);
 	data.append('country', 'us');
 	var reply;
-	
+
 	function listener() {
-		var reply = JSON.parse(this.responseText);	
+		var reply = JSON.parse(this.responseText);
 		var x1 = reply['plate']['img_width'] / 2;
 		var y1 = reply['plate']['img_height'] / 2;
 		var results = reply['plate']['results'];
@@ -397,7 +397,7 @@ function fill_plate_and_state(){
 }
 
 function fill_streets(){
-	var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
+	var url = '//geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
 	var location = '{x:' + $('#longitude').val() + ',y:' + $('#latitude').val() + '}';
 	var data = new FormData();
 	data.append('location', location);
@@ -407,7 +407,7 @@ function fill_streets(){
 	var reply;
 	function listener() {
 		var response = JSON.parse(this.responseText);
-		var intersection = response['address']['Address'].split(" & ");		
+		var intersection = response['address']['Address'].split(" & ");
 		$('#street1').val(intersection[0]);
 		$('#street2').val(intersection[1]);
 		auto_scroll('streets');
@@ -459,10 +459,10 @@ function resize_entry_list(){
 	column_entries = document.getElementsByClassName("column_entry");
 	if (column_entries.length < 3){
 		total_height = 0;
-		for (i = 0; i < column_entries.length; i++) { 
+		for (i = 0; i < column_entries.length; i++) {
 			if ($(column_entries[i]).hasClass("single_view_column_entry") == false) {
 				total_height += column_entries[i].offsetHeight;
-			}			
+			}
 		}
 		$('#entry_view').animate({ height: total_height, bottom: '0vh' });
 	}
@@ -473,7 +473,7 @@ function zoomToEntry(lat,lng,id) {
 	windows.stop_load_entries = true;
 	single_view_url = "single_view.php?id=" + id;
 	$(".single_view").load(single_view_url, function(){
-		$('#fullsize').on('load', function(){ 
+		$('#fullsize').on('load', function(){
 			open_window('single_view');
 		});
 	});
@@ -488,22 +488,22 @@ function open_window(window_name) {
 	if (window_name == 'submit_view'){ change_nav('submit'); }
 	else if (window_name == 'about_view'){ change_nav('about'); }
 	else { change_nav('close'); }
-	
-	if (windows.entry_view == true) { 
+
+	if (windows.entry_view == true) {
 		if (window_name != 'entry_view'){ $('#entry_view').animate({opacity: 'toggle', bottom: '-50vh'}); }
 	}
-	if (windows.single_view == true) { 
+	if (windows.single_view == true) {
 		$('#single_view').animate({opacity: 'toggle', top: '100vh'});
 	}
-	if (windows.about_view == true) { 
+	if (windows.about_view == true) {
 		$('#about_view').animate({opacity: 'toggle', top: '100vh'});
-		if (window_name == 'about_view'){ 
+		if (window_name == 'about_view'){
 			windows.about_view = false;
 			open_window('entry_view');
 			return;
 		}
 	}
-	if (windows.submit_view == true) { 
+	if (windows.submit_view == true) {
 		$('#submit_view').animate({opacity: 'toggle', top: '100vh'});
 		windows.stop_load_entries = false;
 		if (window_name == 'submit_view'){
@@ -512,11 +512,11 @@ function open_window(window_name) {
 			return;
 		}
 	}
-	if (windows.results_view == true) { 
+	if (windows.results_view == true) {
 		$('#results_view').animate({opacity: 'toggle', top: '100vh'});
 		if (window_name == 'results_view'){ open_window('entry_view'); }
 	}
-	
+
 	if (window_name == 'entry_view' && windows.entry_view == false){
 		$('#entry_view').animate({opacity: 'toggle', bottom: '0vh'});
 		windows.entry_view = true;
@@ -563,7 +563,7 @@ function reset_form() {
 	setTimeout(function(){
 		$('#image_prompt').html('TAP TO ADD AN IMAGE');
 		$('#submit_view').scrollTop(0);
-	},200); 
+	},200);
 }
 
 </script>
@@ -611,10 +611,10 @@ function reset_form() {
 	<span id='image_prompt' class='v-centered'>TAP TO ADD AN IMAGE</span>
 	<input type="file" name="image_submission" id="image_submission"/>
 	</label>
-	
+
     <span>PLATE:</span>
 	<input type="text" name="plate" id="plate" class='wide' maxlength="8"/>
-    
+
     <span> STATE: </span>
     <select name="state" id="state" class='wide'>
     <option value="NY">NY</option>
@@ -677,29 +677,29 @@ function reset_form() {
 
     <span>DATE:</span>
 	<input type="text" name="date" class='wide' id="datetimepicker"/>
-    
+
 	<span>STREET 1 (OPTIONAL):</span>
 	<input type="text" name="street1" id="street1" class='wide'/>
-	
+
 	<span>STREET 2 (OPTIONAL):</span>
 	<input type="text" name="street2" id="street2" class='wide'/>
-    
-    <span id="map_prompt" class='medium'>Tap to mark location if not detected:</span><br>	
+
+    <span id="map_prompt" class='medium'>Tap to mark location if not detected:</span><br>
 	<div id="submit_map"></div>
 	<span id="gps_coords" class='medium'>Latitude: ... Longitude: ...</span>
 	<br>
 	<br>
 	<br>
-	
+
 	<span id='description-title'>DESCRIPTION (Optional)</span><br>
 	<span  class='medium'><div id="character_limit">200</div> characters</span><br>
 	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="comments" id="comments"></textarea><br>
-	
+
 	<input type="hidden" name="lat" id="latitude">
 	<input type="hidden" name="lng" id="longitude">
-	
+
 	<input type="submit" class="submit_button" value="UPLOAD!" name="upload"/>
-	
+
 </form>
 </div>
 
