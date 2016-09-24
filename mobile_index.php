@@ -284,6 +284,10 @@ function initialize_submit_view() {
 	
 	$('#mobile_submission_form').submit( function(e) {
 		e.preventDefault();
+		$('#upload_prompt').empty();
+		$('#upload_button').css('background', 'url(\'css/loader.svg\') 50% no-repeat');
+		$('#upload_button').css('background-size', '30%');
+		$('#upload_button').css('background-color', 'lightgray');
 		var formData = new FormData();
 		formData.append( 'image_submission', $('#image_submission')[0].files[0] );
 		formData.append( 'plate', document.getElementById("plate").value );
@@ -306,9 +310,15 @@ function initialize_submit_view() {
 		  success: function(a) {
 			$('#results_view').html(a);
 			open_window('results_view');
+			$('#upload_button').css('background', 'none');
+			$('#upload_button').css('background-color', 'lightgray');
+			$('#upload_prompt').append('UPLOAD!');
 		  },
 		  error: function(a) {
 			alert( "something went wrong: " + a);
+			$('#upload_button').css('background', 'none');
+			$('#upload_button').css('background-color', 'lightgray');
+			$('#upload_prompt').append('UPLOAD!');
 		  }
 		});
 	});
@@ -698,7 +708,12 @@ function reset_form() {
 	<input type="hidden" name="lat" id="latitude">
 	<input type="hidden" name="lng" id="longitude">
 	
-	<input type="submit" class="submit_button" value="UPLOAD!" name="upload"/>
+	<!-- <input type="submit" class="submit_button" value="UPLOAD!" name="upload"/> -->
+	
+	<label id='upload_button' class='upload_button'>
+	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
+	<input type="submit" name="upload" id="upload"/>
+	</label>
 	
 </form>
 </div>

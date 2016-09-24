@@ -1,0 +1,229 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.1.0",
+        "title": "Cars In Bike Lanes API"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/upload": {
+            "post": {
+                "description": "Upload a new submission to the CIBL moderation queue.",
+                "parameters": [
+                    {
+                        "name": "image",
+                        "in": "formData",
+                        "description": "An image of the offense being documented. Currently only JPG, GIF, and PNG are accepted.",
+                        "required": true,
+                        "type": "file"
+                    },
+                    {
+                        "name": "plate",
+                        "in": "query",
+                        "description": "The plate number, 8 characters max. Longer strings will be cut off after the 8th character.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "description": "Two letter code representing the license plate's state of origin, such as `NY` or `CA`. `NYPD`, `FDNY`, `OTHER` and `NONE` are also recognized.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "A Unix timestamp representing the time of the offense.",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "gps_latitude",
+                        "in": "query",
+                        "description": "GPS latitude value.",
+                        "required": true,
+                        "type": "number",
+                        "format": "double"
+                    },
+                    {
+                        "name": "gps_longitude",
+                        "in": "query",
+                        "description": "GPS longitude value.",
+                        "required": true,
+                        "type": "number",
+                        "format": "double"
+                    },
+                    {
+                        "name": "street1",
+                        "in": "query",
+                        "description": "The first of two optional street name values. Preferably the street parallel to the offender's direction.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "street2",
+                        "in": "query",
+                        "description": "The second of two optional street name values. Preferrably the nearest cross street to the offense.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "An optional eyewitness description of the offense to provide context, personal notes and cathartic rant space. No length limit but < 200 characters is recommended for brevity and styling purposes.",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success. Indicates upload has been accepted and moved into the moderation queue for moderator approval.",
+                        "schema": {
+                            "title": "accepted",
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed. `error` will suggest a reason why.",
+                        "schema": {
+                            "title": "error",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/search": {
+            "post": {
+                "description": "A bounding-box search of the CIBL database. If neither the `box` or `around` search mode parameters are set, the entire project area will be queried. Returns an array of `Entry`.",
+                "parameters": [
+                    {
+                        "name": "box",
+                        "in": "query",
+                        "description": "An array of four numbers representing maximum latitude, minimum latitude, maximum longitude, and minimum longitude, together forming a search box.",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "type": "number",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "around",
+                        "in": "query",
+                        "description": "An array of three numbers representing a search within a box around a gps coordinate. GPS latitude, GPS longitude, and distance from coordindate to box edge.",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "type": "number",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "plate",
+                        "in": "query",
+                        "description": "Filter results by a particular license plate string.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "before",
+                        "in": "query",
+                        "description": "Filter results to only include entries that occured before a Unix timestamp.",
+                        "required": false,
+                        "type": "number",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "description": "Filter results to only include entries that occured after a Unix timestamp.",
+                        "required": false,
+                        "type": "number",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "streets",
+                        "in": "query",
+                        "description": "A list of strings with which to filter entries by street names, inclusively. (Will only return entires that match every item in the array). For example `['bedford']` will return all entries on Bedford Ave or Bedford St, `['bedford', 'lincoln']` will return entries occuring at cross streets Bedford Ave and Lincoln Ave, or Lincoln Blvd and Bedford Terrace, or anywhere on Lincoln R. Bedfordshire Lane.",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "max",
+                        "in": "query",
+                        "description": "The maximum number of results to result. Defaults to CIBL's site-wide setting.",
+                        "type": "number",
+                        "format": "int32"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of `Entry`.",
+                        "schema": {
+                            "title": "entries",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Entry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error.",
+                        "schema": {
+                            "title": "error",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Entry": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "format": "int32"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "thumb_url": {
+                    "type": "string"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "number",
+                    "format": "int32"
+                },
+                "gps_latitude": {
+                    "type": "number",
+                    "format": "int32"
+                },
+                "gps_longitude": {
+                    "type": "number",
+                    "format": "int32"
+                },
+                "street1": {
+                    "type": "string"
+                },
+                "street2": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

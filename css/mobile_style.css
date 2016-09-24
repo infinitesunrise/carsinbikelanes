@@ -310,7 +310,7 @@ span {
 	padding: 0px;
 }
 
-.file_container {
+.file_container, .upload_button {
 	height: 30vh;
 	margin: 1vh auto 5vh auto;
 	display: block;
@@ -335,7 +335,7 @@ span {
     line-height: inherit;
 }
 
-#image_submission {
+#image_submission, #upload {
 	visibility: hidden;
 	position: absolute;
 	-webkit-appearance: none;
