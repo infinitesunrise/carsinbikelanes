@@ -1,0 +1,21 @@
+version: '2'
+services:
+  carsinbikelanes:
+    build: .
+    ports:
+     - "8080:80"
+    links:
+     - mysql
+    volumes:
+     - /tmp/carsinbikelanes/config:/var/www/cibl_config
+     - /tmp/carsinbikelanes/images:/var/www/html/images
+     - /tmp/carsinbikelanes/thumbs:/var/www/html/thumbs
+  mysql:
+   image: mysql:5.5
+   volumes:
+      - /tmp/carsinbikelanes/mysql:/var/lib/mysql
+   environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=cibl
+      - MYSQL_USER=cibl
+      - MYSQL_PASSWORD=cibl

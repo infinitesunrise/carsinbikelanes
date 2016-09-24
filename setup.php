@@ -31,7 +31,7 @@ else { $password = $password1; }
 $connection = new mysqli($config['sqlhost'], $config['sqluser'], $config['sqlpass']);
 if ($connection->connect_error) {
 	return_error("MySQL connection failed: " . $connection->connect_error);
-} 
+}
 
 //CREATE MYSQL DATABASE
 $query = "CREATE DATABASE IF NOT EXISTS " . $config['database'] . " CHARACTER SET utf8 COLLATE utf8_general_ci;";
@@ -122,16 +122,17 @@ if (file_exists($config_folder)){
 }
 
 //MOVE AND RENAME CONFIG FOLDER
-if (!rename('config', $config_folder)){
-	return_error("Problem setting up configuration folder.");
-}
+// if (!rename('config', $config_folder)){
+// 	return_error("Problem setting up configuration folder.");
+// }
+shell_exec("cp -r config $config_folder");
 
 //CREATE POINTER TO CONFIG FILE
 $config_pointer = fopen('admin/config_pointer.php', 'w');
-$pointer_contents = 
-	"<?php \n" . 
-	"include ('" . $config_folder . "/config.php');\n" . 
-	"\$config_folder = '" . $config_folder . "';\n" .  
+$pointer_contents =
+	"<?php \n" .
+	"include ('" . $config_folder . "/config.php');\n" .
+	"\$config_folder = '" . $config_folder . "';\n" .
 	"\$config_location = '" . $config_folder . "/config.php';\n" .
 	"?>";
 fwrite($config_pointer, $pointer_contents);
@@ -141,8 +142,7 @@ fclose($config_pointer);
 config_write($config);
 mkdir("images");
 mkdir("thumbs");
-rename('index.php', 'index_old.php');
-rename('index_actual.php', 'index.php');
+
 
 $progress .= "Setup complete!<br>";
 
