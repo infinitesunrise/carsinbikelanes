@@ -43,16 +43,14 @@
                         "in": "query",
                         "description": "GPS latitude value.",
                         "required": true,
-                        "type": "number",
-                        "format": "double"
+                        "type": "number"
                     },
                     {
                         "name": "gps_longitude",
                         "in": "query",
                         "description": "GPS longitude value.",
                         "required": true,
-                        "type": "number",
-                        "format": "double"
+                        "type": "number"
                     },
                     {
                         "name": "street1",
@@ -94,29 +92,27 @@
             }
         },
         "/search": {
-            "post": {
+            "get": {
                 "description": "A bounding-box search of the CIBL database. If neither the `box` or `around` search mode parameters are set, the entire project area will be queried. Returns an array of `Entry`.",
                 "parameters": [
                     {
                         "name": "box",
                         "in": "query",
-                        "description": "An array of four numbers representing maximum latitude, minimum latitude, maximum longitude, and minimum longitude, together forming a search box.",
+                        "description": "An array of four numbers representing maximum latitude, minimum latitude, maximum longitude, and minimum longitude (North, South, East, West), together forming a search box.",
                         "required": false,
                         "type": "array",
                         "items": {
-                            "type": "number",
-                            "format": "int32"
+                            "type": "number"
                         }
                     },
                     {
                         "name": "around",
                         "in": "query",
-                        "description": "An array of three numbers representing a search within a box around a gps coordinate. GPS latitude, GPS longitude, and distance from coordindate to box edge.",
+                        "description": "Alternate way to specify a box search, in which the box is defined by it's center coordinate and distance from center coordinate to the middle of any edge. An array of three numbers (GPS latitude, GPS longitude, distance in degrees from coordindate to middle of a box edge), converted by CIBL into a normal box search.",
                         "required": false,
                         "type": "array",
                         "items": {
-                            "type": "number",
-                            "format": "int32"
+                            "type": "number"
                         }
                     },
                     {
@@ -131,16 +127,14 @@
                         "in": "query",
                         "description": "Filter results to only include entries that occured before a Unix timestamp.",
                         "required": false,
-                        "type": "number",
-                        "format": "int32"
+                        "type": "number"
                     },
                     {
                         "name": "after",
                         "in": "query",
                         "description": "Filter results to only include entries that occured after a Unix timestamp.",
                         "required": false,
-                        "type": "number",
-                        "format": "int32"
+                        "type": "number"
                     },
                     {
                         "name": "streets",
@@ -156,8 +150,7 @@
                         "name": "max",
                         "in": "query",
                         "description": "The maximum number of results to result. Defaults to CIBL's site-wide setting.",
-                        "type": "number",
-                        "format": "int32"
+                        "type": "number"
                     }
                 ],
                 "responses": {
@@ -187,8 +180,7 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "number",
-                    "format": "int32"
+                    "type": "number"
                 },
                 "image_url": {
                     "type": "string"
@@ -203,16 +195,13 @@
                     "type": "string"
                 },
                 "date": {
-                    "type": "number",
-                    "format": "int32"
+                    "type": "number"
                 },
                 "gps_latitude": {
-                    "type": "number",
-                    "format": "int32"
+                    "type": "number"
                 },
                 "gps_longitude": {
-                    "type": "number",
-                    "format": "int32"
+                    "type": "number"
                 },
                 "street1": {
                     "type": "string"
