@@ -235,10 +235,25 @@ function update_map($config_folder){
 }
 
 function update_openalpr(){
-	if(isset($_POST['update_openalpr'])){
-		$new_values = array(
-			'openalpr_api_key' => $_POST['openalpr_api_key']
-		);
+	if(isset($_POST['update_openalpr'])){		
+		if (count($_POST['openalpr_countries']) > 0){
+			error_log(print_r($_POST['openalpr_countries'], true));
+			$new_country_array = 'array(';
+			for ($i = 0; $i < count($_POST['openalpr_countries']); $i++){
+				$new_country_array .= '"' . $_POST['openalpr_countries'][$i] . '"';
+				if ($i+1 <  count($_POST['openalpr_countries'])){
+					$new_country_array .= ',';
+				}
+			}
+			$new_country_array .= ')';
+			$new_values = array(
+				'openalpr_api_key' => $_POST['openalpr_api_key'],
+				'openalpr_countries' => $new_country_array
+			);
+		}
+		else {
+			return_error("At least one country code must be selected for OpenALPR to function.");
+		}		
 		config_write($new_values);
 		return_message("OpenALPR settings updated.");
 	}

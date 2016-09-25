@@ -29,6 +29,7 @@ function config_write($new_config){
 		"comments" => "",
 		"disqus" => "",
 		"openalpr_api_key" => "",
+		"openalpr_countries" => 'array("us")',
 		"about_text" => '&lt;h3&gt;About CARSINBIKELANES&lt;/h3&gt;
 &lt;p&gt;CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted for to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL\'s setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser.&lt;/p&gt;' );
 
@@ -74,6 +75,7 @@ function config_write($new_config){
 	"'comments' => '" . $new_config['comments'] . "',\n" .
 	"'disqus' => '" . $new_config['disqus'] . "',\n" .
 	"'openalpr_api_key' => '" . $new_config['openalpr_api_key'] . "',\n" .
+	"'openalpr_countries' => " . $new_config['openalpr_countries'] . ",\n" .
 	"'about_text' => '" . addslashes(stripslashes($new_config['about_text'])) . "'\n" .
 	");\n\n" .
 	"\$connection = mysqli_connect(\$config['sqlhost'],\$config['sqluser'],\$config['sqlpass'],\$config['database']);\n\n" .

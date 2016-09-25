@@ -622,3 +622,7 @@ p.tinytext {
 	font-size: 12px;
 	font-family: 'Oswald', sans-serif;
 }
+
+.multiple_select {
+	height: 200px !important;
+}

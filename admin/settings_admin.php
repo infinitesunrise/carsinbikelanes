@@ -66,20 +66,6 @@ Displays on the main page and anywhere else the site name is referenced.</p>
 </div>
 </div>
 
-<script type="text/javascript">
-function calculate_centers() {
-	var north = parseFloat(document.getElementById("north_bounds").value);
-	var south = parseFloat(document.getElementById("south_bounds").value);
-	var east = parseFloat(document.getElementById("east_bounds").value);
-	var west = parseFloat(document.getElementById("west_bounds").value);
-	var center_lat = (north + south) / 2;
-	var center_long = (east + west) / 2;
-	document.getElementById("center_lat").value = center_lat.toFixed(4);
-	document.getElementById("center_long").value = center_long.toFixed(4);
-	document.getElementById("mobile_center_lat").value = center_lat.toFixed(4);
-	document.getElementById("mobile_center_long").value = center_long.toFixed(4);
-}
-</script>
 <div class='settings_box'>
 <div class='settings_group'>
 <h3>Project Bounds</h3>
@@ -233,62 +219,106 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 </div>
 </div>
 
+<div class='settings_box'>
+<div class='settings_group'>
+<h3>OpenALPR</h3>
+<form action='settings_update.php' method='post'>
+<input type='hidden' name='update_openalpr' value='true'>
+<span>openalpr api key: </span><input type='text' class='wide' name='openalpr_api_key' value='<?php echo $config['openalpr_api_key']; ?>'/>
+<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='//www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
+<select multiple name='openalpr_countries[]' class="wide multiple_select" id='openalpr_countries'>
+<option value='us'<?php if(in_array('us',$config['openalpr_countries'])){ echo ' selected'; } ?>>us</option>
+<option value='au'<?php if(in_array('au',$config['openalpr_countries'])){ echo ' selected'; } ?>>au</option>
+<option value='auwide'<?php if(in_array('auwide',$config['openalpr_countries'])){ echo ' selected'; } ?>>auwide</option>
+<option value='br'<?php if(in_array('br',$config['openalpr_countries'])){ echo ' selected'; } ?>>br</option>
+<option value='eu'<?php if(in_array('eu',$config['openalpr_countries'])){ echo ' selected'; } ?>>eu</option>
+<option value='fr'<?php if(in_array('fr',$config['openalpr_countries'])){ echo ' selected'; } ?>>fr</option>
+<option value='gb'<?php if(in_array('gb',$config['openalpr_countries'])){ echo ' selected'; } ?>>gb</option>
+<option value='kr'<?php if(in_array('kr',$config['openalpr_countries'])){ echo ' selected'; } ?>>kr</option>
+<option value='kr2'<?php if(in_array('kr2',$config['openalpr_countries'])){ echo ' selected'; } ?>>kr2</option>
+<option value='mx'<?php if(in_array('mx',$config['openalpr_countries'])){ echo ' selected'; } ?>>mx</option>
+<option value='sg'<?php if(in_array('sg',$config['openalpr_countries'])){ echo ' selected'; } ?>>sg</option>
+</select>
+<p class='tinytext'>Country-specific training data used to identify license plates as described <a href='//github.com/openalpr/openalpr/tree/master/runtime_data/config'>here</a>. Multiple data can be selected, at least one must be active.</p>
+<input type='submit' class='wide' name='update_openalpr' value='Update OpenALPR'/>
+</form>
+</div>
+</div>
+
+<div class='settings_box'>
+<div class='settings_group'>
+<h3>MySQL</h3>
+<form action='settings_update.php' method='post'>
+<input type='hidden' name='update_database' value='true'>
+<?php
+echo "<span>hostname: </span><input type='text' class='wide' name='sqlhost' value='" . "'/><br>\n";
+echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . "'/><br>\n";
+echo "<span>password: </span><input type='password' class='wide' name='sqlpass' value='" . "'/><br>\n";
+echo "<span>database: </span><input type='text' class='wide' name='database' value='" . "'/><br>\n";
+?>
+<input type='submit' class='wide' name='update_database' value='Update Database'/>
+</form>
+</div>
+</div>
+
 <script id="google_api_link" src="//maps.googleapis.com/maps/api/js?key=<?php echo $config['google_api_key']; ?>&v=3"></script>
 <script id="leaflet_plugins_google" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
 <script id="leaflet_plugins_bing" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 <script src="../scripts/leaflet-providers.js"></script>
 <script type="text/javascript">
-settings_map = L.map('settings_map');
-googleExtraLayer =  document.getElementById("google_extra_layer").value;
-if (googleExtraLayer == "BICYCLING") { document.getElementById("google_bicycling").checked = true; }
-if (googleExtraLayer == "TRANSIT") { document.getElementById("google_transit").checked = true; }
-if (googleExtraLayer == "TRAFFIC") { document.getElementById("google_traffic").checked = true; }
-bingImagery =  document.getElementById("bing_imagery").value;
-switch (bingImagery){
-	case "Road":
-		document.getElementById("bing_imagery_select").selectedIndex = 0; break;
-	case "Aerial":
-		document.getElementById("bing_imagery_select").selectedIndex = 1; break;
-	case "AerialWithLabels":
-		document.getElementById("bing_imagery_select").selectedIndex = 2; break;
-}
+$(document).ready(function(){
+	settings_map = L.map('settings_map');
+	googleExtraLayer =  document.getElementById("google_extra_layer").value;
+	if (googleExtraLayer == "BICYCLING") { document.getElementById("google_bicycling").checked = true; }
+	if (googleExtraLayer == "TRANSIT") { document.getElementById("google_transit").checked = true; }
+	if (googleExtraLayer == "TRAFFIC") { document.getElementById("google_traffic").checked = true; }
+	bingImagery =  document.getElementById("bing_imagery").value;
+	switch (bingImagery){
+		case "Road":
+			document.getElementById("bing_imagery_select").selectedIndex = 0; break;
+		case "Aerial":
+			document.getElementById("bing_imagery_select").selectedIndex = 1; break;
+		case "AerialWithLabels":
+			document.getElementById("bing_imagery_select").selectedIndex = 2; break;
+	}
 
-var providers = L.TileLayer.Provider.providers;
-var providerOptions = "";
-providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
-providerOptions +=  "<option value='Google'>Google</option>\r\n";
-providerOptions +=  "<option value='Bing'>Bing</option>\r\n";
-var providerString = "";
-for (var provider in providers){
-	providerString = provider;
-	selectedString = "";
-	if (providerString == "NASAGIBS" ||
-		providerString == "HERE" ||
-		providerString == "OpenSeaMap" ||
-		providerString == "OpenWeatherMap" ||
-		providerString == "MapBox")
-		{ continue; }
-	providerOptions += "<option value=" + providerString + ">" + providerString + "</option>\r\n";
-	if (providers[provider].hasOwnProperty("variants")){
-		for (var variant in providers[provider].variants){
-			providerString = provider + "." + variant;
-			providerOptions +=  "<option value=" + providerString + ">" + providerString + "</option>\r\n";
+	var providers = L.TileLayer.Provider.providers;
+	var providerOptions = "";
+	providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
+	providerOptions +=  "<option value='Google'>Google</option>\r\n";
+	providerOptions +=  "<option value='Bing'>Bing</option>\r\n";
+	var providerString = "";
+	for (var provider in providers){
+		providerString = provider;
+		selectedString = "";
+		if (providerString == "NASAGIBS" ||
+			providerString == "HERE" ||
+			providerString == "OpenSeaMap" ||
+			providerString == "OpenWeatherMap" ||
+			providerString == "MapBox")
+			{ continue; }
+		providerOptions += "<option value=" + providerString + ">" + providerString + "</option>\r\n";
+		if (providers[provider].hasOwnProperty("variants")){
+			for (var variant in providers[provider].variants){
+				providerString = provider + "." + variant;
+				providerOptions +=  "<option value=" + providerString + ">" + providerString + "</option>\r\n";
+			}
 		}
 	}
-}
 
-var select = document.getElementById("provider_select");
-select.innerHTML = providerOptions;
-var leafletProvider = '<?php echo $config['leaflet_provider']; ?>';
-var options = select.options;
-for(var option, index = 0; option = options[index]; index++) {
-	if(option.value == leafletProvider) {
-		select.selectedIndex = index;
-		break;
+	var select = document.getElementById("provider_select");
+	select.innerHTML = providerOptions;
+	var leafletProvider = '<?php echo $config['leaflet_provider']; ?>';
+	var options = select.options;
+	for(var option, index = 0; option = options[index]; index++) {
+		if(option.value == leafletProvider) {
+			select.selectedIndex = index;
+			break;
+		}
 	}
-}
 
-switch_map();
+	switch_map();
+});
 
 function switch_map(option){
 	var newProvider = document.getElementById("provider_select").options[provider_select.selectedIndex].value;
@@ -415,32 +445,17 @@ function update_google_api(){
 	document.getElementById("google_api_link").src = googleURL;
 	switch_map();
 }
+
+function calculate_centers() {
+	var north = parseFloat(document.getElementById("north_bounds").value);
+	var south = parseFloat(document.getElementById("south_bounds").value);
+	var east = parseFloat(document.getElementById("east_bounds").value);
+	var west = parseFloat(document.getElementById("west_bounds").value);
+	var center_lat = (north + south) / 2;
+	var center_long = (east + west) / 2;
+	document.getElementById("center_lat").value = center_lat.toFixed(4);
+	document.getElementById("center_long").value = center_long.toFixed(4);
+	document.getElementById("mobile_center_lat").value = center_lat.toFixed(4);
+	document.getElementById("mobile_center_long").value = center_long.toFixed(4);
+}
 </script>
-
-<div class='settings_box'>
-<div class='settings_group'>
-<h3>OpenALPR</h3>
-<form action='settings_update.php' method='post'>
-<input type='hidden' name='update_openalpr' value='true'>
-<span>openalpr api key: </span><input type='text' class='wide' name='openalpr_api_key' value='<?php echo $config['openalpr_api_key']; ?>'/>
-<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='//www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
-<input type='submit' class='wide' name='update_openalpr' value='Update OpenALPR'/>
-</form>
-</div>
-</div>
-
-<div class='settings_box'>
-<div class='settings_group'>
-<h3>MySQL</h3>
-<form action='settings_update.php' method='post'>
-<input type='hidden' name='update_database' value='true'>
-<?php
-echo "<span>hostname: </span><input type='text' class='wide' name='sqlhost' value='" . "'/><br>\n";
-echo "<span>username: </span><input type='text' class='wide' name='sqluser' value='" . "'/><br>\n";
-echo "<span>password: </span><input type='password' class='wide' name='sqlpass' value='" . "'/><br>\n";
-echo "<span>database: </span><input type='text' class='wide' name='database' value='" . "'/><br>\n";
-?>
-<input type='submit' class='wide' name='update_database' value='Update Database'/>
-</form>
-</div>
-</div>
