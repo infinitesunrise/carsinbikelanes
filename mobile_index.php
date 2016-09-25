@@ -22,8 +22,8 @@ if (isset($_GET['single_view'])){
 
 <!-- jquery links -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
 
 <!-- jquery datetimepicker plugin by Valeriy (https://github.com/xdan) -->
 <script src="scripts/jquery.datetimepicker.js"></script>
@@ -33,15 +33,15 @@ if (isset($_GET['single_view'])){
 <script src="scripts/exif.js"></script>
 
 <!-- leaflet -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 
 <!-- mapbox -->
 <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
 
 <!-- google fonts -->
-<link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
 <!-- license plate font by Dave Hansen -->
@@ -51,7 +51,7 @@ if (isset($_GET['single_view'])){
 <script src="scripts/leaflet-providers.js"></script>
 
 <!-- Google Javascript API with current key -->
-<script id="google_api_link" src="<?php echo '//maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="google_api_link" src="<?php echo 'https://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
 
 <!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
@@ -407,7 +407,7 @@ function fill_plate_and_state(){
 }
 
 function fill_streets(){
-	var url = '//geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
+	var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode';
 	var location = '{x:' + $('#longitude').val() + ',y:' + $('#latitude').val() + '}';
 	var data = new FormData();
 	data.append('location', location);
@@ -712,7 +712,7 @@ function reset_form() {
 	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
 	<input type="submit" name="upload" id="upload"/>
 	</label>
-	
+
 </form>
 </div>
 

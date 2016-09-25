@@ -18,19 +18,19 @@ if (isset($_SESSION['admin'])){
 
 <!-- jquery -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <!-- leaflet -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 
 <!-- jquery datetimepicker plugin by Valeriy (https://github.com/xdan) -->
 <script src="../scripts/jquery.datetimepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="../css/jquery.datetimepicker.css"/ >
 
 <!-- google fonts -->
-<link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
-<link href='//fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
 <!-- license plate font by Dave Hansen -->
 <link href='../css/license-plate-font.css' rel='stylesheet' type='text/css'>
@@ -39,7 +39,7 @@ if (isset($_SESSION['admin'])){
 <script src="../scripts/leaflet-providers.js"></script>
 
 <!-- Google Javascript API with current key -->
-<script id="google_api_link" src="<?php echo '//maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
+<script id="google_api_link" src="<?php echo 'https://maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
 
 <!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>

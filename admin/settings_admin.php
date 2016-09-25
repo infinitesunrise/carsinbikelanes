@@ -225,7 +225,7 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 <form action='settings_update.php' method='post'>
 <input type='hidden' name='update_openalpr' value='true'>
 <span>openalpr api key: </span><input type='text' class='wide' name='openalpr_api_key' value='<?php echo $config['openalpr_api_key']; ?>'/>
-<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='//www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
+<p class='tinytext'>OpenALPR is an web service that quickly parses license plate data from photographs. Obtain an <a href='https://www.openalpr.com/demo-image.html'>OpenALPR API key</a> to enable.</p>
 <select multiple name='openalpr_countries[]' class="wide multiple_select" id='openalpr_countries'>
 <option value='us'<?php if(in_array('us',$config['openalpr_countries'])){ echo ' selected'; } ?>>us</option>
 <option value='au'<?php if(in_array('au',$config['openalpr_countries'])){ echo ' selected'; } ?>>au</option>
@@ -239,7 +239,7 @@ Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map"
 <option value='mx'<?php if(in_array('mx',$config['openalpr_countries'])){ echo ' selected'; } ?>>mx</option>
 <option value='sg'<?php if(in_array('sg',$config['openalpr_countries'])){ echo ' selected'; } ?>>sg</option>
 </select>
-<p class='tinytext'>Country-specific training data used to identify license plates as described <a href='//github.com/openalpr/openalpr/tree/master/runtime_data/config'>here</a>. Multiple data can be selected, at least one must be active.</p>
+<p class='tinytext'>Country-specific training data used to identify license plates as described <a href='https://github.com/openalpr/openalpr/tree/master/runtime_data/config'>here</a>. Multiple data can be selected, at least one must be active.</p>
 <input type='submit' class='wide' name='update_openalpr' value='Update OpenALPR'/>
 </form>
 </div>

@@ -9,7 +9,7 @@ function config_write($new_config){
 		"database" => "carsinbikelanes",
 		"use_providers_plugin" => 1,
 		"leaflet_provider" => "OpenStreetMap",
-		"map_url" => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		"map_url" => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 		"use_google" => 0,
 		"google_api_key" => "",
 		"google_extra_layer" => "NONE",
