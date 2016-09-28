@@ -90,6 +90,12 @@ $(document).ready(function() {
 
 	$('#submit_link').click(function(){ open_window('submit_view'); initialize_submit_view(); });
 	$('#about_link').click(function(){ open_window('about_view'); });
+	
+	$('#state').change(function(){
+	if ($('#state').val() == 'UNKNOWN' || $('#state').val() == 'NONE'){
+			$('#plate').val($('#state').val());
+		}
+	});
 });
 
 function change_nav(operation){
@@ -631,6 +637,8 @@ function reset_form() {
     <option value="NJ">NJ</option>
     <option value="NYPD">NYPD</option>
 	<option value="NYPD">FDNY</option>
+	<option value="UNKNOWN">UNKNOWN</option>
+	<option value="NONE">NONE</option>
     <option>--</option>
     <option value="AL">AL</option>
     <option value="AK">AK</option>
@@ -681,8 +689,6 @@ function reset_form() {
     <option value="WV">WV</option>
     <option value="WI">WI</option>
     <option value="WY">WY</option>
-    <option value="OTHER">OTHER</option>
-	<option value="NONE">NONE</option>
     </select>
 
     <span>DATE:</span>

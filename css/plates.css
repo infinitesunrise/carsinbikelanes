@@ -14,16 +14,80 @@
 	font-family: 'License-Plate';
 }
 
+.NONE, .UNKNOWN {
+	border: 3px dashed gray;
+	background: transparent;
+	color: gray;
+}
+
 .NY {
-	border-top: 10px solid black;
 	border-color: black;
 	background-color: #e6b800;
+}
+.NY:before {
+	content: "NEW YORK";
+	font-family: Serif;
+	font-size: 12px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-bottom: -10px;
+	padding-top: 0px;
+	top: -10px;
+	color: #e6b800;
+	background-color: black;
+	height: 13px;
+	width: 100%;
+	border-bottom: 1px solid black;
+}
+.NY:after {
+	content: "Empire State";
+	font-family: Serif;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	color: black;
+	border-top: 1px solid black;
+	padding-top: 40px;
+	margin-top: -49px;
+	margin-bottom: -5px;
+	width: 100%;
 }
 
 .NJ {
 	background: linear-gradient(yellow, white);
 	border-color: white;
 	box-shadow: 0px 0px 0px 1px gray;
+}
+.NJ:before {
+	content: "New Jersey";
+	font-family: Serif;
+	font-size: 14px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-bottom: -8px;
+	padding-top: 0px;
+	top: -8px;
+	color: black;
+	height: 13px;
+	width: 100%;
+}
+.NJ:after {
+	content: "Garden State";
+	font-family: Arial, Verdana;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: 0px;
+	color: black;
+	margin-bottom: -5px;
+	width: 100%;
 }
 
 .NYPD {
@@ -116,6 +180,33 @@
 	color: #003399;
 	box-shadow: 0px 0px 0px 3px white;
 }
+.CT:before {
+	content: "Connecticut";
+	font-family: Serif;
+	font-size: 12px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-bottom: -10px;
+	padding-top: 2px;
+	top: -8px;
+	color: #003399;
+	height: 13px;
+	width: 100%;
+}
+.CT:after {
+	content: "Constitution State";
+	font-family: Serif;
+	font-size: 8px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: 0px;
+	color: #003399;
+	margin-bottom: -5px;
+	width: 100%;
+}
 
 .ME {
 	background: linear-gradient(
@@ -195,4 +286,42 @@
 	color: #0047b3;
 	border: 1px solid #e6f0ff;
 	box-shadow: 0px 0px 0px 2px white;
+}
+
+.NC {
+	background: linear-gradient(
+	  180deg,
+	  #ffffff,
+	  #ffffff 45px,
+	  #4444ff 60px
+	);
+	color: #4444ff;
+	border: 1px solid #e6f0ff;
+	box-shadow: 0px 0px 0px 2px white;
+}
+.NC:before {
+	content: "First in Flight";
+	font-family: Arial, Verdana;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-bottom: -12px;
+	left: 10px;
+	top: -7px;
+	color: rgba(255, 0, 0, 0.5);
+	width: 120px;
+}
+.NC:after {
+	content: "NORTH CAROLINA";
+	font-family: Arial, Verdana;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: -5px;
+	left: 10px;
+	color: rgba(255, 0, 0, 0.5);
+	width: 120px;
 }

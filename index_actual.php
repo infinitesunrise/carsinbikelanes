@@ -103,6 +103,12 @@ $(document).ready(function() {
 	});
 
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
+	
+	$('#state').change(function(){
+	if ($('#state').val() == 'UNKNOWN' || $('#state').val() == 'NONE'){
+			$('#plate').val($('#state').val());
+		}
+	});
 });
 
 function zoomToEntry(lat,lng,id) {
@@ -531,6 +537,8 @@ if (isset($_GET['setup_success_dialog'])){
     <option value="NJ">NJ</option>
     <option value="NYPD">NYPD</option>
     <option value="FDNY">FDNY</option>
+	<option value="UNKNOWN">UNKNOWN</option>
+	<option value="NONE">NONE</option>
     <option>--</option>
     <option value="AL">AL</option>
     <option value="AK">AK</option>
@@ -581,7 +589,6 @@ if (isset($_GET['setup_success_dialog'])){
     <option value="WV">WV</option>
     <option value="WI">WI</option>
     <option value="WY">WY</option>
-    <option value="OTHER">OTHER</option>
     </select>
 	</div>
 
