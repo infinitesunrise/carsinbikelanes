@@ -117,10 +117,11 @@ if ($connection->query($row_added) === FALSE) {
 }
 
 //RESIZE AND MOVE RENAMED IMAGE INTO PLACE
-$resized_image = resize_image($_FILES["image_submission"]["tmp_name"], 800, 800);
-$save_image = imagejpeg($resized_image, $target_image, 90);
+//$resized_image = resize_image($_FILES["image_submission"]["tmp_name"], 800, 800);
+//$save_image = imagejpeg($resized_image, $target_image, 90);
 $resized_thumb = resize_image($_FILES["image_submission"]["tmp_name"], 200, 200);
 $save_thumb = imagejpeg($resized_thumb, $target_thumb, 90);
+$save_image = move_uploaded_file($_FILES["image_submission"]["tmp_name"], $target_image);
 
 if ($save_image == false){
 	error("mysql");

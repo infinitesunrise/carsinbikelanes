@@ -182,6 +182,8 @@ body {
 }
 
 .single_view img {
+	max-width: 800px;
+	max-height: 800px;
 	display: block;
 	margin: 0 auto;
 }
