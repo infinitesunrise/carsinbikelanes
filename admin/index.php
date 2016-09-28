@@ -81,6 +81,8 @@ if (isset($_POST['save'])) {
 			$image_large = imagecreatefromjpeg( '../images/' . $new_url );
 			$rotated_image_large = imagerotate( $image_large , -$_POST['rotate'], 0 );
 			$file1 = imagejpeg($rotated_image_large, '../images/' . $new_url);
+			imagedestroy($image_large);
+			imagedestroy($rotated_image_large);
 			$rotated_image_small = resize_image('../images/' . $new_url, 200, 200);
 			$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $new_url);
 		}
