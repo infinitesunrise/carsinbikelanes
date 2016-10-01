@@ -118,15 +118,40 @@
 	background: repeating-linear-gradient(
 	  180deg,
 	  #0000b3,
-	  #0000b3 10px,
-	  #ffffff 10px,
-	  #ffffff 50px,
-	  #ffcc00 50px,
-	  #ffcc00 60px
+	  #0000b3 14px,
+	  #ffffff 14px,
+	  #ffffff 52px,
+	  #ffdd00 52px,
+	  #ffdd00 70px
 	);
+	padding-top: 8px;
+	background-repeat: no-repeat;
 	color: #0000b3;
-	border: 2px solid #0000b3;
+	border: 1px solid #0000b3;
 	box-shadow: 0px 0px 0px 3px white;
+}
+.PA:before {
+	content: "PENNSYLVANIA";
+	color: white;
+	font-family: Arial, Verdana;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	height: 10px;
+}
+.PA:after {
+	content: "visitPA.com";
+	color: #0000b3;
+	font-family: Arial, Verdana;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -5px;
+	
 }
 
 .MA {
