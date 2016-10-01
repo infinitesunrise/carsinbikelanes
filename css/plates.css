@@ -349,3 +349,54 @@
 	color: rgba(255, 0, 0, 0.5);
 	width: 120px;
 }
+
+.WA {
+	background: linear-gradient(
+	  180deg,
+	  #ffffff,
+	  #ffffff 30px,
+	  #add4ea 55px
+	);
+	position: relative;
+	z-index: 1;
+	overflow: hidden;
+	color: #0c2e63;
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px white;
+	
+}
+.WA:before {
+	content: "WASHINGTON";
+	color: red;
+	font-family: Arial, Verdana;
+	font-size: 10px;
+	font-weight: 800;
+	text-align: left;
+	padding-left: 10px;
+	position: relative;
+	display: block;
+	height: 65px;
+	margin-bottom: -57px;
+	margin-top: -4px;
+	z-index: 1;
+
+}
+.WA:after {
+	content: "EVERGREEN STATE";
+	color: red;
+	font-family: Arial, Verdana;
+	font-size: 8px;
+	font-weight: 800;
+	z-index: -1;
+	background: linear-gradient(-25deg, transparent 40px, #add4ea 40px, #add4ea 41px, white 41px),
+	 	          linear-gradient(25deg, transparent 40px, #add4ea 40px, #add4ea 41px, white 41px);
+	background-position: left, right;
+	background-repeat: no-repeat;
+	background-size: 50%, 50%;
+	position: relative;
+	display: block;
+	margin-top: -50px;
+	margin-bottom: -5px;
+	padding-top: 40px;
+	padding-bottom: 2px;
+}
