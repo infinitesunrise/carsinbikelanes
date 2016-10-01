@@ -54,13 +54,19 @@ require('config_pointer.php');
 
 if (isset($_POST['save'])){
 	if ($_POST['rotate'] != 0){
-		$image_large = imagecreatefromjpeg( '../images/' . $_POST['url'] );
+		/*$image_large = imagecreatefromjpeg( '../images/' . $_POST['url'] );
 		$rotated_image_large = imagerotate( $image_large , -$_POST['rotate'], 0 );
 		imagedestroy($image_large);
 		$file1 = imagejpeg($rotated_image_large, '../images/' . $_POST['url']);
 		imagedestroy($rotated_image_large);
 		$rotated_image_small = resize_image('../images/' . $_POST['url'], 200, 200);
-		$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $_POST['url']);
+		$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $_POST['url']);*/
+		
+		$imagick = new Imagick($_SERVER['DOCUMENT_ROOT'] . '/images/' . $_POST['url']);
+		$imagick->rotateImage('black', $_POST['rotate']);
+		$imagick->writeImage($_SERVER['DOCUMENT_ROOT'] . '/images/' . $_POST['url']);
+		$imagick->scaleImage(200, 200, true);
+		$imagick->writeImage($_SERVER['DOCUMENT_ROOT'] . '/thumbs/' . $_POST['url']);
 	}
 	$result = $connection->query(
 	'UPDATE cibl_data ' .
@@ -86,6 +92,7 @@ if (isset($_POST['delete'])){
 	unlink($file_image);
 }
 
+/*
 //IMAGE RESIZE FUNCTION
 function resize_image($file, $w, $h, $crop=FALSE) {
     list($width, $height) = getimagesize($file);
@@ -120,6 +127,7 @@ function resize_image($file, $w, $h, $crop=FALSE) {
 
     return $dst;
 }
+*/
 
 $per_page = $config['max_view'];
 if (isset($_GET['per_page'])){ $per_page = $_GET['per_page']; }

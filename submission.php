@@ -78,8 +78,8 @@ $target_increment2 = mysqli_fetch_array(mysqli_query($connection, "SELECT MAX(in
 $target_increment = ($target_increment1 > $target_increment2) ? $target_increment1 : $target_increment2;
 $target_extension = pathinfo(basename($_FILES["image_submission"]["name"]), PATHINFO_EXTENSION);
 $target_file = $target_dir . "queue_" . $target_increment . "." . $target_extension;
-$target_image = "images/" . $target_file;
-$target_thumb = "thumbs/" . $target_file;
+$target_image = __DIR__ . "/images/" . $target_file;
+$target_thumb = __DIR__ . "/thumbs/" . $target_file;
 
 //DETERMINE TIME
 $time = date('Y-m-d H:i:s', strtotime($_POST["date"]));
@@ -117,15 +117,18 @@ if ($connection->query($row_added) === FALSE) {
 }
 
 //RESIZE AND MOVE RENAMED IMAGE INTO PLACE
-//$resized_image = resize_image($_FILES["image_submission"]["tmp_name"], 800, 800);
-//$save_image = imagejpeg($resized_image, $target_image, 90);
-$resized_thumb = resize_image($_FILES["image_submission"]["tmp_name"], 200, 200);
-$save_thumb = imagejpeg($resized_thumb, $target_thumb, 90);
-$save_image = move_uploaded_file($_FILES["image_submission"]["tmp_name"], $target_image);
+$imagick = new Imagick($_FILES['image_submission']['tmp_name']);
+$imagick->writeImage($target_image);
+$imagick->scaleImage(200, 200, true);
+$imagick->writeImage($target_thumb);
 
-if ($save_image == false){
-	error("mysql");
-}
+//$resized_thumb = resize_image($_FILES["image_submission"]["tmp_name"], 200, 200);
+//$save_thumb = imagejpeg($resized_thumb, $target_thumb, 90);
+//$save_image = move_uploaded_file($_FILES["image_submission"]["tmp_name"], $target_image);
+
+//if ($save_image == false){
+//	error("mysql");
+//}
 
 $submission_details = array(
 	'id' => $target_increment,
@@ -140,7 +143,8 @@ $submission_details = array(
 );
 success($config, $connection, $submission_details);
 
-//IMAGE RESIZE FUNCTION	
+/*
+//IMAGE RESIZE FUNCTION
 function resize_image($file, $w, $h, $crop=FALSE) {
     list($width, $height) = getimagesize($file);
     $r = $width / $height;
@@ -174,6 +178,7 @@ function resize_image($file, $w, $h, $crop=FALSE) {
 	
     return $dst;
 }
+*/
 
 function error($type, $message = '') {
 	echo "\n <div class=\"top_dialog_button\" id=\"close\">";

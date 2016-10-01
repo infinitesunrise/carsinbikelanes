@@ -15,7 +15,7 @@ Features:
 - Custom project boundaries, site identity and 'about' info. 
   
 Dependencies:  
-- PHP 5.5+  
+- PHP 5.5+ with ImageMagick
 - MySQL 5.5+  
 - Apache  
   
@@ -28,7 +28,9 @@ Included FOSS / third-party libraries and plugins:
 - Mapbox (https://github.com/mapbox)  
 - Google fonts & Google Javascript API  
 - Bing maps API  
-- license plate font by Dave Hansen  
+- license plate font by Dave Hansen
+- ArcGIS Geocoding API
+- OpenALPR Cloud APi  
   
 Map providers currently supported:  
 - OpenStreetMap (Including dozens of third-party OSM tile hosts)  

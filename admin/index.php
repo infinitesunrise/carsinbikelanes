@@ -78,13 +78,19 @@ if (isset($_POST['save'])) {
 		rename('../images/' . $old_url, '../images/' . $new_url);
 
 		if ($_POST['rotate'] != 0){
-			$image_large = imagecreatefromjpeg( '../images/' . $new_url );
+			$imagick = new Imagick($_SERVER['DOCUMENT_ROOT'] . '/images/' . $new_url);
+			$imagick->rotateImage('black', $_POST['rotate']);
+			$imagick->writeImage($_SERVER['DOCUMENT_ROOT'] . '/images/' . $new_url);
+			$imagick->scaleImage(200, 200, true);
+			$imagick->writeImage($_SERVER['DOCUMENT_ROOT'] . '/thumbs/' . $new_url);
+			
+			/*$image_large = imagecreatefromjpeg( '../images/' . $new_url );
 			$rotated_image_large = imagerotate( $image_large , -$_POST['rotate'], 0 );
 			$file1 = imagejpeg($rotated_image_large, '../images/' . $new_url);
 			imagedestroy($image_large);
 			imagedestroy($rotated_image_large);
 			$rotated_image_small = resize_image('../images/' . $new_url, 200, 200);
-			$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $new_url);
+			$file2 = imagejpeg($rotated_image_small, '../thumbs/' . $new_url);*/
 		}
 		$success_string = "Submission #" . $_POST['id'] . " has been saved to the map.";
 	}

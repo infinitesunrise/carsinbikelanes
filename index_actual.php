@@ -294,6 +294,10 @@ function fillExifFields(e) {
 
 function submitForm(e) {
 	e.preventDefault();
+	$('#upload_prompt').empty();
+	$('#upload_button').css('background', 'url(\'css/loader.svg\') 50% no-repeat');
+	$('#upload_button').css('background-size', '10%');
+	$('#upload_button').css('background-color', 'lightgray');
 	var formData = new FormData();
 	formData.append( 'image_submission', $('#image_submission')[0].files[0] );
 	formData.append( 'plate', document.getElementById("plate").value );
@@ -317,10 +321,16 @@ function submitForm(e) {
 		open_window('none');
 		$('#results_form_container').empty();
 		$('#results_form_container').html(a);
+		$('#upload_button').css('background', 'none');
+		$('#upload_button').css('background-color', 'lightgray');
+		$('#upload_prompt').append('UPLOAD!');
 		$("#results_form").animate({opacity: 'toggle', right: '0px'});
 	  },
 	  error: function(a) {
 		alert( "something went wrong: " + a);
+		$('#upload_button').css('background', 'none');
+		$('#upload_button').css('background-color', 'lightgray');
+		$('#upload_prompt').append('UPLOAD!');
 	  }
 	});
 }
@@ -621,10 +631,15 @@ if (isset($_GET['setup_success_dialog'])){
 
 	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="description" id="comments"></textarea>
 
-	<div class="submit_form_row">
+	<!--<div class="submit_form_row">
 	<input type="submit" class="submit_form_item" style="width:100%" value="SUBMIT" name="upload">
-	</div>
+	</div>-->
 
+	<label id='upload_button' class='upload_button'>
+	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
+	<input type="submit" name="upload" id="upload"/>
+	</label>
+	
 </form>
 </div>
 </div>

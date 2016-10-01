@@ -626,3 +626,30 @@ p.tinytext {
 .multiple_select {
 	height: 200px !important;
 }
+
+.upload_button {
+	height: 48px;
+	/*margin: 1vh auto 5vh auto;*/
+	margin-top: 5px;
+	display: block;
+	overflow: hidden;
+	cursor: pointer;
+	text-align: center;
+	line-height: 48px;
+	background-color: lightgray;
+    box-shadow: inset -2px -2px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
+                inset 2px 2px 1px rgba(255,255,255,0.8); /*top internal highlight*/
+}
+
+.v-centered {
+	display: inline-block;
+    vertical-align: middle;
+    line-height: inherit;
+}
+
+#upload {
+	visibility: hidden;
+	position: absolute;
+	-webkit-appearance: none;
+	opacity: 0;
+}
