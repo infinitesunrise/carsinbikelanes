@@ -23,6 +23,7 @@
 .NY {
 	border-color: black;
 	background-color: #e6b800;
+	overflow: hidden;
 }
 .NY:before {
 	content: "NEW YORK";
@@ -31,12 +32,12 @@
 	font-weight: 800;
 	position: relative;
 	display: block;
-	margin-bottom: -10px;
+	margin-bottom: -12px;
 	padding-top: 0px;
 	top: -10px;
 	color: #e6b800;
 	background-color: black;
-	height: 13px;
+	height: 18px;
 	width: 100%;
 	border-bottom: 1px solid black;
 }
@@ -46,15 +47,16 @@
 	font-size: 10px;
 	font-weight: 800;
 	position: relative;
+	left: -50%;
 	display: block;
-	margin-top: 0px;
-	margin-bottom: 0px;
 	color: black;
-	border-top: 1px solid black;
+	border-top: 2px solid black;
+	border-radius: 50%;
+	box-shadow: 0px 0px 0px 2px #e6b800;
 	padding-top: 40px;
-	margin-top: -49px;
+	margin-top: -50px;
 	margin-bottom: -5px;
-	width: 100%;
+	width: 200%;
 }
 
 .NJ {
@@ -209,17 +211,39 @@
 }
 
 .ME {
-	background: linear-gradient(
-	  0deg,
-	  #006600,
-	  #ffffff 10px,
-	  #ffffff 55px,
-	  #000000 55px,
-	  #000000 60px
-	);
+	background-color: white;
+	background: linear-gradient(-60deg, #70a074 8px, transparent 0), linear-gradient(60deg, #70a074 8px, transparent 0);
+	background-position: bottom;
+	background-repeat: repeat-x;
+	background-size: 10px 30px;
 	border: 2px solid black;
 	box-shadow: 0px 0px 0px 2px white;
 	color: black;
+}
+.ME:before{
+	content: "MAINE";
+	color: black;
+	font-family: Georgia, serif;
+	font-size: 14px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	width: 100%;
+	margin-top: -8px;
+	margin-bottom: -8px;
+}
+.ME:after{
+	content: "Vacationland";
+	color: black;
+	font-family: serif;
+	font-size: 12px;
+	font-weight: 400;
+	font-style: italic;
+	position: relative;
+	display: block;
+	height: 8px;
+	width: 100%;
+	margin-top: -7px;
 }
 
 .IL {
