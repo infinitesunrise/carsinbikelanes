@@ -45,6 +45,12 @@ include ('mobile_detect.php');
 <link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
+<?php
+if ($config['disqus']){
+	echo '<script id="dsq-count-scr" src="//' . $config['disqus'] . '.disqus.com/count.js" async></script>';
+}
+?>
+
 <!-- license plate font by Dave Hansen -->
 <link href='css/license-plate-font.css' rel='stylesheet' type='text/css'>
 
@@ -349,6 +355,12 @@ function load_entries() {
 				setTimeout(function(){
 					resize_entry_list();
 					$('#entry_list_content').css('overflow-y','scroll'); //fixes bug where firefox doesn't scroll first list loaded
+					DISQUSWIDGETS.getCount({reset: true});
+					//If 0-comment entries are set to display <wbc/> or anything else that doesn't render text
+					//as their label in Disqus, this next loop will hide them from view.
+					//$('.disqus-comment-count').each( function() {
+					//	if ($(this).text().length == 0){ $(this).hide(); }
+					//});
 				}, 500);
 			});
 	}

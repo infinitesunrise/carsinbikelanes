@@ -222,7 +222,7 @@ while ($count < count($entries)){
 			//---SECTION 3.TOP.LEFT: PLATE---
 	echo "\n <div class='details_plate'>";
 	echo "\n <div class='plate_name'><div><br/><h2>#" . $entries[$count][0] . ":</h2></div>";
-	echo "\n <div class='edit edit_plate' id='plate" . $entries[$count][0] . "' onclick='javascript:edit_plate(" . $entries[$count][0] . ")'>";
+	echo "\n <div class='edit plate_container' id='plate" . $entries[$count][0] . "' onclick='javascript:edit_plate(" . $entries[$count][0] . ")'>";
 
 	if ($entries[$count][3] == "NYPD"){
 		$plate_split = str_split($entries[$count][2], 4);

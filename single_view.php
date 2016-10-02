@@ -22,14 +22,14 @@ echo "\n <div class='details_top'>";
 		//---SECTION 2.TOP.LEFT: PLATE---
 echo "\n <div class='details_plate'>";	
 echo "\n <div class='plate_name'><div><br/><h2>#" . $row[0] . ":</h2></div>";
-echo "\n <div class='info edit_plate' id='plate" . $row[0] . "'>";
+echo "\n <div class='info plate_container plate_link' id='plate" . $row[0] . "' onclick='event.stopPropagation();plate_search(\"" . $row[2] . "\")'>";
 
 if ($row[3] == "NYPD"){
 	$plate_split = str_split($row[2], 4);
-	echo "\n <div class='plate NYPD'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></a></div></div>";
+	echo "\n <div class='plate NYPD'>" . $plate_split[0] . "<span class='NYPDsuffix'>" . $plate_split[1] . "</span></div></div>";
 }
 else {
-	echo "\n <div class='plate ". $row[3] . "'><a class='plate_text' onclick='plateSearch(\"" . $row[2] . "\")'>" . $row[2] . "</a></div></div>";
+	echo "\n <div class='plate ". $row[3] . "'>" . $row[2] . "</div></div>";
 }
 
 echo "\n </div>";

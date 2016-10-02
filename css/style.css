@@ -653,3 +653,33 @@ p.tinytext {
 	-webkit-appearance: none;
 	opacity: 0;
 }
+
+.plate_link:hover {
+	box-shadow: 0px 12px 0px -10px black;
+	background: rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+}
+
+.plate_link:active {
+	box-shadow: 0px 12px 0px -10px black;
+	background: rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+}
+
+.column_entry:hover {
+	background: rgba(255, 255, 255, 0.9);
+	cursor: pointer;
+}
+
+.column_entry:active {
+	background: rgba(255, 255, 255, 1.0);
+	cursor: pointer;
+}
+
+.disqus-comment-count {
+	display: inline-block;
+	border-radius: 500px;
+	padding: 1px 4px 1px 4px;
+	margin: 2px;
+	background: rgba(255, 0, 0, 0.2);
+}

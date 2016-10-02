@@ -426,3 +426,11 @@ input.submit_button {
 	padding: 0px;
 	white-space: normal;
 }
+
+.disqus-comment-count {
+	display: inline-block;
+	border-radius: 500px;
+	padding: 1px 4px 1px 4px;
+	margin: 2px;
+	background: rgba(255, 0, 0, 0.2);
+}

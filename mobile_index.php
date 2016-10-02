@@ -44,6 +44,12 @@ if (isset($_GET['single_view'])){
 <link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 
+<?php
+if ($config['disqus']){
+	echo '<script id="dsq-count-scr" src="//' . $config['disqus'] . '.disqus.com/count.js" async></script>';
+}
+?>
+
 <!-- license plate font by Dave Hansen -->
 <link href='css/license-plate-font.css' rel='stylesheet' type='text/css'>
 
@@ -452,6 +458,13 @@ function load_entries() {
 		var north = body_map.getBounds().getNorth();
 		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north + "&mobile=true";
 		$( "#entry_view" ).load( load_url, function(){
+				DISQUSWIDGETS.getCount({reset: true});
+				//If 0-comment entries are set to display <wbc/> or anything else that doesn't render text
+				//as their label in Disqus, this next loop will hide them from view.
+				//setTimeout( function() { $('.disqus-comment-count').each( function() {
+				//	console.log($(this).text() + " / length: " + $(this).text().length);
+				//	if ($(this).text().length == 0){ $(this).hide(); }
+				//}); }, 500);
 				$('#loading').css('background', 'none');
 				resize_entry_list();
 		});
@@ -465,6 +478,7 @@ function plate_search(plate) {
 		var load_url = 'entry_list.php?plate=' + plate + '&mobile=true';
 		windows.stop_load_entries = true; //Will be set false again by entry_list.php
 		$( '#entry_view' ).load( load_url, function(){
+			open_window('entry_view');
 			$('#loading').css('background', 'none');
 			resize_entry_list();
 		});
@@ -500,7 +514,7 @@ function zoomToEntry(lat,lng,id) {
 	setTimeout(function() { windows.stop_load_entries = false; }, 500);
 }
 
-function open_window(window_name) {
+function open_window(window_name) {	
 	if (window_name == 'submit_view'){ change_nav('submit'); }
 	else if (window_name == 'about_view'){ change_nav('about'); }
 	else { change_nav('close'); }

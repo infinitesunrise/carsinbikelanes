@@ -155,18 +155,34 @@
 }
 
 .MA {
-	background: repeating-linear-gradient(
-	  180deg,
-	  #6699ff,
-	  #6699ff 3px,
-	  #ffffff 3px,
-	  #ffffff 57px,
-	  #6699ff 57px,
-	  #6699ff 60px
-	);
-	border: 2px solid white;
-	box-shadow: 0px 0px 0px 1px gray;
-	color: red;
+	background-color: white;
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px white;
+	color: #d80808;
+}
+.MA:before{
+	content: "Massachusetts";
+	color: #0c83f2;
+	font-family: Serif;
+	font-size: 12px;
+	font-style: italic;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -6px;
+}
+.MA:after{
+	content: "The Spirit of America";
+	color: #0c83f2;
+	font-family: Serif;
+	font-size: 8px;
+	font-style: italic;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -6px;
 }
 
 .VT {
@@ -335,6 +351,37 @@
 	color: #0047b3;
 	border: 1px solid #e6f0ff;
 	box-shadow: 0px 0px 0px 2px white;
+}
+
+.IN {
+	background-color: white;
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px white;
+	color: black;
+}
+.IN:before{
+	content: "INDIANA";
+	color: #023d89;
+	font-family: Georgia, serif;
+	font-size: 12px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -6px;
+}
+.IN:after{
+	content: "BICENTENNIAL 1816-2016";
+	color: #023d89;
+	font-family: Serif;
+	font-size: 8px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -6px;
+	background: linear-gradient(180deg, transparent, gold);
+	background-position: top;
 }
 
 .NC {
