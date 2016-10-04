@@ -422,6 +422,24 @@
 	width: 120px;
 }
 
+.VA{
+	background: white;
+	border: 1px solid #eeeeee;
+	color: #000080;
+	box-shadow: 0px 0px 0px 2px white;
+}
+.VA:before{
+	content: "VIRGINIA";
+	font-family: Serif;
+	font-size: 12px;
+	font-weight: 800;
+	color: #0055ee;
+	position: relative;
+	display: block;
+	margin-top: -6px;
+	margin-bottom: -4px;
+}
+
 .WA {
 	background: linear-gradient(
 	  180deg,
