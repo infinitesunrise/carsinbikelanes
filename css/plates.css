@@ -14,6 +14,40 @@
 	font-family: 'License-Plate';
 }
 
+.CT {
+	background: linear-gradient(#0099ff, white);
+	border-color: #003399;
+	color: #003399;
+	box-shadow: 0px 0px 0px 3px white;
+}
+.CT:before {
+	content: "Connecticut";
+	font-family: Serif;
+	font-size: 12px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-bottom: -10px;
+	padding-top: 2px;
+	top: -8px;
+	color: #003399;
+	height: 13px;
+	width: 100%;
+}
+.CT:after {
+	content: "Constitution State";
+	font-family: Serif;
+	font-size: 8px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: 0px;
+	color: #003399;
+	margin-bottom: -5px;
+	width: 100%;
+}
+
 .NONE, .UNKNOWN {
 	border: 3px dashed gray;
 	background: transparent;
@@ -185,6 +219,48 @@
 	margin-bottom: -6px;
 }
 
+.RI {
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px #fafafa;
+	color: #074ab7;
+	background: radial-gradient(#97afc9 0%, #97afc9 80%, transparent 80%, transparent 100%),
+		          linear-gradient(270deg, #fafafa 0%, #fafafa 30%, transparent 30%, transparent 100%),
+		          radial-gradient(#fafafa 0%, #fafafa 37%, transparent 36%, transparent 100%),
+		          radial-gradient(#97afc9 0%, #97afc9 70%, transparent 60%, transparent 100%);
+	background-position: 70 34, 0 0, 37 3, -10 13;
+	background-size: 300% 200%, 100% 100%, 70% 100%, 100% 140%;
+	background-repeat: no-repeat;
+	background-color: #fafafa;
+	overflow: hidden;
+}
+.RI:before{
+	content: "Rhode Island";
+	color: #074ab7;
+	font-family: "Times New Roman";
+	font-size: 12px;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='30px'><text x='10' y='14' style='fill:navy' font-size='18'>\2693</text></svg>");
+	background-repeat: no-repeat;
+	height: 20px;
+	margin-top: -8px;
+	margin-bottom: -8px;
+}
+.RI:after{
+	content: "Ocean State";
+	color: #074ab7;
+	font-family: "Times New Roman";
+	font-size: 12px;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	background: transparent;
+	margin-top: -10px;
+	margin-bottom: -4px;
+}
+
+
 .VT {
 	background: repeating-linear-gradient(
 	  180deg,
@@ -215,40 +291,6 @@
 	border: 3px solid white;
 	box-shadow: 0px 0px 0px 1px gray;
 	color: #004d00;
-}
-
-.CT {
-	background: linear-gradient(#0099ff, white);
-	border-color: #003399;
-	color: #003399;
-	box-shadow: 0px 0px 0px 3px white;
-}
-.CT:before {
-	content: "Connecticut";
-	font-family: Serif;
-	font-size: 12px;
-	font-weight: 800;
-	position: relative;
-	display: block;
-	margin-bottom: -10px;
-	padding-top: 2px;
-	top: -8px;
-	color: #003399;
-	height: 13px;
-	width: 100%;
-}
-.CT:after {
-	content: "Constitution State";
-	font-family: Serif;
-	font-size: 8px;
-	font-weight: 800;
-	position: relative;
-	display: block;
-	margin-top: -10px;
-	margin-bottom: 0px;
-	color: #003399;
-	margin-bottom: -5px;
-	width: 100%;
 }
 
 .ME {
@@ -308,33 +350,38 @@
 	box-shadow: 0px 0px 0px 2px #000099;
 }
 
-.WV {
-	background: repeating-linear-gradient(
-	  180deg,
-	  #000099,
-	  #000099 8px,
-	  #ffffff 8px,
-	  #ffffff 10px,
-	  #ffcc00 10px,
-	  #ffcc00 12px,
-	  #ffffff 12px,
-	  #ffffff 50px,
-	  #000099 50px,
-	  #000099 52px,
-	  #ffffff 52px,
-	  #ffffff 54px,
-	  #ffcc00 54px,
-	  #ffcc00 56px,
-	  #ffffff 56px,
-	  #ffffff 58px,  
-	  #000099 58px,
-	  #000099 60px,  
-	  #ffffff 60px,
-	  #ffffff 60px
-	);
-	border: 1px solid gray;
-	box-shadow: 0px 0px 0px 3px white;
-	color: #000099;
+.GA {
+	background-color: white;
+	color: black;
+	border: 1px solid #cccccc;
+	box-shadow: 0px 0px 0px 2px white;
+	background: radial-gradient(circle, white 0%, white 10%, #ffb26d 20%, #ffb26d 24%, white 12%, white 100%);
+	
+}
+.GA:before{
+	content: "GEORGIA";
+	font-family: Georgia;
+	font-size: 15px;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -4px;
+	background: linear-gradient(90deg, green 0%, transparent 100%), linear-gradient(to top, green 0%, transparent 100%);
+	background-position: 75px 15px, 70px 5px;
+	background-size: 10%, 5% 50%;
+	background-repeat: no-repeat, no-repeat;
+}
+.GA:after{
+	content: "...on my mind";
+	font-family: Arial;
+	font-size: 9px;
+	font-style: italic;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: -4px;
 }
 
 .IA {
@@ -422,6 +469,37 @@
 	width: 120px;
 }
 
+.TX {
+	color: black;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='20px'><text x='0' y='20' fill='black' font-size='20'>\272F</text></svg>");
+	background-repeat: no-repeat;
+	background-position: 5px -3px;
+	background-color: white;
+	border: 1px solid #cccccc;
+	box-shadow: 0px 0px 0px 2px white;
+	
+}
+.TX:before{
+	content: "TEXAS";
+	font-family: Arial;
+	font-size: 15px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -4px;
+}
+.TX:after{
+	content: "The Lone Star State";
+	font-family: Arial;
+	font-size: 8px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: -4px;
+}
+
 .VA{
 	background: white;
 	border: 1px solid #eeeeee;
@@ -489,4 +567,33 @@
 	margin-bottom: -5px;
 	padding-top: 40px;
 	padding-bottom: 2px;
+}
+
+.WV {
+	background: repeating-linear-gradient(
+	  180deg,
+	  #000099,
+	  #000099 8px,
+	  #ffffff 8px,
+	  #ffffff 10px,
+	  #ffcc00 10px,
+	  #ffcc00 12px,
+	  #ffffff 12px,
+	  #ffffff 50px,
+	  #000099 50px,
+	  #000099 52px,
+	  #ffffff 52px,
+	  #ffffff 54px,
+	  #ffcc00 54px,
+	  #ffcc00 56px,
+	  #ffffff 56px,
+	  #ffffff 58px,  
+	  #000099 58px,
+	  #000099 60px,  
+	  #ffffff 60px,
+	  #ffffff 60px
+	);
+	border: 1px solid gray;
+	box-shadow: 0px 0px 0px 3px white;
+	color: #000099;
 }
