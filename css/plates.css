@@ -223,12 +223,12 @@
 	border: 1px solid #eeeeee;
 	box-shadow: 0px 0px 0px 3px #fafafa;
 	color: #074ab7;
-	background: radial-gradient(#97afc9 0%, #97afc9 80%, transparent 80%, transparent 100%),
-		          linear-gradient(270deg, #fafafa 0%, #fafafa 30%, transparent 30%, transparent 100%),
+	background:   radial-gradient(#97afc9 0%, #97afc9 80%, transparent 80%, transparent 100%),
+		          linear-gradient(#fafafa 0%, #fafafa 100%),
 		          radial-gradient(#fafafa 0%, #fafafa 37%, transparent 36%, transparent 100%),
 		          radial-gradient(#97afc9 0%, #97afc9 70%, transparent 60%, transparent 100%);
-	background-position: 70 34, 0 0, 37 3, -10 13;
-	background-size: 300% 200%, 100% 100%, 70% 100%, 100% 140%;
+	background-position: 70 34, 150% 0%, 37 3, -10 13;
+	background-size: 300% 200%, 50% 100%, 70% 100%, 100% 140%;
 	background-repeat: no-repeat;
 	background-color: #fafafa;
 	overflow: hidden;
@@ -260,6 +260,47 @@
 	margin-bottom: -4px;
 }
 
+.SC {
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px #ffffff;
+	color: #074ab7;
+	background:	radial-gradient(circle, #1e0ad1 0%, #1e0ad1 6%, transparent 14%),
+				linear-gradient(#1e0ad1 0%, #1e0ad1 100%),
+				linear-gradient(0deg, #1e0ad1 0%, #1e0ad1 15%, #ad4b13 21%, white 60%, #9badff 100%);
+	background-position: 0 -3, 50% 75%, 0 0;
+	background-size: 100% 100%, 2% 50%, 100% 100%;
+	background-repeat: no-repeat;
+	background-color: #ffffff;
+	overflow: hidden;
+}
+.SC:before{
+	content: "South Carolina";
+	color: #1e0ad1;
+	font-family: "Times New Roman";
+	font-size: 12px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='15px' width='15px'><text x='4' y='10' style='fill:navy' font-size='8'>\1F319</text></svg>");
+	background-repeat: no-repeat;
+	background-position: 44% 200%;
+	height: 20px;
+	margin-top: -8px;
+	margin-bottom: -8px;
+}
+.SC:after{
+	content: "While I Breathe, I Hope";
+	color: white;
+	font-family: serif;
+	font-size: 8px;
+	font-style: italic;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	background: transparent;
+	margin-top: -10px;
+	margin-bottom: -4px;
+}
 
 .VT {
 	background: repeating-linear-gradient(
@@ -433,11 +474,23 @@
 
 .NC {
 	background: linear-gradient(
-	  180deg,
-	  #ffffff,
-	  #ffffff 45px,
-	  #4444ff 60px
-	);
+					0deg,
+					#6aace2 0%,
+					transparent 7%
+				),
+				linear-gradient(
+					225deg,
+					transparent 0%,
+					transparent 40%,
+					#6aace2 60%,
+					transparent 60%
+				);
+	background-size: 100% 100%, 5% 150%;
+	background-position: 0 0, -500px 8px;
+	background-repeat: no-repeat, repeat-x;
+	background-color: white;
+	position: relative;
+	z-index: 1;
 	color: #4444ff;
 	border: 1px solid #e6f0ff;
 	box-shadow: 0px 0px 0px 2px white;
@@ -445,28 +498,103 @@
 .NC:before {
 	content: "First in Flight";
 	font-family: Arial, Verdana;
-	font-size: 10px;
+	font-size: 8px;
 	font-weight: 800;
 	position: relative;
+	z-index: -1;
 	display: block;
+	color: rgba(255, 0, 0, 0.6);
+	height: 20px;
+	margin-top: -5px;
 	margin-bottom: -12px;
-	left: 10px;
-	top: -7px;
-	color: rgba(255, 0, 0, 0.5);
-	width: 120px;
+	background: linear-gradient(
+					90deg,
+					transparent 0%,
+					transparent 70%,
+					white 70%,
+					white 100%
+				),
+				linear-gradient(
+					-15deg,
+					white 0%,
+					white 40%,
+					transparent 40%,
+					transparent 62%,
+					white 62%
+				),
+				linear-gradient(
+					75deg,
+					white 30%,
+					transparent 30%,
+					transparent 35%,
+					#6aace2 35%,
+					#6aace2 36%,
+					transparent 36%,
+					transparent 38%,
+					#6aace2 38%,
+					#6aace2 39%,
+					transparent 39%,
+					
+					transparent 43%,
+					#6aace2 43%,
+					#6aace2 44%,
+					transparent 44%,
+					transparent 46%,
+					#6aace2 46%,
+					#6aace2 47%,
+					transparent 47%,
+					
+					transparent 53%,
+					#6aace2 53%,
+					#6aace2 54%,
+					transparent 54%,
+					transparent 56%,
+					#6aace2 56%,
+					#6aace2 57%,
+					transparent 57%,
+					
+					transparent 61%,
+					#6aace2 61%,
+					#6aace2 62%,
+					transparent 62%,
+					transparent 64%,
+					#6aace2 64%,
+					#6aace2 65%,
+					transparent 65%,
+					transparent 70%,
+					white 70%
+				),
+				linear-gradient(
+					-15deg,
+					transparent 0%,
+					transparent 40%,
+					#6aace2 40%,
+					#6aace2 45%,
+					transparent 45%,
+					transparent 55%,
+					#6aace2 55%,
+					#6aace2 62%,
+					transparent 62%
+				);
+	background-size: 100% 100%;
+	background-position: 0% 0%;
+	background-repeat: no-repeat;
+	background-color: transparent;
 }
 .NC:after {
 	content: "NORTH CAROLINA";
 	font-family: Arial, Verdana;
-	font-size: 10px;
+	font-size: 11px;
 	font-weight: 800;
 	position: relative;
+	z-index: -1;
 	display: block;
 	margin-top: -10px;
 	margin-bottom: -5px;
 	left: 10px;
-	color: rgba(255, 0, 0, 0.5);
+	color: rgba(255, 0, 0, 0.6);
 	width: 120px;
+	white-space: nowrap;
 }
 
 .TX {
