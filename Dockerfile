@@ -8,7 +8,7 @@ ENV HOME /root
 RUN apt-get update \
      && apt-get upgrade -yy \
      && apt-get install apache2 libapache2-mod-php5  -yy \
-     && apt-get install -yy php5-mysql php5-gd imagemagick \
+     && apt-get install -yy php5-mysql php5-gd imagemagick php5-imagick \
      && apt-get install -yy \
      && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
