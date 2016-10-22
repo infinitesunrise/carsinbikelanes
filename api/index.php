@@ -301,7 +301,6 @@ function upload(){
 	
 	if (array_key_exists('success', $result)){ http_response_code(200); }
 	else if (array_key_exists('error', $result)){ http_response_code(400); }
-	//http_response_code(400);
 	
 	header('Content-type: application/json');
 	header('Cache-Control: no-cache, must-revalidate');
