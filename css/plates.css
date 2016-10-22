@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Great+Vibes');
+
 .plate_name {
 	display: flex;
 	justify-content: flex-start;
@@ -219,119 +221,78 @@
 	margin-bottom: -6px;
 }
 
-.RI {
-	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px #fafafa;
-	color: #074ab7;
-	background:   radial-gradient(#97afc9 0%, #97afc9 80%, transparent 80%, transparent 100%),
-		          linear-gradient(#fafafa 0%, #fafafa 100%),
-		          radial-gradient(#fafafa 0%, #fafafa 37%, transparent 36%, transparent 100%),
-		          radial-gradient(#97afc9 0%, #97afc9 70%, transparent 60%, transparent 100%);
-	background-position: 70 34, 150% 0%, 37 3, -10 13;
-	background-size: 300% 200%, 50% 100%, 70% 100%, 100% 140%;
-	background-repeat: no-repeat;
-	background-color: #fafafa;
-	overflow: hidden;
-}
-.RI:before{
-	content: "Rhode Island";
-	color: #074ab7;
-	font-family: "Times New Roman";
-	font-size: 12px;
-	font-weight: 400;
-	position: relative;
-	display: block;
-	background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='30px'><text x='10' y='14' style='fill:navy' font-size='18'>\2693</text></svg>");
-	background-repeat: no-repeat;
-	height: 20px;
-	margin-top: -8px;
-	margin-bottom: -8px;
-}
-.RI:after{
-	content: "Ocean State";
-	color: #074ab7;
-	font-family: "Times New Roman";
-	font-size: 12px;
-	font-weight: 400;
-	position: relative;
-	display: block;
-	background: transparent;
-	margin-top: -10px;
-	margin-bottom: -4px;
-}
-
-.SC {
-	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px #ffffff;
-	color: #074ab7;
-	background:	radial-gradient(circle, #1e0ad1 0%, #1e0ad1 6%, transparent 14%),
-				linear-gradient(#1e0ad1 0%, #1e0ad1 100%),
-				linear-gradient(0deg, #1e0ad1 0%, #1e0ad1 15%, #ad4b13 21%, white 60%, #9badff 100%);
-	background-position: 0 -3, 50% 75%, 0 0;
-	background-size: 100% 100%, 2% 50%, 100% 100%;
-	background-repeat: no-repeat;
-	background-color: #ffffff;
-	overflow: hidden;
-}
-.SC:before{
-	content: "South Carolina";
-	color: #1e0ad1;
-	font-family: "Times New Roman";
-	font-size: 12px;
-	font-weight: 800;
-	position: relative;
-	display: block;
-	background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='15px' width='15px'><text x='4' y='10' style='fill:navy' font-size='8'>\1F319</text></svg>");
-	background-repeat: no-repeat;
-	background-position: 44% 200%;
-	height: 20px;
-	margin-top: -8px;
-	margin-bottom: -8px;
-}
-.SC:after{
-	content: "While I Breathe, I Hope";
-	color: white;
-	font-family: serif;
-	font-size: 8px;
-	font-style: italic;
-	font-weight: 400;
-	position: relative;
-	display: block;
-	background: transparent;
-	margin-top: -10px;
-	margin-bottom: -4px;
-}
-
-.VT {
-	background: repeating-linear-gradient(
-	  180deg,
-	  #006600,
-	  #006600 8px,
-	  #ffffff 8px,
-	  #ffffff 10px,
-	  #006600 10px,
-	  #006600 50px,
-	  #ffffff 50px,
-	  #ffffff 52px,
-	  #006600 52px,
-	  #006600 60px
-	);
-	border: 2px solid #006600;
-	box-shadow: 0px 0px 0px 1px gray;
-	color: white;
-}
-
 .NH {
 	background: linear-gradient(
-	  135deg,
-	  #b3e6ff,
-	  #b3e6ff 45px,
-	  #bfbfbf 65px,
-	  #75a3a3 85px
-	);
+					135deg,
+					transparent 0%,
+					transparent 60%,
+					#75a3a3 60%,
+					#75a3a3 70%,
+					#517272 100%
+				),
+				linear-gradient(
+					80deg,
+					transparent 0%,
+					transparent 50%,
+					#888888 50%,
+					#888888 60%,
+					#ffffff 100%
+				),
+				linear-gradient(
+					170deg,
+					transparent 0%,
+					transparent 50%,
+					#777777 50%,
+					#555555 63%,
+					transparent 63%,
+					transparent 100%
+				),
+				linear-gradient(
+					145deg,
+					transparent 0%,
+					transparent 60%,
+					#75a3a3 60%,
+					#75a3a3 70%,
+					#517272 100%
+				),
+				radial-gradient(
+					circle at 30% 90%,
+					white 0%,
+					transparent 20%
+				),
+				linear-gradient(
+					90deg,
+					#b3e6ff 0%,
+					white 100%
+				);
+	background-position: 0 0, 0 15, 62 -25, 15 -35, 0 0;
+	background-repeat: no-repeat;
 	border: 3px solid white;
 	box-shadow: 0px 0px 0px 1px gray;
 	color: #004d00;
+}
+.NH:before {
+	content: "LIVE FREE OR DIE";
+	color: #004d00;
+	font-family: "Arial";
+	font-size: 8px;
+	font-style: bold;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -6px;
+}
+.NH:after {
+	content: "NEW HAMPSHIRE";
+	color: #004d00;
+	font-family: Serif;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -4px;
 }
 
 .ME {
@@ -368,20 +329,6 @@
 	height: 8px;
 	width: 100%;
 	margin-top: -7px;
-}
-
-.IL {
-	background: linear-gradient(
-	  180deg,
-	  #ffffff,
-	  #ffffff 40px,
-	  #ffffff 40px,
-	  #0000ff 70px
-	);
-	color: #dd0000;
-	border: 1px solid #cccccc;
-	box-shadow: 0px 0px 0px 2px white;
-	box-sizing: border-box;
 }
 
 .DE {
@@ -439,6 +386,44 @@
 	color: #0047b3;
 	border: 1px solid #e6f0ff;
 	box-shadow: 0px 0px 0px 2px white;
+}
+
+.IL {
+	background: linear-gradient(
+	  180deg,
+	  #ffffff,
+	  #ffffff 40px,
+	  #ffffff 40px,
+	  #0c87d2 65px,
+	  #0969a3 70px
+	);
+	color: #dd0000;
+	border: 1px solid #cccccc;
+	box-shadow: 0px 0px 0px 2px white;
+	box-sizing: border-box;
+}
+.IL:before {
+	content: "Illinois";
+	font-family: "Great Vibes";
+	font-size: 20px;
+	font-style: italic;
+	font-weight: 800;
+	color: #0969a3;
+	position: relative;
+	display: block;
+	margin-top: -6px;
+	margin-bottom: -10px;
+}
+.IL:after {
+	content: "Land of Lincoln";
+	font-family: Georgia;
+	font-size: 8px;
+	font-weight: 400;
+	color: white;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -4px;
 }
 
 .IN {
@@ -597,6 +582,89 @@
 	white-space: nowrap;
 }
 
+.RI {
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px #fafafa;
+	color: #074ab7;
+	background:   radial-gradient(#97afc9 0%, #97afc9 80%, transparent 80%, transparent 100%),
+		          linear-gradient(#fafafa 0%, #fafafa 100%),
+		          radial-gradient(#fafafa 0%, #fafafa 37%, transparent 36%, transparent 100%),
+		          radial-gradient(#97afc9 0%, #97afc9 70%, transparent 60%, transparent 100%);
+	background-position: 70 34, 150% 0%, 37 3, -10 13;
+	background-size: 300% 200%, 50% 100%, 70% 100%, 100% 140%;
+	background-repeat: no-repeat;
+	background-color: #fafafa;
+	overflow: hidden;
+}
+.RI:before{
+	content: "Rhode Island";
+	color: #074ab7;
+	font-family: "Times New Roman";
+	font-size: 12px;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='30px'><text x='10' y='14' style='fill:navy' font-size='18'>\2693</text></svg>");
+	background-repeat: no-repeat;
+	height: 20px;
+	margin-top: -8px;
+	margin-bottom: -8px;
+}
+.RI:after{
+	content: "Ocean State";
+	color: #074ab7;
+	font-family: "Times New Roman";
+	font-size: 12px;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	background: transparent;
+	margin-top: -10px;
+	margin-bottom: -4px;
+}
+
+.SC {
+	border: 1px solid #eeeeee;
+	box-shadow: 0px 0px 0px 3px #ffffff;
+	color: #386ec5;
+	background:	radial-gradient(circle, #1e0ad1 0%, #1e0ad1 6%, transparent 14%),
+				linear-gradient(#1e0ad1 0%, #1e0ad1 100%),
+				linear-gradient(0deg, #1e0ad1 0%, #1e0ad1 15%, #ad4b13 21%, white 60%, #9badff 100%);
+	background-position: 0 -3, 50% 75%, 0 0;
+	background-size: 100% 100%, 2% 50%, 100% 100%;
+	background-repeat: no-repeat;
+	background-color: #ffffff;
+	overflow: hidden;
+}
+.SC:before{
+	content: "South Carolina";
+	color: #1e0ad1;
+	font-family: "Times New Roman";
+	font-size: 12px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='15px' width='15px'><text x='4' y='10' style='fill:navy' font-size='8'>\1F319</text></svg>");
+	background-repeat: no-repeat;
+	background-position: 44% 200%;
+	height: 20px;
+	margin-top: -8px;
+	margin-bottom: -8px;
+}
+.SC:after{
+	content: "While I Breathe, I Hope";
+	color: white;
+	font-family: serif;
+	font-size: 8px;
+	font-style: italic;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	background: transparent;
+	margin-top: -10px;
+	margin-bottom: -4px;
+}
+
 .TX {
 	color: black;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='20px'><text x='0' y='20' fill='black' font-size='20'>\272F</text></svg>");
@@ -644,6 +712,25 @@
 	display: block;
 	margin-top: -6px;
 	margin-bottom: -4px;
+}
+
+.VT {
+	background: repeating-linear-gradient(
+	  180deg,
+	  #006600,
+	  #006600 8px,
+	  #ffffff 8px,
+	  #ffffff 10px,
+	  #006600 10px,
+	  #006600 50px,
+	  #ffffff 50px,
+	  #ffffff 52px,
+	  #006600 52px,
+	  #006600 60px
+	);
+	border: 2px solid #006600;
+	box-shadow: 0px 0px 0px 1px gray;
+	color: white;
 }
 
 .WA {

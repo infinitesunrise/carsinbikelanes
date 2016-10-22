@@ -1,5 +1,4 @@
 html {
-	overflow: hidden;
 	padding: 0px;
 	margin: 0px;
 }
@@ -7,6 +6,7 @@ html {
 body {
 	overflow: hidden;
 	position: relative;
+	bottom: 0;
 	margin: 0px;
 }
 
@@ -29,6 +29,12 @@ body {
 .nav_link {
 	padding: 0px 10px 0px 10px;
 	margin: 0px 10px 0px 10px;
+}
+
+#body_map {
+	width: 100%;
+	height: 100%;
+	background-color: rgb(128, 128, 128);
 }
 
 #loading {
@@ -60,12 +66,6 @@ body {
 .navspan {
 	font-size: 4vh;
 	white-space: nowrap;
-}
-
-.body_map {
-	width: 100%;
-	height: 100vh;
-	background-color: rgb(128, 128, 128);
 }
 
 .entry_view {
@@ -126,7 +126,9 @@ body {
 	top: 100vh;
 	left: 10vw;
 	width: 80vw;
-	overflow: hidden;
+	height: 85vh;
+	overflow-y: scroll;
+	overflow-x: hidden;
 	background-color: rgba(255, 255, 255, 0.8);
 	border: 10px solid rgba(0, 0, 0, 0.2);
 	background-clip: padding-box;
@@ -276,7 +278,7 @@ h2, h3 {
 p {
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: 2vh; /*24px*/
 }
 
 .main_font {
@@ -289,7 +291,7 @@ span {
 	margin: 0px;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
-	font-size: 2vh;
+	font-size: 2vh; /*2vh*/
 }
 
 .medium {
@@ -427,10 +429,56 @@ input.submit_button {
 	white-space: normal;
 }
 
+.plate_link:hover {
+	box-shadow: 0px 12px 0px -10px black;
+	background: rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+}
+
+.plate_link:active {
+	box-shadow: 0px 12px 0px -10px black;
+	background: rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+}
+
+.column_entry:hover {
+	background: rgba(255, 255, 255, 0.9);
+	cursor: pointer;
+}
+
+.column_entry:active {
+	background: rgba(255, 255, 255, 1.0);
+	cursor: pointer;
+}
+
+.leaflet-control-zoom {
+	opacity: 0;
+}
+
 .disqus-comment-count {
 	display: inline-block;
 	border-radius: 500px;
 	padding: 1px 4px 1px 4px;
 	margin: 2px;
 	background: rgba(255, 0, 0, 0.2);
+}
+
+#results_back {
+	height: 10vh;
+	width: 100%;
+	/*margin-top: 10px;
+	margin-bottom: 10px;*/
+	font-size: 5vh;
+	font-family: 'Oswald', sans-serif;
+}
+
+#results_view_container h3{
+	margin-top: 4vh;
+	font-size: 5vh;
+}
+
+#results_view_container p{
+	font-family: 'Oswald', sans-serif;
+	font-weight: 400;
+	font-size: 3vh;
 }

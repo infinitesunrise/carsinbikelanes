@@ -39,10 +39,14 @@ function config_write($new_config){
 	else{
 		return_error('There was a problem loading the configuration file. We are in ' . __DIR__);
 	}
-
+	
 	$new_config = array_merge($config, $new_config);
 	$config_file = fopen($config_location, "w")
 		or return_error("PHP error. Issues creating config file. Are permissions set correctly?");
+	
+	//Stringify array variables
+	$new_config['openalpr_countries'] = 'array("' . implode('","',$new_config['openalpr_countries']) . '")';
+	
 	$text =
 	"<?php\n\n" .
 	"//----------------------------------------------//\n" .

@@ -19,56 +19,56 @@
                     },
                     {
                         "name": "plate",
-                        "in": "query",
+                        "in": "formData",
                         "description": "The plate number, 8 characters max. Longer strings will be cut off after the 8th character.",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "state",
-                        "in": "query",
+                        "in": "formData",
                         "description": "Two letter code representing the license plate's state of origin, such as `NY` or `CA`. `NYPD`, `FDNY`, `OTHER` and `NONE` are also recognized.",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "date",
-                        "in": "query",
+                        "in": "formData",
                         "description": "A Unix timestamp representing the time of the offense.",
                         "required": true,
                         "type": "integer"
                     },
                     {
                         "name": "gps_latitude",
-                        "in": "query",
+                        "in": "formData",
                         "description": "GPS latitude value.",
                         "required": true,
                         "type": "number"
                     },
                     {
                         "name": "gps_longitude",
-                        "in": "query",
+                        "in": "formData",
                         "description": "GPS longitude value.",
                         "required": true,
                         "type": "number"
                     },
                     {
                         "name": "street1",
-                        "in": "query",
+                        "in": "formData",
                         "description": "The first of two optional street name values. Preferably the street parallel to the offender's direction.",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "street2",
-                        "in": "query",
+                        "in": "formData",
                         "description": "The second of two optional street name values. Preferrably the nearest cross street to the offense.",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "description",
-                        "in": "query",
+                        "in": "formData",
                         "description": "An optional eyewitness description of the offense to provide context, personal notes and cathartic rant space. No length limit but < 200 characters is recommended for brevity and styling purposes.",
                         "type": "string"
                     }
@@ -147,9 +147,17 @@
                         }
                     },
                     {
+                        "name": "description",
+                        "in": "query",
+                        "description": "Filter by searching entry uploader-provided description text for a given string.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "max",
                         "in": "query",
                         "description": "The maximum number of results to result. Defaults to CIBL's site-wide setting.",
+                        "required": false,
                         "type": "number"
                     }
                 ],
@@ -162,6 +170,27 @@
                             "items": {
                                 "$ref": "#/definitions/Entry"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Error.",
+                        "schema": {
+                            "title": "error",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/stats": {
+            "get": {
+                "description": "Request specific statistics from the CIBL database. (Placeholder method, does not yet exist)",
+                "responses": {
+                    "200": {
+                        "description": "An array of site statistics.",
+                        "schema": {
+                            "title": "statistics",
+                            "type": "string"
                         }
                     },
                     "400": {

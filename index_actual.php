@@ -1,25 +1,22 @@
 <?php
 include ('admin/config_pointer.php');
-$single_view_id = (isset($_GET['single_view'])) ? $_GET['single_view'] : 0;
-include ('mobile_detect.php');
-$single_view_details = '';
-if (isset($_GET['single_view'])){
-	$query = 'SELECT gps_lat, gps_long FROM cibl_data WHERE increment=' . $_GET['single_view'];
-	$result = mysqli_fetch_array($connection->query($query));
-	$single_view_lat = $result[0];
-	$single_view_long = $result[1];
-	$single_view_details = $single_view_lat . ', ' . $single_view_long . ', ' . $single_view_id;
-}
 include ('mobile_detect.php');
 ?>
 
 <html>
 <head>
-<meta charset="UTF-8">
+
+<?php 
+if ($mobile){ echo '<meta charset="UTF-8" name="viewport" content="user-scalable=0"/>'; }
+else{ echo '<meta charset="UTF-8"/>'; }
+?>
 
 <!-- local stylesheets -->
-<link rel="stylesheet" type="text/css" href="css/style.css" />
-<link rel="stylesheet" type="text/css" href="css/plates.css" />
+<?php
+if ($mobile){ echo '<link rel="stylesheet" type="text/css" href="css/mobile_style.css" />'; }
+else{ echo '<link rel="stylesheet" type="text/css" href="css/style.css" />'; }
+?>
+<link rel="stylesheet" type="text/css" href="css/plates.css" charset="utf-8" />
 
 <!-- jquery -->
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
@@ -65,72 +62,134 @@ if ($config['disqus']){
 <script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
 
 <script type="text/javascript">
-
+//load in config
+config = {
+	mobile: '<?php echo $mobile; ?>',
+	site_name: '<?php echo $config['site_name']; ?>',
+	disqus: '<?php echo $config['disqus']; ?>',
+	comments: '<?php echo $config['comments']; ?>',
+	max_default: <?php echo $config['max_view']; ?>,
+	max_view: <?php if (isset($_GET['max'])){ echo $_GET['max']; } else { echo $config['max_view']; } ?>,
+	id: <?php if (isset($_GET['id'])){ echo $_GET['id']; } else { echo 'null'; } ?>,
+	plate: <?php if (isset($_GET['plate'])){ echo '"' . $_GET['plate'] . '"'; } else { echo '""'; } ?>,
+	zoom: <?php if (isset($_GET['zoom'])){ echo $_GET['zoom']; } else { echo '12'; } ?>,
+	openalpr_api_key: '<?php echo $config['openalpr_api_key']; ?>',
+	north_bounds: <?php echo $config['north_bounds']; ?>,
+	south_bounds: <?php echo $config['south_bounds']; ?>,
+	east_bounds: <?php echo $config['east_bounds']; ?>,
+	west_bounds: <?php echo $config['west_bounds']; ?>,
+	//center: <?php if (isset($_GET['center'])){ echo 'true'; } else { echo 'false'; } ?>,
+	center_lat: <?php if (isset($_GET['center'])){ echo explode(',',$_GET['center'])[0]; } 
+					  else if($mobile == true){ echo $config['mobile_center_lat']; } 
+					  else { echo $config['center_lat']; } ?>,
+	center_long: <?php if (isset($_GET['center'])){ echo explode(',',$_GET['center'])[1]; } 
+					   else if($mobile == true){ echo $config['mobile_center_long']; } 
+					   else { echo $config['center_long']; } ?>,
+	use_providers_plugin: <?php echo $config['use_providers_plugin']; ?>,
+	leaflet_provider: '<?php echo $config['leaflet_provider']; ?>',
+	map_url: '<?php echo $config['map_url']; ?>',
+	use_google: <?php echo $config['use_google']; ?>,
+	google_api_key: '<?php echo $config['google_api_key']; ?>',
+	google_extra_layer: '<?php echo $config['google_extra_layer']; ?>',
+	use_bing: <?php echo $config['use_bing']; ?>,
+	bing_api_key: '<?php echo $config['bing_api_key']; ?>',
+	bing_imagery: '<?php echo $config['bing_imagery']; ?>'
+}
+//used for management of window traffic
 windows = {
 	single_view: false,
 	about_view: false,
 	submit_view: false,
-	entry_list: false,
-	stop_load_entries: false
+	entry_view: false,
+	results_view: false,
+	submit_link_clicked: true,
+	about_link_clicked: true,
+	stop_load_entries: false,
+	auto_view_change: false,
+	nav_loaded: false,
+	upload_view_loaded: false
 }
-marker = new L.marker();
-max_view = <?php echo $config['max_view']; ?>;
+//entry map icon
+xIcon = L.icon({
+	iconUrl: 'css/x.svg',
+	shadowUrl: 'css/x_shadow.svg',
+	iconSize:     [20, 20], // size of the icon
+	shadowSize:   [20, 20], // size of the shadow
+	iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+	shadowAnchor: [7, 7],  	// the same for the shadow
+	popupAnchor:  [10, 10] 	// point from which the popup should open relative to the iconAnchor
+});
+//tracking of upload form auto-complete process to guide automatic scrolling through form
+auto_complete = {
+	plate: false,
+	exif: false,
+	streets: false
+}
+current_entries = {}; 					//collection of currently loaded database entries
+marker = new L.marker({icon: xIcon}); 	//body map marker layer
+var markers, body_map, submit_map;
 
 $(document).ready(function() {
-	initializeMaps();
-	initializeDateTimePicker();
+	//set up body and submit maps ASAP, deal with navigating all the map config possibilities
+	initialize_body_map();
+	
+	//set up initial window states
+	if (!config.mobile){ $(".right_menu").show(); }
 	$("#about_view").hide();
-	$("#submission_form").hide();
-	$(".results_form").hide();
+	$("#upload_view").hide();
+	$("#results_view").hide();
 	$('#entry_view').hide();
-	$(".single_view").hide();
-	$(".right_menu").show();
-	setTimeout(function() {
-		if(<?php echo $single_view_id; ?>){ zoomToEntry(<?php echo $single_view_details; ?>); }
-		else { load_entries(); }
-	}, 250);
+	$("#single_view").hide();
+	$('#entry_template').hide();
+	
+	if (config.id > 0){ setTimeout(function(){ zoom_to_entry(config.id); }, 250); }
+	else if (config.plate) { setTimeout(function(){ plate_search(config.plate); }, 250); }
+	//else if (config.center) { setTimeout(function(){  body_map.panTo([config.center_lat, config.center_long]); }, 250); }
+	//else if (config.zoom > 0) { setTimeout(function(){  body_map.zoomTo(zoom); }, 250); }
+	else { load_entries(); }
 
-	body_map.on('panend', function(e) { load_entries(); });
-	body_map.on('moveend', function(e) { load_entries(); });
-	body_map.on('click', function(e) { load_entries(); });
-	submit_map.on('click', onSubmitClick);
-
-	$("#submit_link").click( function() { open_window('submit_view') } );
-
-	$("#about_link").click( function() {open_window('about_view')} );
-
-	$("#feedback").click( function(e) { showEmail(e) } );
-
-	$('#submission_form').submit( function(e) { submitForm(e) } );
-
-	$('#image_submission').on('change', function(e) {
-		fill_plate_and_state();
-		fillExifFields(e);
+	//upload form loading actions
+	$("#submit_link").click( function() { 
+		open_window('submit_view');
+		initialize_upload_view();
 	});
-
+	
+	//bind all initial change and click events
+	$("#about_link").click( function() {open_window('about_view')} );
+	$("#feedback").click( function(e) { showEmail(e) } );
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
 	
-	$('#state').change(function(){
-	if ($('#state').val() == 'UNKNOWN' || $('#state').val() == 'NONE'){
-			$('#plate').val($('#state').val());
-		}
-	});
+	//disqus comments initialization
+	if (config.disqus){
+		(function() {
+			var d = document, s = d.createElement('script');
+			s.src = '//' + config.disqus + '.disqus.com/embed.js';
+			s.setAttribute('data-timestamp', +new Date());
+			(d.head || d.body).appendChild(s);
+		})();
+	}
 });
 
-function zoomToEntry(lat,lng,id) {
-	windows.stop_load_entries = true;
-	single_view_url = "single_view.php?id=" + id;
-	$("#single_view").load(single_view_url);
-	open_window('none');
-	body_map.setView([lat,lng-.005], 17);
-	soloMarker = L.marker([lat,lng]).addTo(body_map);
-	markers.clearLayers();
-	markers.addLayer(soloMarker);
-	setTimeout(function() { open_window('single_view'); }, 700);
-	setTimeout(function() { windows.stop_load_entries = false; }, 500);	;
+//There are two totally gnarly open_window functions depending on desktop or mobile,
+//Still needs to be integrated into one and made not so... overcomplicated.
+function open_window(window){
+	if (config.mobile){ open_window_mobile(window); }
+	else { open_window_desktop(window); }
+	/*console.log(
+		'entry_view: ' + windows.entry_view + '\n' + 
+		'submit_view: ' + windows.submit_view + '\n' + 
+		'about_view: ' + windows.about_view + '\n' + 
+		'single_view: ' + windows.single_view + '\n' + 
+		'results_view: ' + windows.results_view
+	);*/
 }
 
-function open_window(window) {
+function open_window_desktop(window) {
+	
+	if (windows.results_view == true && window != 'results_view'){
+		$("#results_view").animate({opacity: 'toggle', right: '-565px'});
+	}
+	
 	if (windows.single_view == true) {
 		$('#single_view').animate({opacity: 'toggle', left: '-865px'});
 	}
@@ -139,14 +198,19 @@ function open_window(window) {
 		$('.right_menu').delay(300).animate({opacity: 'toggle'});
 	}
 	if (windows.submit_view == true) {
-		$('#submission_form').animate({opacity: 'toggle', right: '-565px'});
+		$('#upload_view').animate({opacity: 'toggle', right: '-565px'});
 		$('.right_menu').delay(300).animate({opacity: 'toggle'});
 	}
-	windows.single_view = false; windows.about_view = false; windows.submit_view = false;
+	windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
+	
+	if (window == 'results_view'){
+		$("#results_view").animate({opacity: 'toggle', right: '0px'});
+		windows.results_view = true;
+	}
 
-	if (windows.entry_list == true && window == 'none') {
+	if (windows.entry_view == true && window == 'none') {
 		$('#entry_view').animate({opacity: 'toggle', left: '-565px'});
-		windows.entry_list = false;
+		windows.entry_view = false;
 	}
 	if (window == 'single_view' && windows.single_view == false){
 		$('#single_view').animate({opacity: 'toggle', left: '0px'});
@@ -158,29 +222,561 @@ function open_window(window) {
 		windows.about_view = true;
 	}
 	if (window == 'submit_view' && windows.submit_view == false){
-		$('#submission_form').animate({opacity: 'toggle', right: '0px'});
+		$('#upload_view').animate({opacity: 'toggle', right: '0px'});
 		$('.right_menu').hide();
 		windows.submit_view = true;
 	}
-	if (window == 'entry_list' && windows.entry_list == false){
+	if (window == 'entry_view' && windows.entry_view == false){
 		$('#entry_view').animate({opacity: 'toggle', left: '0px'});
-		windows.entry_list = true;
+		windows.entry_view = true;
 	}
 }
 
-function initializeDateTimePicker() {
-	$('#datetimepicker').datetimepicker({format:'m/d/Y g:iA'});
-	var d = new Date();
-	var month = d.getMonth()+1;
-	var day = d.getDate();
-	var year = d.getFullYear();
-	var hour = d.getHours();
-	var meridiem = "AM"; if (hour > 12){ meridiem = "PM"; }
-	if (hour > 12){ hour -= 12; }
-	if (hour == 0){ hour = 12; }
-	var min = d.getMinutes();
-	var date_string = month + "/" + day + "/" + year + " " + hour + ":" + min + meridiem;
-	document.getElementById('datetimepicker').value = date_string;
+function open_window_mobile(window_name) {	
+	if (window_name == 'submit_view'){ change_nav('submit'); }
+	else if (window_name == 'about_view'){ change_nav('about'); }
+	else { change_nav('close'); }
+
+	if (windows.entry_view == true) {
+		if (window_name != 'entry_view'){ 
+			$('#entry_view').animate({opacity: 'toggle', bottom: '-50vh'}); 
+			windows.entry_view = false;
+		}
+	}
+	if (windows.single_view == true) {
+		$('#single_view').animate({opacity: 'toggle', top: '100vh'});
+	}
+	if (windows.about_view == true) {
+		$('#about_view').animate({opacity: 'toggle', top: '100vh'});
+		if (window_name == 'about_view'){
+			windows.about_view = false;
+			open_window('entry_view');
+			return;
+		}
+	}
+	if (windows.submit_view == true) {
+		$('#submit_view').animate({ top: '100vh'});
+		windows.stop_load_entries = false;
+		if (window_name == 'submit_view'){
+			windows.submit_view = false;
+			open_window('entry_view');
+			return;
+		}
+	}
+	if (windows.results_view == true) {
+		$('#results_view').animate({opacity: 'toggle', top: '100vh'});
+		if (window_name == 'results_view'){ open_window('entry_view'); }
+	}
+	
+	if (windows.entry_view == true && window_name == 'none') {
+		$('#entry_view').animate({opacity: 'toggle', bottom: '-50vh'});
+		windows.entry_view = false;
+	}
+
+	if (window_name == 'entry_view' && windows.entry_view == false){
+		$('#entry_view').animate({opacity: 'toggle', bottom: '0vh'});
+		windows.entry_view = true;
+		windows.single_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
+	}
+	if (window_name == 'single_view' && windows.single_view == false){
+		var new_position = $(window).innerHeight() - $('#single_view').outerHeight();
+		$('#single_view').animate({opacity: 'toggle', top: new_position});
+		windows.single_view = true;
+		windows.entry_view = false; windows.about_view = false; windows.submit_view = false; windows.results_view = false;
+	}
+	if (window_name == 'about_view' && windows.about_view == false){
+		$('#about_view').animate({opacity: 'toggle', top: '7vh'});
+		windows.about_view = true;
+		windows.entry_view = false; windows.single_view = false; windows.submit_view = false; windows.results_view = false;
+	}
+	if (window_name == 'submit_view' && windows.submit_view == false){
+		$('#submit_view').animate({ top: '7vh'});
+		windows.stop_load_entries = true;
+		windows.submit_view = true;
+		windows.entry_view = false; windows.single_view = false; windows.about_view = false; windows.results_view = false;
+	}
+	if (window_name == 'results_view' && windows.results_view == false){;
+		$('#results_view').animate({ opacity: 'toggle', top: '7vh' });
+		windows.results_view = true;
+		windows.entry_view = false; windows.single_view = false; windows.about_view = false; windows.submit_view = false;
+	}
+}
+
+//Switches contents of links at top of mobile page depending on page context
+//(So for example, "upload" isn't an option when you're already in the upload form)
+function change_nav(operation){
+	if (config.mobile){
+		switch (operation){
+			case 'close':
+				if (windows.submit_link_clicked){
+					flip($('#submit_link'), 'SUBMIT', 'submit_link_clicked', false);
+				}
+				if (windows.about_link_clicked){
+					flip($('#about_link'), config.site_name, 'about_link_clicked', false);
+				}
+				break;
+			case 'about':
+				if (windows.about_link_clicked){
+					flip($('#about_link'), config.site_name, 'about_link_clicked', false);
+				}
+				else {
+					flip($('#about_link'), 'BACK TO MAP', 'about_link_clicked', true);
+				}
+				if (windows.submit_link_clicked){
+					flip($('#submit_link'), 'SUBMIT', 'submit_link_clicked', false);
+				}
+				break;
+			case 'submit':
+				if (windows.submit_link_clicked){
+					flip($('#submit_link'), 'SUBMIT', 'submit_link_clicked', false);
+				}
+				else {
+					flip($('#submit_link'), 'MAP', 'submit_link_clicked', true);
+				}
+				if (windows.about_link_clicked){
+					flip($('#about_link'), config.site_name, 'about_link_clicked', false);
+				}
+				break;
+		}
+	}
+}
+
+//assist function for mobile navigation links
+function flip(element, content, key, value){
+	if (config.mobile){
+		element.animate({'top': '-5vh'}, function(){
+			element.html("<span class='navspan'>" + content + "</span>");
+		})
+		.animate({'top': '0vh'});
+		if (key == 'submit_link_clicked'){windows.submit_link_clicked = value; }
+		if (key == 'about_link_clicked'){windows.about_link_clicked = value; }
+	}
+}
+
+//mobile upload form auto-scroll
+function auto_scroll(autofilled){
+	if (config.mobile){
+		switch(autofilled){
+			case 'plate':
+				auto_complete.plate = true;
+				break;
+			case 'exif':
+				auto_complete.exif = true;
+				break;
+			case 'streets':
+				auto_complete.streets = true;
+				break;
+			case 'reset':
+				auto_complete.plate = false;
+				auto_complete.exif = false;
+				auto_complete.streets = false;
+				break;
+		}
+		if (auto_complete.plate == true &&
+			auto_complete.exif == true &&
+			auto_complete.streets == true){
+			var offset = -100;
+			$('#submit_view').animate({
+				scrollTop: $("#description-title").offset().top + offset
+			}, 2000);
+		}
+	}
+}
+
+//The meat and potatoes of CIBL's front page - handles dynamic loading and unloading of data onto the page
+function load_entries(plate) {
+	
+	if (windows.stop_load_entries == false) {
+		//block any other calls to load_entries, engage loading animation
+		windows.stop_load_entries = true;
+		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
+		
+		//load up dat query
+		var query = {};
+		if (plate){ query = { plate: plate }; }
+		else {
+			var west = body_map.getBounds().getWest();
+			var east = body_map.getBounds().getEast();
+			var south = body_map.getBounds().getSouth();
+			var north = body_map.getBounds().getNorth();
+			var box_array = [north, south, east, west];
+			query = {
+				box: box_array,
+				max: config.max_view
+			}
+		}
+		
+		var url_string = document.location.origin + '/api/search';
+		
+		//fire away
+		$.ajax({
+			url: url_string,
+			type: 'GET',
+			dataType: 'json',
+			data: query,
+			
+			success: function(a){
+				var response = a;
+				//console.log(response);
+				
+				if (plate){
+					//body_map.fitBounds([
+					//	[config.south_bounds, config.west_bounds-0.05],
+					//	[config.north_bounds, config.east_bounds-0.05]
+					//]);
+					body_map.setView([config.center_lat, config.center_long], config.zoom);
+					windows.auto_view_change = true;
+				}
+				
+				//update page history dependent on search type
+				if (box_array){
+					//round gps fields to 3 decimal places
+					var center = [Math.round(body_map.getCenter().lat * 1000) / 1000,
+								Math.round(body_map.getCenter().lng * 1000) / 1000];
+					var max = (config.max_default == config.max_view) ? '' : '&max=' + config.max_view;
+					history.pushState(
+						{box: box_array},
+						config.site_name,
+						'/index.php?center=' + center + '&zoom=' + body_map.getZoom() + max
+					);
+				}
+				else if (plate){
+					history.pushState(
+						{plate: plate},
+						config.site_name,
+						'/index.php?plate=' + plate
+					);
+				}
+				
+				//build temporary reference array of current entries sorted by ID descending to determine where to load any new entries
+				var current_entries_sorted = [];
+				for (var i in current_entries) {
+					if (current_entries.hasOwnProperty(i)) {
+						current_entries_sorted.push(current_entries[i]['id']);
+					}
+				}
+				current_entries_sorted.sort( function(a,b){ return a - b; } ).reverse();
+				
+				//load the entry view nav if it's not already (desktop view only)
+				if (!config.mobile){
+					if(!config.nav_loaded){
+						$('#column_entry_nav_template').clone()
+						.appendTo('#entry_list_content')
+						.attr('id', 'column_entry_nav');
+						$('#column_entry_nav').attr('class','column_entry');
+						$('#column_entry_nav').css('display','flex');
+						$('#column_entry_nav').find('#max_view').val(config.max_view);
+						$('#column_entry_nav').find('#column_entry_nav_message').html(
+							response.entries.length + ' most recent entires within view returned. '
+						);
+						$('#column_entry_nav').find('#max_view').on('change', function(){
+							config.max_view = $(this).val();
+							load_entries();
+						});
+						config.nav_loaded = true;
+					}
+					else {
+						$('#column_entry_nav').find('#column_entry_nav_message').html(
+							response.entries.length + ' most recent entires within view returned. '
+						);
+					}
+				}
+				
+				//start loading entries into entry view
+				var response_ids = [];
+				for (var i = 0; i < response.entries.length; i++){
+					var entry = response.entries[i];
+					response_ids.push(entry.id);
+					if (!current_entries.hasOwnProperty(entry.id)){
+						
+						//copy the column entry template to appropriate place in entry list
+						var insert = -1;
+						for (var j = 0; j < current_entries_sorted.length; j++){
+							if (entry.id / 1 > current_entries_sorted[j] / 1){
+								$('#column_entry_template').clone()
+								.insertBefore('#column_entry' + current_entries_sorted[j])
+								.attr('id', 'column_entry' + entry.id);
+								insert = j;
+								break;
+							}
+						}
+						if (insert < 0){
+							insert = current_entries_sorted.length;
+							$('#column_entry_template').clone()
+							.appendTo('#entry_list_content')
+							.attr('id', 'column_entry' + entry.id); 
+						}
+						
+						//update temporary reference index of loaded entries
+						current_entries_sorted.splice(insert, 0, entry.id);
+						
+						//load data into the new clone
+						var new_entry = $('#column_entry' + entry.id);
+						new_entry.css('display', 'flex');
+						new_entry.attr('class', 'column_entry');
+						new_entry.attr('onClick', 'zoom_to_entry(' + entry.id + ')');
+						new_entry.find('.thumbnail').attr( 'src', location.protocol + '//' + entry.thumb_url );
+						new_entry.find('#id_text').html('#' + entry.id);
+						new_entry.find('.plate_link').attr('id', 'plate' + entry.id);
+						new_entry.find('.plate_link').attr('onClick', 'javascript:plate_search(\'' + entry.plate + '\')');
+						switch (entry.state){
+							case 'NYPD':
+								var first = ''; var second = '';
+								for (var j = 0; j < entry.plate.length; j++){
+									if (j <  entry.plate.length - 2){ first += entry.plate[j]; }
+									else { second += entry.plate[j]; }
+								}
+								var plate_string = first + '<span class="NYPDsuffix">' + second + '</span>';
+								new_entry.find('#plate_text').html(plate_string).attr('class', 'plate NYPD');
+								break;
+							default:
+								new_entry.find('#plate_text').html(entry.plate).attr('class', 'plate ' + entry.state);
+								break;
+						}
+						var date = new Date(entry.date_occurrence);
+						var date_string  = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
+						if (date.getHours() < 12){ date_string += (date.getHours()+1) + ':'; }
+						else { date_string += (date.getHours()-11) + ':'; }
+						if (date.getMinutes() < 10){ date_string += '0' + date.getMinutes(); }
+						else { date_string += date.getMinutes(); }
+						if (date.getHours() < 12){ date_string += 'AM'; }
+						else { date_string += 'PM' }
+						
+						new_entry.find('#date_text').html('DATE: ' + date_string);
+						var streets = entry.street1;
+						if (entry.street2){ streets += ' & ' + entry.street2 }
+						streets = streets.toUpperCase();
+						new_entry.find('#streets_text').html('STREETS: ' + streets);
+						new_entry.find('#gps_text').html('GPS: ' + entry.gps_latitude + ' / ' + entry.gps_longitude);
+						if (entry.description){ new_entry.find('#description_text').html(entry.description); }
+						else { new_entry.find('#description_text_label').remove(); }
+						
+						new_entry.find('.disqus-comment-count').attr('data-disqus-url', 'http://carsinbikelanes.nyc/index.php?single_view=' + entry.id);
+						
+						//load new map marker
+						var entry_marker = new L.marker(
+							[entry.gps_latitude, entry.gps_longitude],
+							{
+								icon: xIcon,
+								title: '#' + entry.id + ': ' + entry.plate,
+								riseOnHover: true,
+								cibl_id: entry.id
+							}
+						).on('click', function(e) { zoom_to_entry(this['options']['cibl_id']); });
+						markers.addLayer(entry_marker);
+						
+						new_entry.hide();
+						new_entry.fadeIn();
+
+						//and new entry to global array of current entries
+						current_entries[entry.id] = { 
+							id: entry.id,
+							column_entry: new_entry,
+							marker: entry_marker
+						};
+					}
+				}
+				
+				//"No results found here" column entry if response array is empty
+				$('#column_entry0').remove();
+				if (response.entries.length == 0){
+					$('#column_entry_template').clone()
+					.appendTo('#entry_list_content')
+					.attr('id', 'column_entry0');
+					var new_entry = $('#column_entry0');
+					new_entry.attr('class', 'column_entry');
+					new_entry.css('display', 'flex');
+					new_entry.html('<h3>No records found here.</h3>');
+					new_entry.css('min-height', '150px');
+				}
+				
+				//Clean out non-visible entries from page and memory
+				for (var i in current_entries) {
+					if (current_entries.hasOwnProperty(i)) {
+						if ($.inArray(current_entries[i]['id'], response_ids) < 0){
+							markers.removeLayer(current_entries[i]['marker']);
+							$(current_entries[i]['column_entry']).fadeOut(300, function(){ $(this).remove(); });
+							delete current_entries[i];
+						}
+					}
+				}
+				
+				//unblock other calls to load entries, disengage loading animation, other post-load cleanups
+				open_window('entry_view');
+				if(config.disqus){ DISQUSWIDGETS.getCount({reset: true}); }
+				$('#entry_list_content').css('overflow-y','scroll'); //fixes bug where firefox doesn't scroll on first list loaded
+				setTimeout(function(){ resize_entry_view(); }, 500);
+				windows.stop_load_entries = false;
+				$('#loading').css('background', 'none');
+			},
+			
+			//placeholder, should probably add to this
+			error: function(a){
+				var response = a;
+				console.log(response);	
+			}
+		});
+	}
+}
+
+function zoom_to_entry(id) {	
+	if (windows.stop_load_entries == false) {
+		windows.stop_load_entries = true;
+		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
+		
+		var url_string = document.location.origin + '/api/search';
+		
+		$.ajax({
+			url: url_string,
+			type: 'GET',
+			dataType: 'json',
+			data:{
+				id: id
+			},
+			
+			success: function(a){
+				var entry = a.entries[0];
+				//console.log(entry);
+
+				history.pushState(
+					{id: entry.id},
+					config.site_name + ': Entry #' + entry.id,
+					'/index.php?id=' + entry.id
+				);
+				open_window('none');
+				if (config.mobile){
+					body_map.panTo([entry.gps_latitude-.002,entry.gps_longitude]).setZoom(18);
+				}
+				else {
+					body_map.setView([entry.gps_latitude,entry.gps_longitude-.005], 17);
+				}
+				soloMarker = L.marker([entry.gps_latitude,entry.gps_longitude],
+					{icon: xIcon, title: '#' + entry.id + ': ' + entry.plate})
+					.addTo(body_map);
+				markers.clearLayers();
+				markers.addLayer(soloMarker);
+				
+				//flush out current_entries
+				for (var i in current_entries) {
+					current_entries[i]['column_entry'].remove();
+					delete current_entries[i];
+				}
+				
+				//load entry data into single view
+				$('#single_view').find('#fullsize')
+				.one('load', function(){
+					open_window('single_view');
+				})
+				.attr('src', location.protocol + '//' + entry.image_url);
+				$('#single_view').find('#id_single').html('#' + entry.id);
+				$('#single_view').find('#plate_single_link').attr('onClick', 'plate_search(\'' + entry.plate + '\')');
+				switch (entry.state){
+					case 'NYPD':
+						var first = ''; var second = '';
+						for (var i = 0; i < entry.plate.length; i++){
+							if (i <  entry.plate.length - 2){ first += entry.plate[i]; }
+							else { second += entry.plate[i]; }
+						}
+						var plate_string = first + '<span class="NYPDsuffix">' + second + '</span>';
+						$('#single_view').find('#plate_single').html(plate_string).attr('class', 'plate NYPD');
+						break;
+					default:
+						$('#single_view').find('#plate_single').html(entry.plate).attr('class', 'plate ' + entry.state);
+						break;
+				}
+				$('#single_view').find('#date_single').html(entry.date_occurrence);
+				$('#single_view').find('#date_single').html(entry.date_occurrence);
+				var streets = entry.street1;
+				if (entry.street2){ streets += ' & ' + entry.street2 }
+				streets = streets.toUpperCase();
+				$('#single_view').find('#streets_single').html(streets);
+				$('#single_view').find('#gps_single').html(streets);
+				if (!entry.description){ $('#single_view').find('#description_div_single').hide(); }
+				else { $('#single_view').find('#description_div_single').show(); }
+				if (entry.description){ $('#single_view').find('#description_single').html(entry.description); }
+				else { $('#single_view').find('#description_single_label').remove(); }
+
+				//open_window('single_view');
+				setTimeout(function() { windows.stop_load_entries = false; }, 500);
+				$('#loading').css('background', 'none');
+				
+				DISQUS.reset({
+					reload: true,
+					config: function () {
+						var url = location.protocol + '//' + location.hostname + '/index.php?id=' + id;
+						this.page.identifier = url;
+						this.page.url =  url;
+						this.page.title = config.site_name + ': Entry #' + id;
+					}
+				});
+			},
+			
+			error: function(a){
+				console.log(a);	
+			}
+		});
+	}
+}
+
+function plate_search(plate) { load_entries(plate); }
+
+function resize_entry_view(){
+	if (config.mobile){
+		var total_height = 0; var count = 0;
+		$('.column_entry').map( function(){ 
+			if ($(this).hasClass("single_view_column_entry") == false) {
+				total_height += $(this).outerHeight() + 10;
+				count++;
+			}
+		});
+		if (count < 3){
+			$('#entry_view').animate({ height: total_height, bottom: '0' });
+		}
+		else { 
+			$('#entry_view').animate({ height: '33vh', bottom: '0vh' });
+		}
+	}
+	else {
+		total_height = -25;
+		$('.column_entry').map( function(){ total_height += $(this).outerHeight() + 10; });
+		if (total_height < document.body.clientHeight){ $('#entry_view').animate({ height: total_height }); }
+		else { $('#entry_view').animate({ height: '96vh' }); }
+	}
+}
+
+function limit_text() {
+	var comments = document.getElementById("comments");
+	if (comments.value.length > 200) {
+		comments.value = comments.value.substring(0, 200);
+	}
+	else {
+		var count = comments.value.length;
+		document.getElementById("character_limit").innerHTML = 200 - count;
+	}
+}
+
+function initialize_datetimepicker() {
+	var date = new Date();
+	$('#datetimepicker').datetimepicker({ format:'unixtime' });
+	$('#datetimepicker').attr('unixtime', Date.parse(date)/1000 );
+	$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').attr('unixtime')));
+	$('#datetimepicker').on('change', function() {
+		$('#datetimepicker').attr('unixtime', $('#datetimepicker').val() );
+		$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').val()));
+	});
+}
+
+function unixtime_to_pretty(unixtime){
+	var date = new Date(unixtime * 1000);
+	var date_string  = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
+	if (date.getHours() == 0){ date_string += '12:'; }
+	else if (date.getHours() <= 12){ date_string += date.getHours() + ':'; }
+	else { date_string += (date.getHours()-11) + ':'; }
+	if (date.getMinutes() < 10){ date_string += '0' + date.getMinutes(); }
+	else { date_string += date.getMinutes(); }
+	if (date.getHours() < 12){ date_string += 'AM'; }
+	else { date_string += 'PM' }
+	return date_string;
 }
 
 function fill_plate_and_state(){
@@ -225,8 +821,10 @@ function fill_plate_and_state(){
 			$('#plate').css('background', 'white');
 			$('#plate').val(reply['plate']['results'][best]['plate']);
 			$('#state').val(reply['plate']['results'][best]['region'].toUpperCase());
+			auto_scroll('plate');
 		}
 		else {
+			auto_scroll('reset');
 			$('#plate').css('background', 'white');
 		}
 	}
@@ -234,6 +832,45 @@ function fill_plate_and_state(){
 	request.addEventListener('load', listener);
 	request.open('POST', url);
 	request.send(data);
+}
+
+function fill_date_and_gps(e) {
+	EXIF.getData(e.target.files[0], function() {
+		//Auto-enter location data
+		if(EXIF.getTag(this, "GPSLatitude")){
+			var lat_deg = EXIF.getTag(this, "GPSLatitude")[0];
+			var lat_min = EXIF.getTag(this, "GPSLatitude")[1];
+			var lat_sec = EXIF.getTag(this, "GPSLatitude")[2];
+			var lng_deg = EXIF.getTag(this, "GPSLongitude")[0];
+			var lng_min = EXIF.getTag(this, "GPSLongitude")[1];
+			var lng_sec = EXIF.getTag(this, "GPSLongitude")[2];
+			var gps_lat = (lat_deg+(((lat_min*60)+lat_sec))/3600); //DMS to decimal
+			var gps_lng = -(lng_deg+(((lng_min*60)+lng_sec))/3600); //DMS to decimal
+			if (gps_lat != 0 && gps_lng != 0){
+				document.getElementById("latitude").value = gps_lat;
+				document.getElementById("longitude").value = gps_lng;
+				//If OpenALPR active, auto-enter streets here by reverse geocoding gps coords
+				fill_streets();
+				submit_map.removeLayer(marker);
+				marker = new L.marker([gps_lat, gps_lng], {icon: xIcon}).addTo(submit_map);
+				submit_map.panTo([gps_lat, gps_lng]);
+				var gps_text = "Latitude: " + gps_lat.toFixed(6) + " Longitude: " + gps_lng.toFixed(6);
+				document.getElementById("gps_coords").innerHTML = gps_text;
+				document.getElementById("map_prompt").innerHTML = "Location detected:";
+				auto_scroll('exif');
+			}
+			else {
+				document.getElementById("map_prompt").innerHTML = "Could not auto-detect location, please fill out manually!";
+			}
+		}
+		//Auto-enter time and date
+		if(EXIF.getTag(this, "DateTimeOriginal")){
+			var capturetime = EXIF.getTag(this, "DateTimeOriginal");
+			var isotime = capturetime.split(" ")[0].replace(/:/g,'-') + 'T' + capturetime.split(" ")[1];
+			var unixtime = Date.parse(isotime)/1000;
+			$('#datetimepicker').val(unixtime_to_pretty(unixtime));
+		}
+	});
 }
 
 function fill_streets(){
@@ -250,6 +887,7 @@ function fill_streets(){
 		var intersection = response['address']['Address'].split(" & ");
 		$('#street1').val(intersection[0]);
 		$('#street2').val(intersection[1]);
+		auto_scroll('streets');
 	}
 	var request = new XMLHttpRequest();
 	request.addEventListener('load', listener);
@@ -257,242 +895,213 @@ function fill_streets(){
 	request.send(data);
 }
 
-function fillExifFields(e) {
-	EXIF.getData(e.target.files[0], function() {
-		//Auto-enter location data
-		if(EXIF.getTag(this, "GPSLatitude")){
-			var lat_deg = EXIF.getTag(this, "GPSLatitude")[0];
-			var lat_min = EXIF.getTag(this, "GPSLatitude")[1];
-			var lat_sec = EXIF.getTag(this, "GPSLatitude")[2];
-			var lng_deg = EXIF.getTag(this, "GPSLongitude")[0];
-			var lng_min = EXIF.getTag(this, "GPSLongitude")[1];
-			var lng_sec = EXIF.getTag(this, "GPSLongitude")[2];
-			var gps_lat = (lat_deg+(((lat_min*60)+lat_sec))/3600); //DMS to decimal
-			var gps_lng = -(lng_deg+(((lng_min*60)+lng_sec))/3600); //DMS to decimal
-			document.getElementById("latitude").value = gps_lat;
-			document.getElementById("longitude").value = gps_lng;
-			fill_streets();
-			submit_map.removeLayer(marker);
-			marker = new L.marker([gps_lat, gps_lng]).addTo(submit_map);
-			submit_map.panTo([gps_lat, gps_lng]);
-			var gps_text = "Latitude: " + gps_lat.toFixed(6) + " Longitude: " + gps_lng.toFixed(6);
-			document.getElementById("gps_coords").innerHTML = gps_text;
-			document.getElementById("map_prompt").innerHTML = "Location detected:";
-		}
-		//Auto-enter time and date
-		if(EXIF.getTag(this, "DateTimeOriginal")){
-			var capture_time = EXIF.getTag(this, "DateTimeOriginal");
-			var exif_date_and_time = capture_time.split(" ");
-			var exif_date = exif_date_and_time[0].split(":");
-			var exif_time = exif_date_and_time[1].split(":");
-			var exif_year = exif_date[0];
-			var exif_month = exif_date[1];
-			var exif_day = exif_date[2];
-			var exif_meridiem = "AM";
-			var exif_hour = exif_time[0];
-			if (exif_hour > 12) { exif_hour -= 12; exif_meridiem = "PM"; }
-			var exif_minute = exif_time[1];
-			var exif_date_final = exif_month + "/" + exif_day + "/" + exif_year + " " + exif_hour + ":" + exif_minute + exif_meridiem;
-			document.getElementById('datetimepicker').value = exif_date_final;
-		}
-	});
-}
-
-function submitForm(e) {
-	e.preventDefault();
+function submit_form() {
 	$('#upload_prompt').empty();
 	$('#upload_button').css('background', 'url(\'css/loader.svg\') 50% no-repeat');
 	$('#upload_button').css('background-size', '10%');
 	$('#upload_button').css('background-color', 'lightgray');
+	
 	var formData = new FormData();
-	formData.append( 'image_submission', $('#image_submission')[0].files[0] );
-	formData.append( 'plate', document.getElementById("plate").value );
-	formData.append( 'lat', document.getElementById("latitude").value );
-	formData.append( 'lng', document.getElementById("longitude").value );
-	formData.append( 'date', document.getElementById("datetimepicker").value );
-	formData.append( 'state', document.getElementById("state").value );
-	formData.append( 'street1', document.getElementById("street1").value );
-	formData.append( 'street2', document.getElementById("street2").value );
-	formData.append( 'description',document.getElementById("comments").value );
-	formData.append( 'upload','true' );
-	formData.append( 'source','desktop' );
+	formData.append( 'image', $('#image_submission')[0].files[0] );
+	formData.append( 'plate', $('#plate').val() );
+	formData.append( 'state', $('#state').val() );
+	formData.append( 'date', $('#datetimepicker').attr('unixtime') /*$('#datetimepicker').val()*/ );
+	formData.append( 'gps_latitude', $('#latitude').val() );
+	formData.append( 'gps_longitude', $('#longitude').val() );
+	formData.append( 'street1', $('#street1').val() );
+	formData.append( 'street2', $('#street2').val() );
+	formData.append( 'description', $('#comments').val() );
+	
+	var url_string = document.location.origin + '/api/upload';
+	
 	$.ajax({
-	  url: '/submission.php',
-	  type: 'POST',
-	  data: formData,
-	  processData: false,
-	  contentType: false,
-	  mimeType: 'multipart/form-data',
-	  success: function (a) {
-		open_window('none');
-		$('#results_form_container').empty();
-		$('#results_form_container').html(a);
-		$('#upload_button').css('background', 'none');
-		$('#upload_button').css('background-color', 'lightgray');
-		$('#upload_prompt').append('UPLOAD!');
-		$("#results_form").animate({opacity: 'toggle', right: '0px'});
-	  },
-	  error: function(a) {
-		alert( "something went wrong: " + a);
-		$('#upload_button').css('background', 'none');
-		$('#upload_button').css('background-color', 'lightgray');
-		$('#upload_prompt').append('UPLOAD!');
-	  }
+		url: url_string,
+		type: 'POST',
+		data: formData,
+		dataType: 'json',
+		processData: false,
+		contentType: false,
+		mimeType: 'multipart/form-data',
+		
+		success: function (a) {
+			console.log(a);
+			var response = a;
+			$('#results_header').html('Success!');
+			$('#results_message').html(response['result']['success']);
+			$('#results_details').html('<b>Upload details:</b><br/>'
+										+ 'image:<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;name: ' + response['upload']['image']['name'] + '<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;type: ' + response['upload']['image']['type'] + '<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;error: ' + response['upload']['image']['error'] + '<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;size: ' + Math.round(response['upload']['image']['size'] / 1000) + ' kb<br/>'
+										+ 'plate: ' + response['upload']['plate'] + '<br/>'
+										+ 'state: ' + response['upload']['state'] + '<br/>'
+										+ 'date: ' + response['upload']['date'] + '<br/>'
+										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
+										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
+										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
+										+ 'description: ' + response['upload']['description']);
+			$('#results_back').html('Submit Another');
+			$('#upload_button').css('background', 'none');
+			$('#upload_button').css('background-color', 'lightgray');
+			$('#upload_prompt').append('UPLOAD!');
+			//$("#results_view").animate({opacity: 'toggle', right: '0px'});
+			open_window('results_view');
+			$("#upload_form")[0].reset();
+			submit_map.removeLayer(marker);
+			var gps_text = "Latitude: ... Longitude: ...";
+			$('#gps_coords').html(gps_text);
+		},
+		
+		error: function(a) {
+			console.log(a);
+			var response = JSON.parse(a.responseText);
+			$('#results_header').html('Error');
+			$('#results_message').html(response['result']['error']);
+			$('#results_details').html('<b>Upload details:</b><br/>'
+										+ 'image:<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;name: ' + response['upload']['image']['name'] + '<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;type: ' + response['upload']['image']['type'] + '<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;error: ' + response['upload']['image']['error'] + '<br/>'
+										+ '&nbsp;&nbsp;&nbsp;&nbsp;size: ' + Math.round(response['upload']['image']['size'] / 1000) + ' kb<br/>'
+										+ 'plate: ' + response['upload']['plate'] + '<br/>'
+										+ 'state: ' + response['upload']['state'] + '<br/>'
+										+ 'date: ' + response['upload']['date'] + '<br/>'
+										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
+										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
+										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
+										+ 'description: ' + response['upload']['description']);
+			$('#results_back').html('Back');
+			$('#upload_button').css('background', 'none');
+			$('#upload_button').css('background-color', 'lightgray');
+			$('#upload_prompt').append('UPLOAD!');
+			open_window('results_view');
+		}
 	});
 }
 
-function load_entries() {
-	if (windows.stop_load_entries == false) {
-		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
-		var west = body_map.getBounds().getWest();
-		var east = body_map.getBounds().getEast();
-		var south = body_map.getBounds().getSouth();
-		var north = body_map.getBounds().getNorth();
-		var load_url = "entry_list.php?west=" + west + "&east=" + east + "&south=" + south + "&north=" + north + "&max_view=" + max_view;
-		$( "#entry_list_content" ).load( load_url, function(){
-				open_window('entry_list');
-				$('#loading').css('background', 'none');
-				setTimeout(function(){
-					resize_entry_list();
-					$('#entry_list_content').css('overflow-y','scroll'); //fixes bug where firefox doesn't scroll first list loaded
-					DISQUSWIDGETS.getCount({reset: true});
-					//If 0-comment entries are set to display <wbc/> or anything else that doesn't render text
-					//as their label in Disqus, this next loop will hide them from view.
-					//$('.disqus-comment-count').each( function() {
-					//	if ($(this).text().length == 0){ $(this).hide(); }
-					//});
-				}, 500);
-			});
-	}
-}
-
-function plate_search(plate) {
-	if (windows.stop_load_entries == false) {
-		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
-		var load_url = 'entry_list.php?plate=' + plate;
-		windows.stop_load_entries = true; //Will be set false again by entry_list.php
-		$( "#entry_list_content" ).load( load_url, function(){
-				open_window('entry_list');
-				$('#loading').css('background', 'none');
-				setTimeout(function(){ resize_entry_list(); }, 500);
-			});;
-	}
-}
-
-function onSubmitClick(e) {
+function set_gps_marker(e) {
     submit_map.removeLayer(marker);
-    marker = new L.marker(e.latlng).addTo(submit_map);
+    marker = new L.marker(e.latlng, {icon: xIcon}).addTo(submit_map);
     var gps_text = "Latitude: " + e.latlng.lat.toFixed(6) + " Longitude: " + e.latlng.lng.toFixed(6);
     document.getElementById("gps_coords").innerHTML = gps_text;
     document.getElementById("latitude").value = e.latlng.lat;
     document.getElementById("longitude").value = e.latlng.lng;
 }
 
-function resize_entry_list(){
-	total_height = 10;
-	$('.column_entry').map( function(){ total_height += $(this).outerHeight(); });
-	if (total_height < document.body.clientHeight){ $('#entry_view').animate({ height: total_height }); }
-	else { $('#entry_view').animate({ height: '97vh' }); }
-}
-
-function limitText() {
-	var comments = document.getElementById("comments");
-	if (comments.value.length > 200) {
-		comments.value = comments.value.substring(0, 200);
-	}
-	else {
-		var count = comments.value.length;
-		document.getElementById("character_limit").innerHTML = 200 - count;
-	}
-}
-
-function initializeMaps() {
-
-	if (<?php echo $config['use_providers_plugin']; ?>) {
-		body_map = L.map('body_map');
-		try { var tiles = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
+function initialize_body_map(){
+	body_map = L.map('body_map');
+	
+	if (config.use_providers_plugin) {
+		try { var tiles = L.tileLayer.provider(config.leaflet_provider, {maxZoom: 20}); }
 		catch (err) { console.log(err); }
-		body_map.addLayer(tiles);
-		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-
-		submit_map = L.map('submit_map');
-		try { var tiles2 = L.tileLayer.provider('<?php echo $config['leaflet_provider']; ?>'); }
-		catch (err) { console.log(err); }
-		submit_map.addLayer(tiles2);
-		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
-	else if (<?php echo $config['use_google']; ?>) {
-		body_map = L.map('body_map');
+	
+	else if (config.use_google) {
 		<?php if ($config['use_google']){
 			echo "var options = ";
 			include $config_folder . '/google_style.php';
 			echo ";\n"; }
 		?>
-		var extra = <?php echo "\"" . $config['google_extra_layer'] . "\";\n"; ?>
-		try {
-			var tiles = new L.Google('ROADMAP', {
-					mapOptions: {
-						styles: options
-					}
-				}, extra);
-		}
+		var extra = '\\' + config.google_extra_layer + '\\';
+		try { var tiles = new L.Google('ROADMAP', { mapOptions: { styles: options } }, extra); }
 		catch (err) { console.log(err); }
-		body_map.addLayer(tiles);
-		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-
-		submit_map = L.map('submit_map');
-		try {
-			var tiles2 = new L.Google('ROADMAP', {
-					mapOptions: {
-						styles: options
-					}
-				}, extra);
-		}
-		catch (err) { console.log(err); }
-		submit_map.addLayer(tiles2);
-		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
-	else if (<?php echo $config['use_bing']; ?>) {
-		body_map = L.map('body_map');
-		imagerySet = '<?php echo $config['bing_imagery']; ?>';
-		bingApiKey = '<?php echo $config['bing_api_key']; ?>';
+	
+	else if (config.use_bing) {
+		var imagerySet = config.bing_imagery;
+		var bingApiKey = config.bing_api_key;
 		try { var tiles = new L.BingLayer(bingApiKey, {type: imagerySet}); }
 		catch (err) { console.log(err); }
-		body_map.addLayer(tiles);
-		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-
-		submit_map = L.map('submit_map');
-		try { var tiles2 = new L.BingLayer(bingApiKey, {type: imagerySet}); }
-		catch (err) { console.log(err); }
-		submit_map.addLayer(tiles2);
-		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
+	
 	else {
-		body_map = L.map('body_map');
-		try { var tiles = L.tileLayer('<?php echo $config['map_url']; ?>'); }
+		try { var tiles = L.tileLayer(config.map_url, {maxZoom: 20}); }
 		catch (err) { console.log(err); }
-		body_map.addLayer(tiles);
-		body_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
-
-		submit_map = L.map('submit_map');
-		try { var tiles2 = L.tileLayer('<?php echo $config['map_url']; ?>'); }
-		catch (err) { console.log(err); }
-		submit_map.addLayer(tiles2);
-		submit_map.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
-
+	
+	body_map.addLayer(tiles);
+	body_map.setView([config.center_lat, config.center_long], config.zoom);
 	markers = L.layerGroup().addTo(body_map);
-	newMarkers = L.layerGroup();
+	
+	//bind leaflet map events to body_map
+	body_map.on('moveend', function(e) {
+		//config.zoom = body_map.getZoom();
+		//config.center = body.getCenter();
+		//config.center_lat = body.getCenter().lat;
+		//config.center_long = body.getCenter().lng;
+		if (windows.auto_view_change){ windows.auto_view_change = false; }
+		else { load_entries(); } 
+	});
+	body_map.on('click', function(e) {
+		//config.zoom = body_map.getZoom();
+		//config.center = body.getCenter();
+		//config.center_lat = body.getCenter().lat;
+		//config.center_long = body.getCenter().lng;
+		load_entries(); 
+	});
+}
+
+function initialize_upload_view(){
+	if (windows.upload_view_loaded == false) {
+		
+		//Upload map initialization
+		submit_map = L.map('submit_map');
+		if (config.use_providers_plugin) {
+			try { var tiles2 = L.tileLayer.provider(config.leaflet_provider, {maxZoom: 20}); }
+			catch (err) { console.log(err); }
+		}
+		else if (config.use_google) {
+			<?php if ($config['use_google']){
+				echo "var options = ";
+				include $config_folder . '/google_style.php';
+				echo ";\n"; }
+			?>
+		var extra = '\\' + config.google_extra_layer + '\\';
+		try { var tiles = new L.Google('ROADMAP', { mapOptions: { styles: options } }, extra); }
+		catch (err) { console.log(err); }
+		}
+		else if (config.use_bing) {
+			var imagerySet = config.bing_imagery;
+			var bingApiKey = config.bing_api_key;
+			try { var tiles2 = new L.BingLayer(bingApiKey, {type: imagerySet}); }
+			catch (err) { console.log(err); }
+		}
+		else {
+			try { var tiles2 = L.tileLayer(config.map_url, {maxZoom: 20}); }
+			catch (err) { console.log(err); }
+		}
+		submit_map.addLayer(tiles2);
+		submit_map.setView([config.center_lat, config.center_long], config.zoom);
+		
+		//event bindings
+		initialize_datetimepicker();
+		$('#state').change(function(){
+			if ($('#state').val() == 'UNKNOWN' || $('#state').val() == 'NONE'){
+				$('#plate').val($('#state').val());
+			}
+		});
+		$('#image_submission').on('change', function(e) {
+			auto_scroll('reset');
+			fill_plate_and_state();
+			fill_date_and_gps(e);
+		});
+		submit_map.on('click', set_gps_marker);
+		$('#upload_form').submit( function(event) {
+			event.preventDefault();
+			submit_form(); 
+		});
+		
+		windows.upload_view_loaded = true;
+	}
 }
 </script>
 </head>
 
 <body>
 
-<div id="body_map">
-</div>
-
 <?php
+//site setup success message
 if (isset($_GET['setup_success_dialog'])){
 	echo "<div class=\"flex_container_dialog_float\" id=\"success_dialog\">\n";
 	echo "<div class=\"setup_centered\">\n";
@@ -512,12 +1121,14 @@ if (isset($_GET['setup_success_dialog'])){
 	echo "</div>\n";
 	echo "</div>\n";
 }
-?>
 
+//navigation elements, desktop and mobile variants
+if (!$mobile){
+echo <<< DESKTOPNAV
 <!-- RIGHT MENU -->
 <div class="right_menu">
 <div class="right_menu_item">
-<span><?php echo $config['site_name']; ?></span>
+<span>{$config['site_name']}</span>
 </div>
 <br>
 <div class="right_menu_item" id="submit_link">
@@ -532,16 +1143,40 @@ if (isset($_GET['setup_success_dialog'])){
 <span></span>
 </div>
 </div>
+DESKTOPNAV;
+}
+else{
+echo <<< MOBILENAV
+<div id='nav_container' class='nav_container'>
+<div id='nav' class='nav'>
 
+<div id='loading' class='nav_link'>
+</div>
+
+<div id='about_link_container' class='nav_link'>
+<div id='about_link'><span class='navspan'>{$config['site_name']}</span></div>
+</div>
+
+<div id='submit_link_container' class='nav_link'>
+<div id='submit_link'><span class='navspan'>SUBMIT</span></div>
+</div>
+
+</div>
+</div>
+MOBILENAV;
+}
+
+if (!$mobile){
+echo <<< DESKTOPUPLOADVIEW
 <!-- SUBMISSION FORM -->
-<div class="submission_form" id="submission_form">
+<div class="submission_form" id="upload_view">
 <div class="submission_form_container">
 
-<div class="top_dialog_button" onClick="open_window('entry_list')">
+<div class="top_dialog_button" onClick="open_window('entry_view')">
 <span>&#x2A09</span>
 </div>
 
-<form id="the_form" action="submission.php" style="margin-bottom: 0px" enctype="multipart/form-data">
+<form id="upload_form" action="submission.php" style="margin-bottom: 0px" enctype="multipart/form-data">
 
 	<div style="width: 100%">
     <span class="submit_form_item">Image: </span><input type="file" class="submit_form_item" name="image_submission" id="image_submission"><br>
@@ -641,11 +1276,7 @@ if (isset($_GET['setup_success_dialog'])){
 	<div id="character_limit">200</div> characters):</span>
 	</div>
 
-	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="description" id="comments"></textarea>
-
-	<!--<div class="submit_form_row">
-	<input type="submit" class="submit_form_item" style="width:100%" value="SUBMIT" name="upload">
-	</div>-->
+	<textarea name="description" onKeyDown="limit_text();" onKeyUp="limit_text();" class="description" id="comments"></textarea>
 
 	<label id='upload_button' class='upload_button'>
 	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
@@ -655,10 +1286,123 @@ if (isset($_GET['setup_success_dialog'])){
 </form>
 </div>
 </div>
+DESKTOPUPLOADVIEW;
+}
+
+else {
+echo <<< MOBILEUPLOADVIEW
+<div id='submit_view' class='submit_view'>
+<form id="upload_form" action="submission.php" enctype="multipart/form-data">
+
+	<label id='file_container' class='file_container'>
+	<span id='image_prompt' class='v-centered'>TAP TO ADD AN IMAGE</span>
+	<input type="file" name="image_submission" id="image_submission"/>
+	</label>
+
+    <span>PLATE:</span>
+	<input type="text" name="plate" id="plate" class='wide' maxlength="8"/>
+
+    <span> STATE: </span>
+    <select name="state" id="state" class='wide'>
+    <option value="NY">NY</option>
+    <option value="NJ">NJ</option>
+    <option value="NYPD">NYPD</option>
+	<option value="NYPD">FDNY</option>
+	<option value="UNKNOWN">UNKNOWN</option>
+	<option value="NONE">NONE</option>
+    <option>--</option>
+    <option value="AL">AL</option>
+    <option value="AK">AK</option>
+    <option value="AZ">AZ</option>
+    <option value="AR">AR</option>
+    <option value="CA">CA</option>
+    <option value="CO">CO</option>
+    <option value="CT">CT</option>
+    <option value="DE">DE</option>
+    <option value="DC">DC</option>
+    <option value="FL">FL</option>
+    <option value="GA">GA</option>
+    <option value="HI">HI</option>
+    <option value="IA">IA</option>
+    <option value="ID">ID</option>
+    <option value="IL">IL</option>
+    <option value="IN">IN</option>
+    <option value="KS">KS</option>
+    <option value="KY">KY</option>
+    <option value="LA">LA</option>
+    <option value="ME">ME</option>
+    <option value="MD">MD</option>
+    <option value="MA">MA</option>
+    <option value="MI">MI</option>
+    <option value="MN">MN</option>
+    <option value="MS">MS</option>
+    <option value="MO">MO</option>
+    <option value="MT">MT</option>
+    <option value="NE">NE</option>
+    <option value="NV">NV</option>
+    <option value="NH">NH</option>
+    <option value="NM">NM</option>
+    <option value="NC">NC</option>
+    <option value="ND">ND</option>
+    <option value="OH">OH</option>
+    <option value="OK">OK</option>
+    <option value="OR">OR</option>
+    <option value="PA">PA</option>
+    <option value="RI">RI</option>
+    <option value="SC">SC</option>
+    <option value="SD">SD</option>
+    <option value="TN">TN</option>
+    <option value="TX">TX</option>
+    <option value="UT">UT</option>
+    <option value="VT">VT</option>
+    <option value="VA">VA</option>
+    <option value="WA">WA</option>
+    <option value="WV">WV</option>
+    <option value="WI">WI</option>
+    <option value="WY">WY</option>
+    </select>
+
+    <span>DATE:</span>
+	<input type="text" name="date" class='wide' id="datetimepicker"/>
+
+	<span>STREET 1 (OPTIONAL):</span>
+	<input type="text" name="street1" id="street1" class='wide'/>
+
+	<span>STREET 2 (OPTIONAL):</span>
+	<input type="text" name="street2" id="street2" class='wide'/>
+
+    <span id="map_prompt" class='medium'>Tap to mark location if not detected:</span><br>
+	<div id="submit_map"></div>
+	<span id="gps_coords" class='medium'>Latitude: ... Longitude: ...</span>
+	<br>
+	<br>
+	<br>
+
+	<span id='description-title'>DESCRIPTION (Optional)</span><br>
+	<span  class='medium'><div id="character_limit">200</div> characters</span><br>
+	<textarea name="description" onKeyDown="limitText();" onKeyUp="limitText();" class="comments" id="comments"></textarea><br>
+
+	<input type="hidden" name="lat" id="latitude">
+	<input type="hidden" name="lng" id="longitude">
+
+	<label id='upload_button' class='upload_button'>
+	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
+	<input type="submit" name="upload" id="upload"/>
+	</label>
+	
+</form>
+</div>
+MOBILEUPLOADVIEW;
+}
+
+?>
+
+<!-- BODY MAP -->
+<div id='body_map'></div>
 
 <!-- ABOUT VIEW -->
 <div id='about_view' class='about_view'>
-<div class="top_dialog_button" onClick="open_window('entry_list')">
+<div class='top_dialog_button' onClick="open_window('entry_view')">
 <span>&#x2A09</span>
 </div>
 <?php echo stripslashes(htmlspecialchars_decode($config['about_text'])); ?>
@@ -666,23 +1410,101 @@ if (isset($_GET['setup_success_dialog'])){
 
 
 <!-- RESULTS VIEW -->
-<div class="results_form" id="results_form">
-<div class="top_dialog_button" onClick="open_window('entry_list')">
+<div class='results_view' id='results_view'>
+<div class='top_dialog_button' id='results_close' onClick='javascript:open_window("entry_view"); load_entries();'>
 <span>&#x2A09</span>
 </div>
-<div class="results_form_container" id="results_form_container">
+<div class='results_view_container' id='results_view_container'>
+<h3 id='results_header'></h3>
+<p id='results_message'></p>
+<p id='results_details'></p>
+<!-- <button id='results_submit_another' onClick='javascript:$("#results_view").animate({opacity: "toggle", right: "-565px"}); open_window("submit_view");'>Submit Another</button> -->
+<button id='results_back' onClick='javascript:open_window("submit_view");'>Back</button>
 </div>
 </div>
 
 <!-- ENTRIES VIEW -->
 <div class="entry_view" id="entry_view">
-<div class="entry_list_content" id="entry_list_content">
+<div class="entry_list_content" id="entry_list_content"></div>
+</div>
+
+<!-- ENTRY VIEW NAV --->
+<div id='column_entry_nav_template' class='column_entry_template' style='max-height:30px;min-height:25px;display:flex;justify-content:space-between;display:none;'>
+<div style='margin-left:10px'>
+<span id='column_entry_nav_message'>$_COUNT most recent entires within view returned. </span>
+</div>
+<div style='margin-right:10px'>
+<span> Max: </span><input type='text' class='max_view' id='max_view' value='$_MAXVIEW' style='width:60px'/>
+</div>
+</div>
+
+<!-- COLUMN ENTRY TEMPLATE -->
+<div id='column_entry_template' class="column_entry_template" onclick="zoom_to_entry($_ID);" style='display:none;'>
+<div class="column_entry_thumbnail">
+<img class="thumbnail" src="">
+</div>
+<div class="moderation_queue_details">
+<div class="details_top">
+<div class="details_plate">
+<div class="plate_name">
+<div><br><h2 id='id_text'>$_ID</h2></div>
+<div class="info plate_container plate_link" id="plate$_ID" onClick="event.stopPropagation();plate_search(&quot;$PLATE&quot;)">
+<div class="plate $_STATE" id='plate_text'>$_PLATE</div></div>
+</div>
+</div><div class="details_timeplace">
+<div class="info edit_date"><span id='date_text'>$_DATE</span></div><br>
+<div class="info edit_streets"><span id='streets_text'>$_STREETS</span></div><br>
+<div class="info edit_gps"><span id='gps_text'>$_GPS_LATITUDE / $_GPS_LONGITUDE</span></div>
+</div>
+</div>
+<div id='description_text_div'>
+<span  id='description_text_label'>DESCRIPTION:</span>
+<div><span id='description_text'></span><span class="disqus-comment-count" data-disqus-url="http://carsinbikelanes.nyc/index.php?single_view=$_ID"><wbr></span></div>
+</div>
 </div>
 </div>
 
 <!-- SINGLE VIEW -->
-<div class="single_view" id="single_view"></div>
+<div id='single_view' class='single_view'>
+<img src="" id="fullsize" class="fullsize" />
+<div class='column_entry single_view_column_entry' style='background: transparent'>
+<div class='moderation_queue_details'>
+<div class='details_top'>
+<div class='details_plate'>	
+<div class='plate_name'><div><br/><h2 id='id_single'>$_ID</h2></div>
+<div class='info plate_container plate_link' id='plate_single_link' onClick='event.stopPropagation();plate_search("$PLATE")'>
+<div class='plate $_STATE' id='plate_single'>$_PLATE</div>
+</div>
+</div>
+</div>
+<div class='details_timeplace'>
+<span>TIME: </span>
+<div class='info edit_date'>
+<span id='date_single'>$_DATE</span>
+</div>
+<br/>
+<span>STREETS: </span>
+<div class='info edit_streets main_font'>
+<span id='streets_single'></span>
+</div>
+<br/>
+<span>GPS: </span>
+<div class='info edit_gps'>
+<span id='gps_single'></span>
+</div>
+</div>
+</div>
+<div id='description_single_div'>
+<span id='description_single_label'>DESCRIPTION:</span>
+<div><span id='description_single'></span></div>
+</div>
+</div>
+</div>
+<div id='disqus_thread' class='disqus_thread'>
+</div>
+</div>
 
+<script id="dsq-count-scr" src="//<?php echo $config['disqus']; ?>.disqus.com/count.js" async></script>
 </body>
 
 </html>

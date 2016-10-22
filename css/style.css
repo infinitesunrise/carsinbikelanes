@@ -116,7 +116,8 @@ body.non_map {
 	margin: 0px;
 	min-width: 100px;
 	min-height: 20px;
-	line-height: 20px;
+	line-height: 16px;
+	font-size: 16px;
 }
 
 .moderation_queue_details {
@@ -186,6 +187,7 @@ span {
 	margin: 0px;
 	font-family: 'Oswald', sans-serif;
 	font-weight: 400;
+	font-size: 16px;
 }
 
 span.left-align {
@@ -312,7 +314,7 @@ span.form {
 	cursor:pointer;
 }
 
-.submission_form, .results_form {
+.submission_form, .results_view {
 	z-index: 100;
 	position: absolute;
 	top: 0px;
@@ -323,7 +325,7 @@ span.form {
 }
 
 .submission_form_container,
-.results_form_container {
+.results_view_container {
 	margin: 10px;
 	padding: 10px;
 	background-color:rgba(255, 255, 255, 0.8);

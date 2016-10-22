@@ -1,149 +1,256 @@
 <?php
 
 require(__DIR__ . '/../admin/config_pointer.php');
+require('../submission.php');
 
+$path = parse_url($_SERVER['REQUEST_URI'])['path'];
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch ($method){
-	case 'GET': 
-		error_log('RECEIVED A GET REQUEST');
-		handleGET();
+//error_log(print_r($_REQUEST, true));
+//error_log(print_r($_POST, true));
+//error_log(print_r($_GET, true));
+//error_log(print_r($_FILES, true));
+
+switch ($path){
+	case '/api/upload': 
+		if ($method = 'POST'){
+			upload();
+		}
 		break;
-	case 'POST': 
-		error_log('RECEIVED A POST REQUEST');
-		handlePOST();
-		break;		
+	case '/api/search': 
+		if ($method == 'GET'){
+			search($connection);
+		}
+		break;
+	case '/api/stats': 
+		if ($method = 'GET'){
+			stats();
+		}
+		break;
 	default:
-		return_error('Incompatible HTTP request');
+		return_error('Incompatible request');
 		break;
 }
 
-function handleGET(){
-	$box = $around = $plate = $before = $after = $streets = $max = '';
+function search($connection){
+	
+	$box = $around = $id = $plate = $before = $after = $streets = $description = $max = '';
 	
 	//Box search
-	if(isset($_GET['box'])){
-		$box = explode(',',$_GET['box']);
+	if(isset($_GET['box'])){		
+		$box_array = $_GET['box'];
+		
+		//error_log('GOT BOX!');
+		//error_log(print_r($box_array, true));
+		
+		//Make sure box is an array
+		if (!is_array($box_array)){
+			//In case array was given as comma-seperated string, try to explode to array
+			$exploded = explode(',', $box_array);
+			if (!is_array($exploded) || !$exploded){
+				return_error('Search box query must be an array.');
+			}
+			else { $box_array = $exploded; }
+		}
 		
 		//Make sure there are four values for N, S, E, W
-		if( count($box) != 4 ) {
-			return_error('Search box query did not supply four values representing North, South, East and West search bounds');
+		if( count($box_array) != 4 ) {
+			return_error('Search box query did not supply four numbers representing North, South, East and West search bounds.');
 		}
 		
 		//Make sure each bound value is a number
-		for($i = 0; $i < count($box); $i++){
-			if (!is_numeric($box[$i])){
+		for($i = 0; $i < count($box_array); $i++){
+			if (!is_numeric($box_array[$i])){
 				return_error('Search box boundary values must be numeric.');
 			}
 		}
 		
-		$box_north = $box[0];
-		$box_south = $box[1];
-		$box_east = $box[2];
-		$box_west = $box[3];
+		$box_north = $box_array[0];
+		$box_south = $box_array[1];
+		$box_east = $box_array[2];
+		$box_west = $box_array[3];
+		
+		$box = 'AND gps_lat<' . $box_north . ' AND gps_lat>' . $box_south . ' AND gps_long<' . $box_east . ' AND gps_long>' . $box_west . ' ';
+		
+		//error_log($box);
 	}
 	
 	//Around search
 	if(isset($_GET['around'])){
-		$around = explode(',',$_GET['around']);
+		$around_array = $_GET['around'];
+		
+		//Make sure around is an array
+		if (!is_array($around_array)){
+			return_error('Around query must be an array.');
+		}
 		
 		//Make sure there are three values for lat, long and distance
-		if( count($around) != 3 ) {
-			return_error('Search around query did not supply three values representing GPS latitude, GPS longitude and distance from coordinate to middle of box edges.');
+		if( count($around_array) != 3 ) {
+			return_error('Search around query did not supply three values representing latitude, longitude and distance in degrees from coordinate to middle of box edges.');
 		}
 		
 		//Make sure each around value is a number
-		for($i = 0; $i < count($around); $i++){
-			if (!is_numeric($around[$i])){
+		for($i = 0; $i < count($around_array); $i++){
+			if (!is_numeric($around_array[$i])){
 				return_error('Around search array values must be numeric.');
 			}
 		}
 		
-		$around_latitude = $around[0];
-		$around_longitude = $around[1];
-		$around_distance = $around[2];
+		$around_latitude = $around_array[0];
+		$around_longitude = $around_array[1];
+		$around_distance = $around_array[2];
 		
 		$around_north = $around_latitude + $around_distance;
 		$around_south = $around_latitude - $around_distance;
 		$around_east = $around_longitude + $around_distance;
 		$around_west = $around_longitude - $around_distance;
+		
+		$around = 'AND gps_lat<' . $around_north . ' AND gps_lat>' . $around_south . ' AND gps_long<' . $around_west . ' AND gps_long>' . $around_east . ' ';
+	}
+	
+	//ID search
+	if(isset($_GET['id'])){
+		$id_int = $_GET['id'];
+		
+		//Check if numeric and is int
+		if( !( is_numeric($id_int) && (int)$id_int == $id_int ) ||  $id_int < 1 ){
+			return_error('ID value must be a positive integer');
+		}
+		
+		$id = 'AND increment=' . $id_int . ' ';
 	}
 	
 	//Plate search
 	if(isset($_GET['plate'])){
-		
 		//8 characters max
-		$plate = substr($_GET['plate'], 0, 8);
+		$plate_string = substr($_GET['plate'], 0, 8);
 		
 		//Alpha-numeric only
-		if(!ctype_alnum($plate)){
+				//error_log($_GET['plate']);
+				//error_log(ctype_alnum($plate_string));
+		if(!ctype_alnum($plate_string)){
 			return_error('Plate text must be alpha-numeric.');
 		}
+		
+		$plate = 'AND plate LIKE "%' . $plate_string . '%" ';
 	}
 	
 	//Before-time search
 	if(isset($_GET['before'])){
-		$before = $_GET['before'];
+		$before_int = $_GET['before'];
 		
-		//Check if numberic and is int
-		if( !( is_numeric($before) && (int)$before == $before ) ){
+		//Check if numeric and is int
+		if( !( is_numeric($before_int) && (int)$before_int == $before_int ) ){
 			return_error('Before value must be a unix timestamp in integer format');
 		}
+		
+		$date_before = new DateTime("@$before_int");
+		
+		$before = 'AND date_occurrence<"' . $date_before->format('Y-m-d H:i:s') . '" ';
 	}
 	
 	//After-time search
 	if(isset($_GET['after'])){
-		$after = $_GET['after'];
+		$after_int = $_GET['after'];
 		
-		//Check if numberic and is int
-		if( !( is_numeric($after) && (int)$after == $after ) ){
+		//Check if numeric and is int
+		if( !( is_numeric($after_int) && (int)$after_int == $after_int ) ){
 			return_error('After value must be a unix timestamp in integer format');
 		}
+		
+		$date_after = new DateTime("@$after_int");
+		
+		$after = 'AND date_occurrence>"' . $date_after->format('Y-m-d H:i:s') . '" ';
 	}
 	
 	//Streets search
 	if(isset($_GET['streets'])){
-		$streets = explode(',', $_GET['streets']);
+		$streets_array = $_GET['streets'];
 		
 		//Make sure type is array
-		if(!is_array($streets)){
+		if(!is_array($streets_array)){
 			return_error('Streets filter must be an array of string values');
 		}
 		
 		//Make sure all streets values are strings
-		for($i = 0; $i < count($streets); $i++){
-			if (!is_string($streets[$i])){
+		for($i = 0; $i < count($streets_array); $i++){
+			if (!is_string($streets_array[$i])){
 				return_error('Streets array must be composed of only string values');
+			}
+		}
+		
+		$streets = 'AND ';
+		foreach($streets_array as $street){
+			$streets .= '(street1 LIKE "%' . $street . '%" OR street2 LIKE "%' . $street . '%") ';
+			if (count($streets_array) < $street + 2){
+				$streets .= ' AND ';
 			}
 		}
 	}
 	
-	//Max results
-	if(isset($_GET['max'])){
-		$max = $_GET['max'];
+	//Description search
+	if(isset($_GET['description'])){
+		//8 characters max
+		$description_string = substr($_GET['description'], 0, 8);
 		
-		//Make sure max value is a number
-		if(!is_numeric($max)){
-			return_error('Max results value was not a number');
-		}
+		$description = 'AND description LIKE "%' . $description_string . '%" ';
 	}
 	
-	$search_echo = new StdClass();
-	if($box) { $search_echo->box = $box; }
-	if($around) { $search_echo->around = $around; }
-	if($plate) { $search_echo->plate = $plate; }
-	if($before) { $search_echo->before = $before; }
-	if($after) { $search_echo->after = $after; }
-	if($streets) { $search_echo->streets = $streets; }
-	if($max) { $search_echo->max = $max; }
+	//Max results
+	if(isset($_GET['max'])){
+		$max_int = $_GET['max'];
+		
+		//Make sure max value is a number
+		if(!is_numeric($max_int)){
+			return_error('Max results value was not a number');
+		}
+		
+		//Make sure max is greater than 0
+		if($max_int < 1){
+			return_error('Max results requested must be greater than zero.');
+		}
+		
+		$max = 'LIMIT ' . $max_int . ' ';
+	}
 	
-	$response = new StdClass();
+	$query = 'SELECT * FROM cibl_data WHERE increment>0 ' . $box . $around . $id . $plate . $before . $after . $streets . $description . 'ORDER BY increment DESC ' . $max;
 	
-	$response->search = $search_echo;
+	//error_log($query);
 	
-	error_log(print_r($response, true));
+	$result = $connection->query($query);
+	$entries = array();
 	
-	//RESPONSE
+	while($row = mysqli_fetch_row($result)){
+		$entry = new StdClass();
+		$entry->id = $row[0];
+		$entry->image_url = $_SERVER['HTTP_HOST'] . '/images/' . $row[1];
+		$entry->thumb_url = $_SERVER['HTTP_HOST'] . '/thumbs/' . $row[1];
+		$entry->plate = $row[2];
+		$entry->state = $row[3];
+		$entry->date_occurrence = $row[4];
+		$entry->date_added = $row[5];
+		$entry->gps_latitude = $row[6];
+		$entry->gps_longitude = $row[7];
+		$entry->street1 = $row[8];
+		$entry->street2 = $row[9];
+		$entry->description = $row[10];
+		array_push($entries, $entry);
+	}
+	
+	$search = new StdClass();
+	if($box) { $search->box = $box_array; }
+	if($around) { $search->around = $around_array; }
+	if($plate) { $search->plate = $plate_string; }
+	if($before) { $search->before = $before_int; }
+	if($after) { $search->after = $after_int; }
+	if($streets) { $search->streets = $streets_array; }
+	if($description) { $search->description = $description_string; }
+	if($max) { $search->max = $max_int; }
+	
+	$response = new StdClass();	
+	$response->search = $search;
+	$response->entries = $entries;	
+	
 	http_response_code(200);
 	header('Content-type: application/json');
 	header('Cache-Control: no-cache, must-revalidate');
@@ -151,18 +258,61 @@ function handleGET(){
 	echo json_encode($response);
 }
 	
-function handlePOST(){
-	if(isset($_POST['box'])){
-		$box = $_POST['box'];
-	}
+function upload(){
 	
-	error_log(print_r($box, true));
+	$image = (isset($_FILES['image']) ? $_FILES['image'] : '');
+		$image_name = (isset($_FILES['image']) ? $image['name'] : '');
+		$image_type = (isset($_FILES['image']) ? $image['type'] : '');
+		$image_error = (isset($_FILES['image']) ? $image['error'] : '');
+		$image_size = (isset($_FILES['image']) ? $image['size'] : '');
+	$plate = (isset($_POST['plate']) ? $_POST['plate'] : '');
+	$state = (isset($_POST['state']) ? $_POST['state'] : '');
+	$date = (isset($_POST['date']) ? $_POST['date'] : '');
+	$gps_latitude = (isset($_POST['gps_latitude']) ? $_POST['gps_latitude'] : '');
+	$gps_longitude = (isset($_POST['gps_longitude']) ? $_POST['gps_longitude'] : '');
+	$street1 = (isset($_POST['street1']) ? $_POST['street1'] : '');
+	$street2 = (isset($_POST['street2']) ? $_POST['street2'] : '');
+	$description = (isset($_POST['description']) ? $_POST['description'] : '');
 	
-	http_response_code(200);
+	$upload = new StdClass();
+	$upload->image = array('name' => $image_name, 'type' => $image_type, 'error' => $image_error, 'size' => $image_size);
+	$upload->plate = $plate;
+	$upload->state = $state;
+	$upload->date = $date;
+	$upload->gps_latitude = $gps_latitude;
+	$upload->gps_longitude = $gps_longitude;
+	$upload->street1 = $street1;
+	$upload->street2 = $street2;
+	$upload->description = $description;
+	
+	$result = new_upload($image,
+				$plate,
+				$state,
+				$date,
+				$gps_latitude,
+				$gps_longitude,
+				$street1,
+				$street2,
+				$description);
+				
+	$response = new StdClass();
+	$response->result = $result;
+	$response->upload = $upload;
+	
+	if (array_key_exists('success', $result)){ http_response_code(200); }
+	else if (array_key_exists('error', $result)){ http_response_code(400); }
+	//http_response_code(400);
+	
 	header('Content-type: application/json');
 	header('Cache-Control: no-cache, must-revalidate');
-	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');	
-	//echo json_encode($request);	
+	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	//error_log(print_r($response, true));
+	//error_log(json_encode($response));
+	echo json_encode($response);
+}
+
+function stats(){
+	return_error('This method is not implemented yet');
 }
 
 function return_error($error){
@@ -171,6 +321,8 @@ function return_error($error){
 	header('Cache-Control: no-cache, must-revalidate');
 	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');	
 	$response = ['error' => $error];	
-	echo json_encode($response);	
+	echo json_encode($response);
+	exit();	
 }
+
 ?>
