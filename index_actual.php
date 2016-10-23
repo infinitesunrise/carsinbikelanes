@@ -811,26 +811,39 @@ function limit_text() {
 
 function initialize_datetimepicker() {
 	var date = new Date();
-	$('#datetimepicker').datetimepicker({ format:'unixtime' });
+	$('#datetimepicker').datetimepicker({ format:'n/j/Y g:iA' });
 	$('#datetimepicker').attr('unixtime', Date.parse(date)/1000 );
-	$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').attr('unixtime')));
-	$('#datetimepicker').on('change', function() {
-		$('#datetimepicker').attr('unixtime', $('#datetimepicker').val() );
-		$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').val()));
+	//$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').attr('unixtime')));
+	//$('#datetimepicker').on('change', function() {
+	//	console.log('changed. current value: ' + $('#datetimepicker').val());
+	//	$('#datetimepicker').attr('unixtime', $('#datetimepicker').val() );
+	//	console.log('unixtime attr: ' + $('#datetimepicker').attr('unixtime'));
+	//	$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').val()));
+	//});
+	$('#datetimepicker').on('change', function(){
+		console.log('changed. current value: ' + $('#datetimepicker').val());
+		$('#datetimepicker').attr('unixtime', pretty_to_unixtime($('#datetimepicker').val()) );
+		console.log('unixtime attr: ' + $('#datetimepicker').attr('unixtime'));
 	});
 }
 
 function unixtime_to_pretty(unixtime){
 	var date = new Date(unixtime * 1000);
-	var date_string  = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
-	if (date.getHours() == 0){ date_string += '12:'; }
-	else if (date.getHours() <= 12){ date_string += date.getHours() + ':'; }
-	else { date_string += (date.getHours()-11) + ':'; }
-	if (date.getMinutes() < 10){ date_string += '0' + date.getMinutes(); }
-	else { date_string += date.getMinutes(); }
-	if (date.getHours() < 12){ date_string += 'AM'; }
-	else { date_string += 'PM' }
-	return date_string;
+	var pretty  = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
+	if (date.getHours() == 0){ pretty += '12:'; }
+	else if (date.getHours() <= 12){ pretty += date.getHours() + ':'; }
+	else { pretty += (date.getHours()-11) + ':'; }
+	if (date.getMinutes() < 10){ pretty += '0' + date.getMinutes(); }
+	else { pretty += date.getMinutes(); }
+	if (date.getHours() < 12){ pretty += 'AM'; }
+	else { pretty += 'PM' }
+	return pretty;
+}
+
+function pretty_to_unixtime(pretty){
+	var isotime = pretty.split(" ")[0].replace(/\//g,'-') + ' ' + capturetime.split(" ")[1].replace('AM','').replace('PM','') + ':00';
+	var unixtime = Date.parse(isotime)/1000;
+	return unixtime;
 }
 
 function fill_plate_and_state(){
@@ -938,6 +951,7 @@ function fill_date_and_gps(e) {
 			var isotime = capturetime.split(" ")[0].replace(/:/g,'-') + 'T' + capturetime.split(" ")[1];
 			var unixtime = Date.parse(isotime)/1000;
 			$('#datetimepicker').val(unixtime_to_pretty(unixtime));
+			$('#datetimepicker').attr('unixtime', unixtime );
 		}
 	});
 }
@@ -974,7 +988,7 @@ function submit_form() {
 	formData.append( 'image', $('#image_submission')[0].files[0] );
 	formData.append( 'plate', $('#plate').val() );
 	formData.append( 'state', $('#state').val() );
-	formData.append( 'date', $('#datetimepicker').attr('unixtime') /*$('#datetimepicker').val()*/ );
+	formData.append( 'date', $('#datetimepicker').attr('unixtime') );
 	formData.append( 'gps_latitude', $('#latitude').val() );
 	formData.append( 'gps_longitude', $('#longitude').val() );
 	formData.append( 'street1', $('#street1').val() );
@@ -1005,7 +1019,8 @@ function submit_form() {
 										+ '&nbsp;&nbsp;&nbsp;&nbsp;size: ' + Math.round(response['upload']['image']['size'] / 1000) + ' kb<br/>'
 										+ 'plate: ' + response['upload']['plate'] + '<br/>'
 										+ 'state: ' + response['upload']['state'] + '<br/>'
-										+ 'date: ' + response['upload']['date'] + '<br/>'
+										+ 'date of occurrence: ' + unixtime_to_pretty(response['upload']['date_occurrence']) + '<br/>'
+										+ 'date of upload: ' + unixtime_to_pretty(response['upload']['date_added']) + '<br/>'
 										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
 										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
 										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
@@ -1036,7 +1051,8 @@ function submit_form() {
 										+ '&nbsp;&nbsp;&nbsp;&nbsp;size: ' + Math.round(response['upload']['image']['size'] / 1000) + ' kb<br/>'
 										+ 'plate: ' + response['upload']['plate'] + '<br/>'
 										+ 'state: ' + response['upload']['state'] + '<br/>'
-										+ 'date: ' + response['upload']['date'] + '<br/>'
+										+ 'date of occurrence: ' + unixtime_to_pretty(response['upload']['date_occurrence']) + '<br/>'
+										+ 'date of upload: ' + unixtime_to_pretty(response['upload']['date_added']) + '<br/>'
 										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
 										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
 										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
@@ -1156,9 +1172,9 @@ function initialize_upload_view(){
 				include $config_folder . '/google_style.php';
 				echo ";\n"; }
 			?>
-		var extra = '\\' + config.google_extra_layer + '\\';
-		try { var tiles = new L.Google('ROADMAP', { mapOptions: { styles: options } }, extra); }
-		catch (err) { console.log(err); }
+			var extra = '\\' + config.google_extra_layer + '\\';
+			try { var tiles = new L.Google('ROADMAP', { mapOptions: { styles: options } }, extra); }
+			catch (err) { console.log(err); }
 		}
 		else if (config.use_bing) {
 			var imagerySet = config.bing_imagery;
@@ -1169,14 +1185,12 @@ function initialize_upload_view(){
 		else if (config.use_mapboxgljs){
 			mapboxgl.accessToken = config.mapbox_key;
 			var style_url = (config.mobile && config.mapbox_mobile_style_url) ? config.mapbox_mobile_style_url :  config.mapbox_style_url;
-			if(config.mobile && config.mapbox_mobile_style_url){
-				submit_map = new mapboxgl.Map({
-					container: 'submit_map',
-					style: style_url,
-					center: [config.center_long, config.center_lat],
-					zoom: config.zoom
-				});
-			}
+			submit_map = new mapboxgl.Map({
+				container: 'submit_map',
+				style: style_url,
+				center: [config.center_long, config.center_lat],
+				zoom: config.zoom
+			});
 		}
 		else {
 			try { var tiles2 = L.tileLayer(config.map_url, {maxZoom: 20}); }

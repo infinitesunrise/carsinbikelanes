@@ -2,8 +2,9 @@
 
 function new_upload($image, 
 					$plate, 
-					$state, 
-					$time, 
+					$state,
+					$date_occurrence,
+					$date_added, 
 					$gps_latitude, 
 					$gps_longitude, 
 					$street1, 
@@ -11,8 +12,6 @@ function new_upload($image,
 					$description)
 {
 	require 'admin/config_pointer.php';
-
-	//error_log($time);
 	
 	if (empty($image))
 	{ return array('error' => 'Submissions without an image attached are currently not accepted.'); }
@@ -36,10 +35,14 @@ function new_upload($image,
 	{ return array('error' => 'State field must be a string'); }
 
 	//Ensure unix timestamp	
-	if (!is_timestamp($time))
-	{ error_log('Trying to convert time string: ' . $time . ' to unix...'); $time = strtotime($time); error_log('And now its: ' . $time);}
-	if (!$time)
-	{ return array('error' => 'Unacceptable time value.'); }
+	if (!is_timestamp($date_occurrence))
+	{ $date_occurrence = strtotime($date_occurrence); }
+	if (!$date_occurrence)
+	{ return array('error' => 'Unacceptable date value.'); }
+	$date_occurrence = date('Y-m-d H:i:s', $date_occurrence);
+	$date_added = date('Y-m-d H:i:s', $date_added);
+	
+	//error_log($date_occurrence);
 
 	if (empty($gps_latitude) || empty($gps_longitude))
 	{ return array('error' => 'Both latitude and longitude are required.'); }
@@ -81,9 +84,9 @@ function new_upload($image,
 	}
 	
 	$stmt = $connection->prepare("INSERT INTO cibl_queue (
-		increment, url, plate, state, date_occurrence, gps_lat, gps_long, street1, street2, description)
-		VALUES (?,?,?,?,?,?,?,?,?,?)");
-	$stmt->bind_param('isssiddsss', $increment, $url, $plate, $state, $time, $gps_latitude, $gps_longitude, $street1, $street2, $description);
+		increment, url, plate, state, date_occurrence, date_added, gps_lat, gps_long, street1, street2, description)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+	$stmt->bind_param('isssssddsss', $increment, $url, $plate, $state, $date_occurrence, $date_added, $gps_latitude, $gps_longitude, $street1, $street2, $description);
 	$result = $stmt->execute();
 	$stmt->close();
 	

@@ -267,7 +267,8 @@ function upload(){
 		$image_size = (isset($_FILES['image']) ? $image['size'] : '');
 	$plate = (isset($_POST['plate']) ? $_POST['plate'] : '');
 	$state = (isset($_POST['state']) ? $_POST['state'] : '');
-	$date = (isset($_POST['date']) ? $_POST['date'] : '');
+	$date_occurrence = (isset($_POST['date']) ? $_POST['date'] : '');
+	$date_added = date('U');
 	$gps_latitude = (isset($_POST['gps_latitude']) ? $_POST['gps_latitude'] : '');
 	$gps_longitude = (isset($_POST['gps_longitude']) ? $_POST['gps_longitude'] : '');
 	$street1 = (isset($_POST['street1']) ? $_POST['street1'] : '');
@@ -278,17 +279,21 @@ function upload(){
 	$upload->image = array('name' => $image_name, 'type' => $image_type, 'error' => $image_error, 'size' => $image_size);
 	$upload->plate = $plate;
 	$upload->state = $state;
-	$upload->date = $date;
+	$upload->date_occurrence = $date_occurrence;
+	$upload->date_added = $date_added;
 	$upload->gps_latitude = $gps_latitude;
 	$upload->gps_longitude = $gps_longitude;
 	$upload->street1 = $street1;
 	$upload->street2 = $street2;
 	$upload->description = $description;
 	
+	//error_log($upload->date);
+	
 	$result = new_upload($image,
 				$plate,
 				$state,
-				$date,
+				$date_occurrence,
+				$date_added,
 				$gps_latitude,
 				$gps_longitude,
 				$street1,
