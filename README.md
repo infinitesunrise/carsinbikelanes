@@ -1,11 +1,14 @@
 CARS IN BIKE LANES
 ------------------
 
-CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL's setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser. Adapt CIBL for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!   
+CIBL is a browsable geographic database for crowd-sourcing traffic violation reports. Originally designed to publicly track illegal automotive encroachment into New York City bike lanes at carsinbikelanes.nyc, CIBL can be adapted to document any sort of observable traffic violations within a defined geographic area. CIBL records the time, date, cross streets, GPS coordinates, user description and image of each record submitted. CIBL's setup wizard should be able to self-deploy in a LAMP environment upon navigating to /index.php in a web browser. Adapt CIBL for your city however you'd like. Better yet, invite your local law enforcement agency to be involved!
+
+Documentation pending. This is somewhat untested software. Given that, don't hesitate to ask if you need help setting up or running.
   
 Features:  
 - Responsive desktop site built with jQuery
 - Quick and intuitive mobile site encourages on-the-go submissions
+- API for uploading and searching
 - Support for a long list of map providers
 - Automatic detection of time, date and GPS information from image EXIF data
 - Comments on individual submissions via Disqus
@@ -28,9 +31,9 @@ Included FOSS / third-party libraries and plugins:
 - Mapbox (https://github.com/mapbox)  
 - Google fonts & Google Javascript API  
 - Bing maps API  
-- license plate font by Dave Hansen
-- ArcGIS Geocoding API
-- OpenALPR Cloud APi  
+- license plate font by Dave Hansen  
+- ArcGIS Geocoding API  
+- OpenALPR Cloud API  
   
 Map providers currently supported:  
 - OpenStreetMap (Including dozens of third-party OSM tile hosts)  

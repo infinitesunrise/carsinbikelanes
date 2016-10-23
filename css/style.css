@@ -685,3 +685,20 @@ p.tinytext {
 	margin: 2px;
 	background: rgba(255, 0, 0, 0.2);
 }
+
+.map_marker {
+	width: 24px;
+	height: 24px;
+	background: url('x.svg') no-repeat;
+	background-position: 0 0;
+	background-size: 24px 24px;
+	cursor: pointer;
+}
+
+.map_marker_shadow {
+	width: 24px;
+	height: 24px;
+	background: url('x_shadow.svg') no-repeat;
+	background-position: 0 0;
+	background-size: 24px 24px;
+}

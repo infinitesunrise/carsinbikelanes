@@ -163,6 +163,7 @@ else {
 <input type='hidden' id='leaflet_provider' name='leaflet_provider' value='<?php echo $config['leaflet_provider']; ?>'>
 <input type='hidden' id='use_google' name='use_google' value='<?php echo $config['use_google']; ?>'>
 <input type='hidden' id='use_bing' name='use_bing' value='<?php echo $config['use_bing']; ?>'>
+<input type='hidden' id='use_mapboxgljs' name='use_mapboxgljs' value='<?php echo $config['use_mapboxgljs']; ?>'>
 
 <span>default number of results shown: </span>
 <input type='text' class='wide' id='max_view' name='max_view' value='<?php echo $config['max_view']; ?>'/>
@@ -207,11 +208,26 @@ Sign up for one <a href="https://www.microsoft.com/maps/create-a-bing-maps-key.a
 terms of service</a>.
 </div>
 
+<div class="holder" id="map_options_mapboxgljs">
+<p class="tinytext"> Link to a Mapbox style URL and Mapbox access key to use a Mapbox GL JS map (Faster, smoother client-side rendering improves upon typical tile maps). <a href='http://mapbox.com'>Mapbox</a>.</p>
+<span>mapbox api key: </span>
+<input type='text' class='wide' id='mapbox_key' name='mapbox_key' onChange='switch_map()' value='<?php echo $config['mapbox_key']; ?>'/><br>
+<span>style url: </span>
+<input type='text' class='wide' id='mapbox_style_url' name='mapbox_style_url' onChange='switch_map()' value='<?php echo $config['mapbox_style_url']; ?>'/><br>
+<span>mobile style url: </span>
+<input type='text' class='wide' id='mapbox_mobile_style_url' name='mapbox_mobile_style_url' onChange='switch_map()' value='<?php echo $config['mapbox_mobile_style_url']; ?>'/>
+<p class="tinytext"> Leave this field blank unless you'd like to serve an alternate map style to mobile users.</p>
+</div>
+
+
 <div class="holder" id="map_options_custom">
-<span>tiles url: </span>
-<input type='text' class='wide' id='custom_url' name='map_url' onChange='switch_map()' value='<?php echo $config['map_url']; ?>'/><br>
 <p class="tinytext"> If you have your own tile provider URL you may paste it above instead of using one of the presets.
 Read the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Tiled_web_map">tiled web maps</a> for more information about this schema.</p>
+<span>tiles url: </span>
+<input type='text' class='wide' id='custom_url' name='map_url' onChange='switch_map()' value='<?php echo $config['map_url']; ?>'/><br>
+<span>mobile tiles url: </span>
+<input type='text' class='wide' id='mobile_custom_url' name='mobile_map_url' onChange='switch_map()' value='<?php echo $config['mobile_map_url']; ?>'/><br>
+<p class="tinytext"> Leave this field blank unless you'd like to serve an alternate map style to mobile users.</p>
 </div>
 
 <input type='submit' class='wide' name='update_map' value='Update Map'/>
@@ -261,6 +277,8 @@ echo "<span>database: </span><input type='text' class='wide' name='database' val
 </div>
 </div>
 
+<script id="mapboxgljs_link_1" src='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>
+<link id="mapboxgljs_link_2" href='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css' rel='stylesheet' />
 <script id="google_api_link" src="//maps.googleapis.com/maps/api/js?key=<?php echo $config['google_api_key']; ?>&v=3"></script>
 <script id="leaflet_plugins_google" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
 <script id="leaflet_plugins_bing" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
@@ -285,6 +303,7 @@ $(document).ready(function(){
 	var providers = L.TileLayer.Provider.providers;
 	var providerOptions = "";
 	providerOptions +=  "<option value='Custom'>Custom</option>\r\n";
+	providerOptions +=  "<option value='Mapbox GL JS'>Mapbox GL JS</option>\r\n";
 	providerOptions +=  "<option value='Google'>Google</option>\r\n";
 	providerOptions +=  "<option value='Bing'>Bing</option>\r\n";
 	var providerString = "";
@@ -294,8 +313,7 @@ $(document).ready(function(){
 		if (providerString == "NASAGIBS" ||
 			providerString == "HERE" ||
 			providerString == "OpenSeaMap" ||
-			providerString == "OpenWeatherMap" ||
-			providerString == "MapBox")
+			providerString == "OpenWeatherMap")
 			{ continue; }
 		providerOptions += "<option value=" + providerString + ">" + providerString + "</option>\r\n";
 		if (providers[provider].hasOwnProperty("variants")){
@@ -327,12 +345,14 @@ function switch_map(option){
 
 	if (newProvider == "Custom"){
 		document.getElementById("map_options_custom").style.display = "block";
+		document.getElementById("map_options_mapboxgljs").style.display = "none";
 		document.getElementById("map_options_google").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
 		document.getElementById("map_options_bing").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_google").value = 0;
 		document.getElementById("use_bing").value = 0;
+		document.getElementById("use_mapboxgljs").value = 0;
 		document.getElementById("leaflet_provider").value = newProvider;
 		settings_map.remove();
 		document.getElementById("settings_map").innerHTML = "";
@@ -342,13 +362,46 @@ function switch_map(option){
 		.addLayer(tiles)
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
 	}
+	else if (newProvider == "Mapbox GL JS"){
+		console.log('switched to mapboxgljs');
+		
+		document.getElementById("map_options_mapboxgljs").style.display = "block";
+		document.getElementById("map_options_custom").style.display = "none";
+		document.getElementById("map_options_google").style.display = "none";
+		document.getElementById("map_options_esri").style.display = "none";
+		document.getElementById("map_options_bing").style.display = "none";
+		document.getElementById("use_providers_plugin").value = 0;
+		document.getElementById("use_google").value = 0;
+		document.getElementById("use_bing").value = 0;
+		document.getElementById("use_mapboxgljs").value = 1;
+		document.getElementById("leaflet_provider").value = newProvider;
+		settings_map.remove();
+		document.getElementById("settings_map").innerHTML = "";
+		
+		var style_url = document.getElementById("mapbox_style_url").value;
+		var key = document.getElementById("mapbox_key").value;
+		mapboxgl.accessToken = key;
+		settings_map = new mapboxgl.Map({
+			container: 'settings_map',
+			style: style_url,
+			center: [<?php echo $config['center_long'] ?>, <?php echo $config['center_lat'] ?>],
+			zoom: 12
+		});
+		
+		//var tiles = L.tileLayer(url);
+		//settings_map = L.map('settings_map')
+		//.addLayer(tiles)
+		//.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 12);
+	}
 	else if (newProvider == "Google"){
 		document.getElementById("map_options_google").style.display = "block";
 		document.getElementById("map_options_custom").style.display = "none";
+		document.getElementById("map_options_mapboxgljs").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
 		document.getElementById("map_options_bing").style.display = "none";
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_bing").value = 0;
+		document.getElementById("use_mapboxgljs").value = 0;
 		document.getElementById("use_google").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
 
@@ -398,12 +451,14 @@ function switch_map(option){
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 13);
 	}
 	else if (newProvider == "Bing"){
+		document.getElementById("map_options_mapboxgljs").style.display = "none";
 		document.getElementById("map_options_google").style.display = "none";
 		document.getElementById("map_options_custom").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
 		document.getElementById("map_options_bing").style.display = "block";
 		document.getElementById("use_providers_plugin").value = 0;
 		document.getElementById("use_google").value = 0;
+		document.getElementById("use_mapboxgljs").value = 0;
 		document.getElementById("use_bing").value = 1;
 		document.getElementById("leaflet_provider").value = newProvider;
 		bingImagerySelect = document.getElementById("bing_imagery_select");
@@ -418,6 +473,7 @@ function switch_map(option){
 		.setView([<?php echo $config['center_lat'] ?>, <?php echo $config['center_long'] ?>], 13);
 	}
 	else{
+		document.getElementById("map_options_mapboxgljs").style.display = "none";
 		document.getElementById("map_options_custom").style.display = "none";
 		document.getElementById("map_options_google").style.display = "none";
 		document.getElementById("map_options_esri").style.display = "none";
@@ -428,6 +484,7 @@ function switch_map(option){
 		document.getElementById("use_providers_plugin").value = 1;
 		document.getElementById("use_google").value = 0;
 		document.getElementById("use_bing").value = 0;
+		document.getElementById("use_mapboxgljs").value = 0;
 		settings_map.remove();
 		document.getElementById("settings_map").innerHTML = "";
 		var tiles = L.tileLayer.provider(newProvider);

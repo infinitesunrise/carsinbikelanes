@@ -30,13 +30,25 @@ else{ echo '<link rel="stylesheet" type="text/css" href="css/style.css" />'; }
 <!-- exif library plugin by Jacob Seidelin (https://github.com/jseidelin) -->
 <script src="scripts/exif.js"></script>
 
-<!-- leaflet -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+<?php
+if (!$config['use_mapboxgljs']){
+	echo "<!-- leaflet -->\n";
+	echo "<script src='//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js'></script>\n";
+	echo "<link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css' />\n";
+}
+?>
 
 <!-- mapbox -->
-<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
-<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
+<?php 
+if (!$config['use_mapboxgljs']){
+	echo "<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>\n";
+	echo "<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />\n";
+}
+if ($config['use_mapboxgljs']){
+	echo "<script src='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>\n";
+	echo "<link href='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css' rel='stylesheet' />\n";
+}
+?>
 
 <!-- google fonts -->
 <link href='//fonts.googleapis.com/css?family=Oswald:400,700|Francois+One' rel='stylesheet' type='text/css'>
@@ -51,15 +63,19 @@ if ($config['disqus']){
 <!-- license plate font by Dave Hansen -->
 <link href='css/license-plate-font.css' rel='stylesheet' type='text/css'>
 
-<!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->
-<script src="scripts/leaflet-providers.js"></script>
-
-<!-- Google Javascript API with current key -->
-<script id="google_api_link" src="<?php echo '//maps.google.com/maps/api/js?key=' . $config['google_api_key']; ?>"></script>
-
-<!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->
-<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Google.js"></script>
-<script id="leaflet_plugins" src="../scripts/leaflet-plugins-master/layer/tile/Bing.js"></script>
+<?php 
+if (!$config['use_mapboxgljs']){
+	echo "<!-- leaflet-providers by leaflet-extras (https://github.com/leaflet-extras) -->\n";
+	echo "<script src='scripts/leaflet-providers.js'></script>\n";
+	echo "\n";
+	echo "<!-- Google Javascript API with current key -->\n";
+	echo "<script id='google_api_link' src='//maps.google.com/maps/api/js?key=" . $config['google_api_key'] . "'></script>\n";
+	echo "\n";
+	echo "<!-- leaflet-plugins by Pavel Shramov (https://github.com/shramov/leaflet-plugins) -->\n";
+	echo "<script id='leaflet_plugins' src='../scripts/leaflet-plugins-master/layer/tile/Google.js'></script>\n";
+	echo "<script id='leaflet_plugins' src='../scripts/leaflet-plugins-master/layer/tile/Bing.js'></script>\n";
+}
+?>
 
 <script type="text/javascript">
 //load in config
@@ -78,7 +94,6 @@ config = {
 	south_bounds: <?php echo $config['south_bounds']; ?>,
 	east_bounds: <?php echo $config['east_bounds']; ?>,
 	west_bounds: <?php echo $config['west_bounds']; ?>,
-	//center: <?php if (isset($_GET['center'])){ echo 'true'; } else { echo 'false'; } ?>,
 	center_lat: <?php if (isset($_GET['center'])){ echo explode(',',$_GET['center'])[0]; } 
 					  else if($mobile == true){ echo $config['mobile_center_lat']; } 
 					  else { echo $config['center_lat']; } ?>,
@@ -88,6 +103,11 @@ config = {
 	use_providers_plugin: <?php echo $config['use_providers_plugin']; ?>,
 	leaflet_provider: '<?php echo $config['leaflet_provider']; ?>',
 	map_url: '<?php echo $config['map_url']; ?>',
+	mobile_map_url: '<?php echo $config['mobile_map_url']; ?>',
+	use_mapboxgljs: <?php echo $config['use_mapboxgljs']; ?>,
+	mapbox_style_url: '<?php echo $config['mapbox_style_url']; ?>',
+	mapbox_mobile_style_url: '<?php echo $config['mapbox_mobile_style_url']; ?>',
+	mapbox_key: '<?php echo $config['mapbox_key']; ?>',
 	use_google: <?php echo $config['use_google']; ?>,
 	google_api_key: '<?php echo $config['google_api_key']; ?>',
 	google_extra_layer: '<?php echo $config['google_extra_layer']; ?>',
@@ -110,15 +130,18 @@ windows = {
 	upload_view_loaded: false
 }
 //entry map icon
-xIcon = L.icon({
-	iconUrl: 'css/x.svg',
-	shadowUrl: 'css/x_shadow.svg',
-	iconSize:     [20, 20], // size of the icon
-	shadowSize:   [20, 20], // size of the shadow
-	iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
-	shadowAnchor: [7, 7],  	// the same for the shadow
-	popupAnchor:  [10, 10] 	// point from which the popup should open relative to the iconAnchor
-});
+if (!config.use_mapboxgljs){
+	xIcon = L.icon({
+		iconUrl: 'css/x.svg',
+		shadowUrl: 'css/x_shadow.svg',
+		iconSize:     [20, 20], // size of the icon
+		shadowSize:   [20, 20], // size of the shadow
+		iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
+		shadowAnchor: [7, 7],  	// the same for the shadow
+		popupAnchor:  [10, 10] 	// point from which the popup should open relative to the iconAnchor
+	});
+	marker = new L.marker({icon: xIcon}); 	//upload map marker
+}
 //tracking of upload form auto-complete process to guide automatic scrolling through form
 auto_complete = {
 	plate: false,
@@ -126,8 +149,7 @@ auto_complete = {
 	streets: false
 }
 current_entries = {}; 					//collection of currently loaded database entries
-marker = new L.marker({icon: xIcon}); 	//body map marker layer
-var markers, body_map, submit_map;
+var markers, body_map, submit_map;		//markers layer for leaflet, empty vars for body and upload map
 
 $(document).ready(function() {
 	//set up body and submit maps ASAP, deal with navigating all the map config possibilities
@@ -142,12 +164,11 @@ $(document).ready(function() {
 	$("#single_view").hide();
 	$('#entry_template').hide();
 	
+	
 	if (config.id > 0){ setTimeout(function(){ zoom_to_entry(config.id); }, 250); }
 	else if (config.plate) { setTimeout(function(){ plate_search(config.plate); }, 250); }
-	//else if (config.center) { setTimeout(function(){  body_map.panTo([config.center_lat, config.center_long]); }, 250); }
-	//else if (config.zoom > 0) { setTimeout(function(){  body_map.zoomTo(zoom); }, 250); }
 	else { load_entries(); }
-
+	
 	//upload form loading actions
 	$("#submit_link").click( function() { 
 		open_window('submit_view');
@@ -172,6 +193,7 @@ $(document).ready(function() {
 
 //There are two totally gnarly open_window functions depending on desktop or mobile,
 //Still needs to be integrated into one and made not so... overcomplicated.
+//I apologize to any weary eyes for the ghasty state of the three functions below :D
 function open_window(window){
 	if (config.mobile){ open_window_mobile(window); }
 	else { open_window_desktop(window); }
@@ -185,7 +207,6 @@ function open_window(window){
 }
 
 function open_window_desktop(window) {
-	
 	if (windows.results_view == true && window != 'results_view'){
 		$("#results_view").animate({opacity: 'toggle', right: '-565px'});
 	}
@@ -434,10 +455,11 @@ function load_entries(plate) {
 					var center = [Math.round(body_map.getCenter().lat * 1000) / 1000,
 								Math.round(body_map.getCenter().lng * 1000) / 1000];
 					var max = (config.max_default == config.max_view) ? '' : '&max=' + config.max_view;
+					var zoom = (config.use_mapboxgljs) ? '&zoom=' + Math.round(body_map.getZoom() * 1000) / 1000 : '&zoom=' + body_map.getZoom();
 					history.pushState(
 						{box: box_array},
 						config.site_name,
-						'/index.php?center=' + center + '&zoom=' + body_map.getZoom() + max
+						'/index.php?center=' + center + zoom + max
 					);
 				}
 				else if (plate){
@@ -541,7 +563,6 @@ function load_entries(plate) {
 						else { date_string += date.getMinutes(); }
 						if (date.getHours() < 12){ date_string += 'AM'; }
 						else { date_string += 'PM' }
-						
 						new_entry.find('#date_text').html('DATE: ' + date_string);
 						var streets = entry.street1;
 						if (entry.street2){ streets += ' & ' + entry.street2 }
@@ -550,23 +571,33 @@ function load_entries(plate) {
 						new_entry.find('#gps_text').html('GPS: ' + entry.gps_latitude + ' / ' + entry.gps_longitude);
 						if (entry.description){ new_entry.find('#description_text').html(entry.description); }
 						else { new_entry.find('#description_text_label').remove(); }
-						
 						new_entry.find('.disqus-comment-count').attr('data-disqus-url', 'http://carsinbikelanes.nyc/index.php?single_view=' + entry.id);
-						
-						//load new map marker
-						var entry_marker = new L.marker(
-							[entry.gps_latitude, entry.gps_longitude],
-							{
-								icon: xIcon,
-								title: '#' + entry.id + ': ' + entry.plate,
-								riseOnHover: true,
-								cibl_id: entry.id
-							}
-						).on('click', function(e) { zoom_to_entry(this['options']['cibl_id']); });
-						markers.addLayer(entry_marker);
-						
+						//fade in completed column entry
 						new_entry.hide();
 						new_entry.fadeIn();
+						
+						//load new map marker
+						if (!config.use_mapboxgljs){ //for leaflet
+							var entry_marker = new L.marker(
+								[entry.gps_latitude, entry.gps_longitude],
+								{
+									icon: xIcon,
+									title: '#' + entry.id + ': ' + entry.plate,
+									riseOnHover: true,
+									cibl_id: entry.id
+								}
+							).on('click', function(e) { zoom_to_entry(this['options']['cibl_id']); });
+							markers.addLayer(entry_marker);
+						}
+						else { //for mapboxgljs
+							var entry_marker = document.createElement('div');
+							entry_marker.className = 'map_marker';
+							entry_marker.id = entry.id;
+							$(entry_marker).on('click', function() { zoom_to_entry($(this).attr('id')); });
+							new mapboxgl.Marker(entry_marker, {offset: [-12, -12]})
+								.setLngLat({lng: entry.gps_longitude, lat: entry.gps_latitude})
+								.addTo(body_map);
+						}
 
 						//and new entry to global array of current entries
 						current_entries[entry.id] = { 
@@ -594,7 +625,10 @@ function load_entries(plate) {
 				for (var i in current_entries) {
 					if (current_entries.hasOwnProperty(i)) {
 						if ($.inArray(current_entries[i]['id'], response_ids) < 0){
-							markers.removeLayer(current_entries[i]['marker']);
+							//for leaflet
+							if (!config.use_mapboxgljs){ markers.removeLayer(current_entries[i]['marker']); }
+							//for mapboxgljs
+							else { $(current_entries[i]['marker']).remove(); }
 							$(current_entries[i]['column_entry']).fadeOut(300, function(){ $(this).remove(); });
 							delete current_entries[i];
 						}
@@ -644,17 +678,37 @@ function zoom_to_entry(id) {
 					'/index.php?id=' + entry.id
 				);
 				open_window('none');
-				if (config.mobile){
-					body_map.panTo([entry.gps_latitude-.002,entry.gps_longitude]).setZoom(18);
+				
+				if (!config.use_mapboxgljs){ //for leaflet
+					if (config.mobile){ body_map.panTo([entry.gps_latitude-.002,entry.gps_longitude]).setZoom(18); }
+					else { body_map.setView([entry.gps_latitude,entry.gps_longitude-.005], 17); }
+					soloMarker = L.marker([entry.gps_latitude,entry.gps_longitude],
+						{icon: xIcon, title: '#' + entry.id + ': ' + entry.plate})
+						.addTo(body_map);
+					markers.clearLayers();
+					markers.addLayer(soloMarker);
 				}
-				else {
-					body_map.setView([entry.gps_latitude,entry.gps_longitude-.005], 17);
+				else { //for mapboxgljs
+					if (config.mobile){ 
+						body_map.easeTo({
+							center: [entry.gps_longitude, entry.gps_latitude-.001], 
+							zoom: 18
+						});
+					}
+					else { 
+						body_map.easeTo({
+							center: [entry.gps_longitude-.0025, entry.gps_latitude], 
+							zoom: 17
+						});
+					}
+					$('.map_marker').remove();
+					var entry_marker = document.createElement('div');
+					entry_marker.className = 'map_marker';
+					entry_marker.id = entry.id;
+					new mapboxgl.Marker(entry_marker, {offset: [-12, -12]})
+						.setLngLat({lng: entry.gps_longitude, lat: entry.gps_latitude})
+						.addTo(body_map);
 				}
-				soloMarker = L.marker([entry.gps_latitude,entry.gps_longitude],
-					{icon: xIcon, title: '#' + entry.id + ': ' + entry.plate})
-					.addTo(body_map);
-				markers.clearLayers();
-				markers.addLayer(soloMarker);
 				
 				//flush out current_entries
 				for (var i in current_entries) {
@@ -780,7 +834,7 @@ function unixtime_to_pretty(unixtime){
 }
 
 function fill_plate_and_state(){
-	var openalpr = '<?php echo $config['openalpr_api_key']; ?>';
+	var openalpr = config.openalpr_api_key;
 	if (!openalpr) { return; }
 	$('#plate').css('background', 'url(\'css/loader.svg\') 50% no-repeat');
 	$('#plate').css('background-size', '50%');
@@ -851,9 +905,24 @@ function fill_date_and_gps(e) {
 				document.getElementById("longitude").value = gps_lng;
 				//If OpenALPR active, auto-enter streets here by reverse geocoding gps coords
 				fill_streets();
-				submit_map.removeLayer(marker);
-				marker = new L.marker([gps_lat, gps_lng], {icon: xIcon}).addTo(submit_map);
-				submit_map.panTo([gps_lat, gps_lng]);
+				
+				if (config.use_mapboxgljs){
+					$('#upload_marker').remove();
+					$('#upload_marker').remove();
+					marker = document.createElement('div');
+					marker.className = 'map_marker';
+					marker.id = 'upload_marker';
+					new mapboxgl.Marker(marker, {offset: [-12, -12]})
+					.setLngLat({lng: gps_lng, lat: gps_lat})
+					.addTo(submit_map);
+					submit_map.easeTo({ center: [gps_lng, gps_lat]});
+				}
+				else {
+					submit_map.removeLayer(marker);
+					marker = new L.marker([gps_lat, gps_lng], {icon: xIcon}).addTo(submit_map);
+					submit_map.panTo([gps_lat, gps_lng]);
+				}	
+				
 				var gps_text = "Latitude: " + gps_lat.toFixed(6) + " Longitude: " + gps_lng.toFixed(6);
 				document.getElementById("gps_coords").innerHTML = gps_text;
 				document.getElementById("map_prompt").innerHTML = "Location detected:";
@@ -948,7 +1017,8 @@ function submit_form() {
 			//$("#results_view").animate({opacity: 'toggle', right: '0px'});
 			open_window('results_view');
 			$("#upload_form")[0].reset();
-			submit_map.removeLayer(marker);
+			if (config.use_mapboxgljs){ $('#upload_marker').remove(); }
+			else { submit_map.removeLayer(marker); }
 			var gps_text = "Latitude: ... Longitude: ...";
 			$('#gps_coords').html(gps_text);
 		},
@@ -981,16 +1051,31 @@ function submit_form() {
 }
 
 function set_gps_marker(e) {
-    submit_map.removeLayer(marker);
-    marker = new L.marker(e.latlng, {icon: xIcon}).addTo(submit_map);
-    var gps_text = "Latitude: " + e.latlng.lat.toFixed(6) + " Longitude: " + e.latlng.lng.toFixed(6);
+	if (config.use_mapboxgljs){
+		$('#upload_marker').remove();
+		marker = document.createElement('div');
+		marker.className = 'map_marker';
+		marker.id = 'upload_marker';
+		new mapboxgl.Marker(marker, {offset: [-12, -12]})
+		.setLngLat(e.lngLat)
+		.addTo(submit_map);
+		var gps_text = "Latitude: " + e.lngLat.lat.toFixed(6) + " Longitude: " + e.lngLat.lng.toFixed(6);
+		document.getElementById("latitude").value = e.lngLat.lat;
+		document.getElementById("longitude").value = e.lngLat.lng;
+	}
+	else {
+		submit_map.removeLayer(marker);
+		marker = new L.marker(e.latlng, {icon: xIcon}).addTo(submit_map);
+		var gps_text = "Latitude: " + e.latlng.lat.toFixed(6) + " Longitude: " + e.latlng.lng.toFixed(6);
+		document.getElementById("latitude").value = e.latlng.lat;
+		document.getElementById("longitude").value = e.latlng.lng;
+	}
+    
     document.getElementById("gps_coords").innerHTML = gps_text;
-    document.getElementById("latitude").value = e.latlng.lat;
-    document.getElementById("longitude").value = e.latlng.lng;
 }
 
 function initialize_body_map(){
-	body_map = L.map('body_map');
+	if (!config.use_mapboxgljs){ body_map = L.map('body_map'); }
 	
 	if (config.use_providers_plugin) {
 		try { var tiles = L.tileLayer.provider(config.leaflet_provider, {maxZoom: 20}); }
@@ -1015,29 +1100,43 @@ function initialize_body_map(){
 		catch (err) { console.log(err); }
 	}
 	
+	else if (config.use_mapboxgljs){
+		mapboxgl.accessToken = config.mapbox_key;
+		var style_url = (config.mobile && config.mapbox_mobile_style_url) ? config.mapbox_mobile_style_url :  config.mapbox_style_url;
+		body_map = new mapboxgl.Map({
+			container: 'body_map',
+			style: style_url,
+			center: [config.center_long, config.center_lat],
+			zoom: config.zoom
+		});
+		body_map.on('moveend', function() {
+			if (windows.auto_view_change){ windows.auto_view_change = false; }
+			else { load_entries(); } 
+		});
+		body_map.on('click', function() {
+			load_entries(); 
+		});
+		return;
+	}
+	
 	else {
 		try { var tiles = L.tileLayer(config.map_url, {maxZoom: 20}); }
 		catch (err) { console.log(err); }
 	}
 	
+	//layers and initialization for leaflet
 	body_map.addLayer(tiles);
 	body_map.setView([config.center_lat, config.center_long], config.zoom);
 	markers = L.layerGroup().addTo(body_map);
 	
-	//bind leaflet map events to body_map
+	//bind leaflet map events to body_map-
+	//note: these are idential to Mapbox GL JS events in 'else if (config.use_mapboxgljs) above',
+	//but keeping seperate for simplicity and in case APIs diverge
 	body_map.on('moveend', function(e) {
-		//config.zoom = body_map.getZoom();
-		//config.center = body.getCenter();
-		//config.center_lat = body.getCenter().lat;
-		//config.center_long = body.getCenter().lng;
 		if (windows.auto_view_change){ windows.auto_view_change = false; }
 		else { load_entries(); } 
 	});
 	body_map.on('click', function(e) {
-		//config.zoom = body_map.getZoom();
-		//config.center = body.getCenter();
-		//config.center_lat = body.getCenter().lat;
-		//config.center_long = body.getCenter().lng;
 		load_entries(); 
 	});
 }
@@ -1046,7 +1145,7 @@ function initialize_upload_view(){
 	if (windows.upload_view_loaded == false) {
 		
 		//Upload map initialization
-		submit_map = L.map('submit_map');
+		if (!config.use_mapboxgljs){ submit_map = L.map('submit_map'); }
 		if (config.use_providers_plugin) {
 			try { var tiles2 = L.tileLayer.provider(config.leaflet_provider, {maxZoom: 20}); }
 			catch (err) { console.log(err); }
@@ -1067,12 +1166,27 @@ function initialize_upload_view(){
 			try { var tiles2 = new L.BingLayer(bingApiKey, {type: imagerySet}); }
 			catch (err) { console.log(err); }
 		}
+		else if (config.use_mapboxgljs){
+			mapboxgl.accessToken = config.mapbox_key;
+			var style_url = (config.mobile && config.mapbox_mobile_style_url) ? config.mapbox_mobile_style_url :  config.mapbox_style_url;
+			if(config.mobile && config.mapbox_mobile_style_url){
+				submit_map = new mapboxgl.Map({
+					container: 'submit_map',
+					style: style_url,
+					center: [config.center_long, config.center_lat],
+					zoom: config.zoom
+				});
+			}
+		}
 		else {
 			try { var tiles2 = L.tileLayer(config.map_url, {maxZoom: 20}); }
 			catch (err) { console.log(err); }
 		}
-		submit_map.addLayer(tiles2);
-		submit_map.setView([config.center_lat, config.center_long], config.zoom);
+		
+		if (!config.use_mapboxgljs){
+			submit_map.addLayer(tiles2);
+			submit_map.setView([config.center_lat, config.center_long], config.zoom);
+		}
 		
 		//event bindings
 		initialize_datetimepicker();
@@ -1086,10 +1200,10 @@ function initialize_upload_view(){
 			fill_plate_and_state();
 			fill_date_and_gps(e);
 		});
-		submit_map.on('click', set_gps_marker);
+		submit_map.on('click', function(e) { set_gps_marker(e); });
 		$('#upload_form').submit( function(event) {
 			event.preventDefault();
-			submit_form(); 
+			submit_form();
 		});
 		
 		windows.upload_view_loaded = true;

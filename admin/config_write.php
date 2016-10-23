@@ -10,6 +10,11 @@ function config_write($new_config){
 		"use_providers_plugin" => 1,
 		"leaflet_provider" => "OpenStreetMap",
 		"map_url" => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		"mobile_map_url" => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		"use_mapboxgljs" => 0,
+		"mapbox_style_url" => '',
+		"mapbox_mobile_style_url" => '',
+		"mapbox_key" => '',
 		"use_google" => 0,
 		"google_api_key" => "",
 		"google_extra_layer" => "NONE",
@@ -60,6 +65,11 @@ function config_write($new_config){
 	"'use_providers_plugin' => " . $new_config['use_providers_plugin'] . ",\n" .
 	"'leaflet_provider' => '" . $new_config['leaflet_provider'] . "',\n" .
 	"'map_url' => '" . $new_config['map_url'] . "',\n" .
+	"'mobile_map_url' => '" . $new_config['mobile_map_url'] . "',\n" .
+	"'use_mapboxgljs' => " . $new_config['use_mapboxgljs'] . ",\n" .
+	"'mapbox_style_url' => '" . $new_config['mapbox_style_url'] . "',\n" .
+	"'mapbox_mobile_style_url' => '" . $new_config['mapbox_mobile_style_url'] . "',\n" .
+	"'mapbox_key' => '" . $new_config['mapbox_key'] . "',\n" .
 	"'use_google' => " . $new_config['use_google'] . ",\n" .
 	"'google_api_key' => '" . $new_config['google_api_key'] . "',\n" .
 	"'google_extra_layer' => '" . $new_config['google_extra_layer'] . "',\n" .

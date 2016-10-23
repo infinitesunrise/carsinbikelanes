@@ -24,6 +24,12 @@ if (isset($_SESSION['admin'])){
 <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 
+<!-- mapbox -->
+<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.css' rel='stylesheet' />
+<script src='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css' rel='stylesheet' />
+
 <!-- jquery datetimepicker plugin by Valeriy (https://github.com/xdan) -->
 <script src="../scripts/jquery.datetimepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="../css/jquery.datetimepicker.css"/ >
@@ -91,43 +97,6 @@ if (isset($_POST['delete'])){
 	unlink($file_thumb);
 	unlink($file_image);
 }
-
-/*
-//IMAGE RESIZE FUNCTION
-function resize_image($file, $w, $h, $crop=FALSE) {
-    list($width, $height) = getimagesize($file);
-    $r = $width / $height;
-    if ($crop) {
-        if ($width > $height) {
-            $width = ceil($width-($width*abs($r-$w/$h)));
-        } else {
-            $height = ceil($height-($height*abs($r-$w/$h)));
-        }
-        $newwidth = $w;
-        $newheight = $h;
-    } else {
-        if ($w/$h > $r) {
-            $newwidth = $h*$r;
-            $newheight = $h;
-        } else {
-            $newheight = $w/$r;
-            $newwidth = $w;
-        }
-    }
-    $info = getimagesize($file);
-    if ($info['mime'] == 'image/jpeg')
-		$src = imagecreatefromjpeg($file);
-	elseif ($info['mime'] == 'image/gif')
-		$src = imagecreatefromgif($file);
-	elseif ($info['mime'] == 'image/png')
-		$src = imagecreatefrompng($file);
-
-    $dst = imagecreatetruecolor($newwidth, $newheight);
-    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-
-    return $dst;
-}
-*/
 
 $per_page = $config['max_view'];
 if (isset($_GET['per_page'])){ $per_page = $_GET['per_page']; }
@@ -438,7 +407,7 @@ function edit_gps(id){
 		$("#gps_map_container_" + id).show();
 		initializeMaps(id);
 		var gpsListener = function(e){
-			if(e.target.className != 'leaflet-tile leaflet-tile-loaded'){
+			if(e.target.className != 'leaflet-tile leaflet-tile-loaded' && e.target.className != 'mapboxgl-canvas'){
 				document.removeEventListener('click', gpsListener, true);
 				gps_map.remove();
 				$("#gps_map_container_" + id).hide();
@@ -596,6 +565,37 @@ function initializeMaps(id) {
 		bingApiKey = '<?php echo $config['bing_api_key']; ?>';
 		try { var tiles = new L.BingLayer(bingApiKey, {type: imagerySet}); }
 		catch (err) { console.log(err); }
+	}
+	else if (<?php echo $config['use_mapboxgljs']; ?>){
+		mapboxgl.accessToken = '<?php echo $config['mapbox_key']; ?>';
+		gps_map = new mapboxgl.Map({
+			container: divName,
+			style: '<?php echo $config['mapbox_style_url']; ?>',
+			center: [currentEntry.lon, currentEntry.lat],
+			zoom: 12
+		});
+		marker = document.createElement('div');
+		marker.className = 'map_marker';
+		marker.id = 'gps_marker'
+		new mapboxgl.Marker(marker, {offset: [-12, -12]})
+		.setLngLat([currentEntry.lon, currentEntry.lat])
+		.addTo(gps_map);
+		gps_map.on('click', function(e) {
+			$('#gps_marker').remove();
+			marker = document.createElement('div');
+			marker.className = 'map_marker';
+			marker.id = 'gps_marker'
+			new mapboxgl.Marker(marker, {offset: [-12, -12]})
+			.setLngLat(e.lngLat)
+			.addTo(gps_map);
+			var gps_text = "<span>" + e.lngLat.lat.toFixed(6) + " / " + e.lngLat.lng.toFixed(6) + "</span>";
+			$("#gps" + id).html(gps_text);
+			currentEntry.lat = e.lngLat.lat.toFixed(6)
+			currentEntry.lon = e.lngLat.lng.toFixed(6)
+			$("#lat_" + id).val(e.lngLat.lat.toFixed(6));
+			$("#lon_" + id).val(e.lngLat.lng.toFixed(6));
+		});
+		return;
 	}
 	else {
 		gps_map = L.map(divName);
