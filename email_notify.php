@@ -4,7 +4,8 @@ if ($email_op == 'new_submission'){
 	$message = "Submission #" . $submission_details['id'] . " is awaiting moderation." .
 				"\nPlate: " . $submission_details['plate'] .
 				"\nState: " . $submission_details['state'] .
-				"\nTime: " . $submission_details['date'];
+				"\nDate Occurred: " . $submission_details['date_occurrence'] .
+				"\nDate Added: " . $submission_details['date_added'];
 				if($submission_details['street1'] != ''){ $message .= "\nStreets: " . $submission_details['street1'] . " & " . $submission_details['street2']; }
 				$message .= "\nCoordinates: " . $submission_details['lat'] . ", " . $submission_details['lon'] .
 				"\nDescription: " . $submission_details['description'] .

@@ -95,6 +95,21 @@ function new_upload($image,
 		return array('error' => 'Server error, please alert the site administrator.');
 	}
 	
+	$submission_details = array(
+		'id' => $increment,
+		'plate' => $plate,
+		'state' => $state,
+		'date_occurrence' => $date_occurrence,
+		'date_added' => $date_added,
+		'lat' => $gps_latitude,
+		'lon' => $gps_longitude,
+		'street1' => $street1,
+		'street2' => $street2,
+		'description' => $description
+	);
+	$email_op = 'new_submission';
+	include 'email_notify.php';
+	
 	return array('success' => 
 		'Thank you for contributing! All submissions require moderator approval before being added to the map. Expect yours to show up within 24 hours.');
 }
