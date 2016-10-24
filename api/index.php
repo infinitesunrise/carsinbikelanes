@@ -227,8 +227,8 @@ function search($connection){
 		$entry->thumb_url = $_SERVER['HTTP_HOST'] . '/thumbs/' . $row[1];
 		$entry->plate = $row[2];
 		$entry->state = $row[3];
-		$entry->date_occurrence = $row[4];
-		$entry->date_added = $row[5];
+		$entry->date_occurrence = date('U',strtotime($row[4]));
+		$entry->date_added = date('U',strtotime($row[5]));
 		$entry->gps_latitude = $row[6];
 		$entry->gps_longitude = $row[7];
 		$entry->street1 = $row[8];
