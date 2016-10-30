@@ -12,6 +12,10 @@ function new_upload($image,
 					$description)
 {
 	require 'admin/config_pointer.php';
+	date_default_timezone_set('UTC');
+	
+	error_log('submission.php - $date_occurrence inbound: ' . $date_occurrence);
+	error_log('submission.php - $date_added inbound: ' . $date_added);
 	
 	if (empty($image))
 	{ return array('error' => 'Submissions without an image attached are currently not accepted.'); }
@@ -34,13 +38,24 @@ function new_upload($image,
 	if (!is_string($state))
 	{ return array('error' => 'State field must be a string'); }
 
-	//Ensure unix timestamp	
-	if (!is_timestamp($date_occurrence))
-	{ $date_occurrence = strtotime($date_occurrence); }
-	if (!$date_occurrence)
-	{ return array('error' => 'Unacceptable date value.'); }
-	$date_occurrence = date('Y-m-d H:i:s', $date_occurrence);
-	$date_added = date('Y-m-d H:i:s', $date_added);
+	$occurrence_check = new DateTime($date_occurrence);
+	if (!$occurrence_check){
+		return array('error' => 'Did not understand the date of occurrence value ' . $date_occurrence . '. Dates must be valid ISO8601 strings.');
+	}
+	$added_check = new DateTime($date_added);
+	if (!$added_check){
+		return array('error' => 'Did not understand the date added value ' . $date_added . '. Dates must be valid ISO8601 strings.');
+	}
+	
+	//if (!is_timestamp($date_occurrence))
+	//{ $date_occurrence = strtotime($date_occurrence); }
+	//if (!$date_occurrence)
+	//{ return array('error' => 'Unacceptable date value.'); }
+	//$date_occurrence = date('Y-m-d H:i:s', $occurrence_check);
+	//$date_added = date('Y-m-d H:i:s', $added_check);
+	
+	//error_log('submission.php - $date_occurrence conversion: ' . $date_occurrence);
+	//error_log('submission.php - $date_added conversion: ' . $date_added);
 	
 	//error_log($date_occurrence);
 

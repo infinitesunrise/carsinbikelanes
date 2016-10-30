@@ -35,6 +35,7 @@ switch ($path){
 function search($connection){
 	
 	$box = $around = $id = $plate = $before = $after = $streets = $description = $max = '';
+	date_default_timezone_set('UTC');
 	
 	//Box search
 	if(isset($_GET['box'])){		
@@ -137,30 +138,41 @@ function search($connection){
 	
 	//Before-time search
 	if(isset($_GET['before'])){
-		$before_int = $_GET['before'];
 		
-		//Check if numeric and is int
-		if( !( is_numeric($before_int) && (int)$before_int == $before_int ) ){
-			return_error('Before value must be a unix timestamp in integer format');
+		$before_string = new DateTime($_GET['before']);
+		if (!$before_string){
+			return_error('Did not understand the before date value ' . $_GET['before'] . '. Before date must be a valid ISO8601 string.');
 		}
 		
-		$date_before = new DateTime("@$before_int");
+		//$before_int = $_GET['before'];
 		
-		$before = 'AND date_occurrence<"' . $date_before->format('Y-m-d H:i:s') . '" ';
+		//Check if numeric and is int
+		//if( !( is_numeric($before_int) && (int)$before_int == $before_int ) ){
+		//	return_error('Before value must be a unix timestamp in integer format');
+		//}
+		
+		//$date_before = new DateTime("@$before_int");
+		
+		$before = 'AND date_occurrence<"' . $before_string->format('Y-m-d H:i:s') . '" ';
 	}
 	
 	//After-time search
 	if(isset($_GET['after'])){
-		$after_int = $_GET['after'];
+		
+		$after_string = new DateTime($_GET['after']);
+		if (!$after_string){
+			return_error('Did not understand the after date value ' . $_GET['after'] . '. After date must be a valid ISO8601 string.');
+		}
+		//$after_int = $_GET['after'];
 		
 		//Check if numeric and is int
-		if( !( is_numeric($after_int) && (int)$after_int == $after_int ) ){
-			return_error('After value must be a unix timestamp in integer format');
-		}
+		//if( !( is_numeric($after_int) && (int)$after_int == $after_int ) ){
+		//	return_error('After value must be a unix timestamp in integer format');
+		//}
 		
-		$date_after = new DateTime("@$after_int");
+		//$date_after = new DateTime("@$after_int");
 		
-		$after = 'AND date_occurrence>"' . $date_after->format('Y-m-d H:i:s') . '" ';
+		$after = 'AND date_occurrence>"' . $date_string->format('Y-m-d H:i:s') . '" ';
 	}
 	
 	//Streets search
@@ -227,8 +239,8 @@ function search($connection){
 		$entry->thumb_url = $_SERVER['HTTP_HOST'] . '/thumbs/' . $row[1];
 		$entry->plate = $row[2];
 		$entry->state = $row[3];
-		$entry->date_occurrence = date('U',strtotime($row[4]));
-		$entry->date_added = date('U',strtotime($row[5]));
+		$entry->date_occurrence = $row[4]; //gmdate('U',strtotime($row[4]) . ' GMT');
+		$entry->date_added = $row[5]; //gmdate('U',strtotime($row[5] . ' GMT'));
 		$entry->gps_latitude = $row[6];
 		$entry->gps_longitude = $row[7];
 		$entry->street1 = $row[8];
@@ -241,8 +253,8 @@ function search($connection){
 	if($box) { $search->box = $box_array; }
 	if($around) { $search->around = $around_array; }
 	if($plate) { $search->plate = $plate_string; }
-	if($before) { $search->before = $before_int; }
-	if($after) { $search->after = $after_int; }
+	if($before) { $search->before = $before_string; }
+	if($after) { $search->after = $after_string; }
 	if($streets) { $search->streets = $streets_array; }
 	if($description) { $search->description = $description_string; }
 	if($max) { $search->max = $max_int; }
@@ -259,6 +271,7 @@ function search($connection){
 }
 	
 function upload(){
+	date_default_timezone_set('UTC');
 	
 	$image = (isset($_FILES['image']) ? $_FILES['image'] : '');
 		$image_name = (isset($_FILES['image']) ? $image['name'] : '');
@@ -268,7 +281,7 @@ function upload(){
 	$plate = (isset($_POST['plate']) ? $_POST['plate'] : '');
 	$state = (isset($_POST['state']) ? $_POST['state'] : '');
 	$date_occurrence = (isset($_POST['date']) ? $_POST['date'] : '');
-	$date_added = date('U');
+	$date_added = date('c');
 	$gps_latitude = (isset($_POST['gps_latitude']) ? $_POST['gps_latitude'] : '');
 	$gps_longitude = (isset($_POST['gps_longitude']) ? $_POST['gps_longitude'] : '');
 	$street1 = (isset($_POST['street1']) ? $_POST['street1'] : '');

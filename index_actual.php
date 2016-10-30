@@ -56,7 +56,7 @@ if ($config['use_mapboxgljs']){
 
 <?php
 if ($config['disqus']){
-	echo '<script id="dsq-count-scr" src="//' . $config['disqus'] . '.disqus.com/count.js" async></script>';
+	echo "<script id='dsq-count-scr' src='//" . $config['disqus'] . ".disqus.com/count.js' async></script>\n";
 }
 ?>
 
@@ -179,6 +179,7 @@ $(document).ready(function() {
 	$("#about_link").click( function() {open_window('about_view')} );
 	$("#feedback").click( function(e) { showEmail(e) } );
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
+	
 	
 	//disqus comments initialization
 	if (config.disqus){
@@ -445,7 +446,8 @@ function load_entries(plate) {
 					//	[config.south_bounds, config.west_bounds-0.05],
 					//	[config.north_bounds, config.east_bounds-0.05]
 					//]);
-					body_map.setView([config.center_lat, config.center_long], config.zoom);
+					//body_map.setView([config.center_lat, config.center_long], config.zoom);
+					body_map.jumpTo([config.center_long,config.center_lat]).setZoom(config.zoom);
 					windows.auto_view_change = true;
 				}
 				
@@ -555,7 +557,7 @@ function load_entries(plate) {
 								new_entry.find('#plate_text').html(entry.plate).attr('class', 'plate ' + entry.state);
 								break;
 						}
-						new_entry.find('#date_text').html('DATE: ' + unixtime_to_pretty(entry.date_occurrence));
+						new_entry.find('#date_text').html('DATE: ' + isotime_to_pretty(entry.date_occurrence));
 						var streets = entry.street1;
 						if (entry.street2){ streets += ' & ' + entry.street2 }
 						streets = streets.toUpperCase();
@@ -563,7 +565,7 @@ function load_entries(plate) {
 						new_entry.find('#gps_text').html('GPS: ' + entry.gps_latitude + ' / ' + entry.gps_longitude);
 						if (entry.description){ new_entry.find('#description_text').html(entry.description); }
 						else { new_entry.find('#description_text_label').remove(); }
-						new_entry.find('.disqus-comment-count').attr('data-disqus-url', 'http://carsinbikelanes.nyc/index.php?single_view=' + entry.id);
+						new_entry.find('.disqus-comment-count').attr('data-disqus-url', 'http://carsinbikelanes.nyc/index.php?id=' + entry.id);
 						//fade in completed column entry
 						new_entry.hide();
 						new_entry.fadeIn();
@@ -730,7 +732,7 @@ function zoom_to_entry(id) {
 						$('#single_view').find('#plate_single').html(entry.plate).attr('class', 'plate ' + entry.state);
 						break;
 				}
-				$('#single_view').find('#date_single').html(unixtime_to_pretty(entry.date_occurrence));
+				$('#single_view').find('#date_single').html(isotime_to_pretty(entry.date_occurrence));
 				var streets = entry.street1;
 				if (entry.street2){ streets += ' & ' + entry.street2 }
 				streets = streets.toUpperCase();
@@ -801,38 +803,39 @@ function limit_text() {
 function initialize_datetimepicker() {
 	var date = new Date();
 	$('#datetimepicker').datetimepicker({ format:'n/j/Y g:iA' });
-	$('#datetimepicker').attr('unixtime', Date.parse(date)/1000 );
-	//$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').attr('unixtime')));
-	//$('#datetimepicker').on('change', function() {
-	//	console.log('changed. current value: ' + $('#datetimepicker').val());
-	//	$('#datetimepicker').attr('unixtime', $('#datetimepicker').val() );
-	//	console.log('unixtime attr: ' + $('#datetimepicker').attr('unixtime'));
-	//	$('#datetimepicker').val(unixtime_to_pretty($('#datetimepicker').val()));
-	//});
+	$('#datetimepicker').val(isotime_to_pretty(date.toString()));
+	$('#datetimepicker').attr('isotime', pretty_to_isotime($('#datetimepicker').val()) );
 	$('#datetimepicker').on('change', function(){
-		console.log('changed. current value: ' + $('#datetimepicker').val());
-		$('#datetimepicker').attr('unixtime', pretty_to_unixtime($('#datetimepicker').val()) );
-		console.log('unixtime attr: ' + $('#datetimepicker').attr('unixtime'));
+		$('#datetimepicker').attr('isotime', pretty_to_isotime($('#datetimepicker').val()) );
 	});
 }
 
-function unixtime_to_pretty(unixtime){
-	var date = new Date(unixtime * 1000);
-	var pretty  = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
+function isotime_to_pretty(isotime){
+	//console.log('incoming isotime to pretty-fy: ' + isotime);
+	var date = new Date(isotime);
+	var pretty = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
 	if (date.getHours() == 0){ pretty += '12:'; }
 	else if (date.getHours() <= 12){ pretty += date.getHours() + ':'; }
-	else { pretty += (date.getHours()-11) + ':'; }
+	else { pretty += (date.getHours()-12) + ':'; }
 	if (date.getMinutes() < 10){ pretty += '0' + date.getMinutes(); }
 	else { pretty += date.getMinutes(); }
 	if (date.getHours() < 12){ pretty += 'AM'; }
 	else { pretty += 'PM' }
+	//console.log('resulting pretty: ' + pretty);
 	return pretty;
 }
 
-function pretty_to_unixtime(pretty){
-	var isotime = pretty.split(" ")[0].replace(/\//g,'-') + ' ' + capturetime.split(" ")[1].replace('AM','').replace('PM','') + ':00';
-	var unixtime = Date.parse(isotime)/1000;
-	return unixtime;
+function pretty_to_isotime(pretty){
+	//console.log('incoming pretty to iso-fy: ' + pretty);
+	var old_date_order = pretty.split(' ')[0].split('/');
+	if ( pretty.split(" ")[1].includes('PM') ) { var extra_hours = 12; }
+	else { var extra_hours = 0; }
+	var new_date_order = old_date_order[2] + "-" + old_date_order[0] + "-" + old_date_order[1];
+	var old_time_order = pretty.split(" ")[1].split(':');
+	var new_time_order = (old_time_order[0]*1 + extra_hours*1) + ':' + old_time_order[1].replace('AM','').replace('PM','') + ':00';
+	var isotime = new_date_order + 'T' + new_time_order;
+	//console.log('resulting isotime: ' + isotime);
+	return isotime;
 }
 
 function fill_plate_and_state(){
@@ -935,12 +938,23 @@ function fill_date_and_gps(e) {
 			}
 		}
 		//Auto-enter time and date
-		if(EXIF.getTag(this, "DateTimeOriginal")){
+		/*if(EXIF.getTag(this, "DateTimeOriginal")){
 			var capturetime = EXIF.getTag(this, "DateTimeOriginal");
 			var isotime = capturetime.split(" ")[0].replace(/:/g,'-') + 'T' + capturetime.split(" ")[1];
+			console.log('initial isotime: ' + isotime);
 			var unixtime = Date.parse(isotime)/1000;
-			$('#datetimepicker').val(unixtime_to_pretty(unixtime));
+			console.log('initial unixtime: ' + isotime);
+			$('#datetimepicker').val(unixtime_to_pretty(unixtime, true));
 			$('#datetimepicker').attr('unixtime', unixtime );
+		}*/
+		if(EXIF.getTag(this, "DateTimeOriginal")){
+			var capturetime = EXIF.getTag(this, "DateTimeOriginal");
+			var isotime = capturetime.split(" ")[1].split(':')[0] + ':' + capturetime.split(" ")[1].split(':')[1] + ':00';
+			var isodate = capturetime.split(" ")[0].replace(/:/g,'-');
+			var iso_date_time = isodate + 'T' + isotime;
+			//console.log('initial isotime: ' + iso_date_time);
+			$('#datetimepicker').val(isotime_to_pretty(iso_date_time, true));
+			$('#datetimepicker').attr('isotime', iso_date_time );
 		}
 	});
 }
@@ -977,7 +991,7 @@ function submit_form() {
 	formData.append( 'image', $('#image_submission')[0].files[0] );
 	formData.append( 'plate', $('#plate').val() );
 	formData.append( 'state', $('#state').val() );
-	formData.append( 'date', $('#datetimepicker').attr('unixtime') );
+	formData.append( 'date', $('#datetimepicker').attr('isotime') );
 	formData.append( 'gps_latitude', $('#latitude').val() );
 	formData.append( 'gps_longitude', $('#longitude').val() );
 	formData.append( 'street1', $('#street1').val() );
@@ -996,7 +1010,7 @@ function submit_form() {
 		mimeType: 'multipart/form-data',
 		
 		success: function (a) {
-			console.log(a);
+			//console.log(a);
 			var response = a;
 			$('#results_header').html('Success!');
 			$('#results_message').html(response['result']['success']);
@@ -1008,8 +1022,8 @@ function submit_form() {
 										+ '&nbsp;&nbsp;&nbsp;&nbsp;size: ' + Math.round(response['upload']['image']['size'] / 1000) + ' kb<br/>'
 										+ 'plate: ' + response['upload']['plate'] + '<br/>'
 										+ 'state: ' + response['upload']['state'] + '<br/>'
-										+ 'date of occurrence: ' + unixtime_to_pretty(response['upload']['date_occurrence']) + '<br/>'
-										+ 'date of upload: ' + unixtime_to_pretty(response['upload']['date_added']) + '<br/>'
+										+ 'date of occurrence: ' + isotime_to_pretty(response['upload']['date_occurrence']) + '<br/>'
+										+ 'date of upload: ' + isotime_to_pretty(response['upload']['date_added']) + '<br/>'
 										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
 										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
 										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
@@ -1040,8 +1054,8 @@ function submit_form() {
 										+ '&nbsp;&nbsp;&nbsp;&nbsp;size: ' + Math.round(response['upload']['image']['size'] / 1000) + ' kb<br/>'
 										+ 'plate: ' + response['upload']['plate'] + '<br/>'
 										+ 'state: ' + response['upload']['state'] + '<br/>'
-										+ 'date of occurrence: ' + unixtime_to_pretty(response['upload']['date_occurrence']) + '<br/>'
-										+ 'date of upload: ' + unixtime_to_pretty(response['upload']['date_added']) + '<br/>'
+										+ 'date of occurrence: ' + isotime_to_pretty(response['upload']['date_occurrence']) + '<br/>'
+										+ 'date of upload: ' + isotime_to_pretty(response['upload']['date_added']) + '<br/>'
 										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
 										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
 										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
@@ -1621,7 +1635,6 @@ MOBILEUPLOADVIEW;
 </div>
 </div>
 
-<script id="dsq-count-scr" src="//<?php echo $config['disqus']; ?>.disqus.com/count.js" async></script>
 </body>
 
 </html>

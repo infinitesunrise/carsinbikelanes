@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "version": "0.1.0",
+        "version": "0.3.0",
         "title": "Cars In Bike Lanes API"
     },
     "basePath": "/api",
@@ -34,9 +34,9 @@
                     {
                         "name": "date",
                         "in": "formData",
-                        "description": "A Unix timestamp representing the time of the offense.",
+                        "description": "An ISO8601 time string representing the time and date of the offense.",
                         "required": true,
-                        "type": "integer"
+                        "type": "string"
                     },
                     {
                         "name": "gps_latitude",
@@ -93,7 +93,7 @@
         },
         "/search": {
             "get": {
-                "description": "A bounding-box search of the CIBL database. If neither the `box` or `around` search mode parameters are set, the entire project area will be queried. Returns an array of `Entry`.",
+                "description": "A search of the CIBL database. If neither the `box` or `around` search mode parameters are set, the entire project area will be queried. Fields can be queried together or alone, in any combination. Returns an array of `Entry`.",
                 "parameters": [
                     {
                         "name": "box",
@@ -116,6 +116,13 @@
                         }
                     },
                     {
+                        "name": "id",
+                        "in": "query",
+                        "description": "A search of CIBL for a specific ID number, a unique incrementing number that is used to index a single entry. Although it can be used with other search fields, there is no reason to do so as the ID field will only ever return one result, if any.",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
                         "name": "plate",
                         "in": "query",
                         "description": "Filter results by a particular license plate string.",
@@ -125,16 +132,16 @@
                     {
                         "name": "before",
                         "in": "query",
-                        "description": "Filter results to only include entries that occured before a Unix timestamp.",
+                        "description": "Filter results to only include entries that occured before a certain ISO8601 time string.",
                         "required": false,
-                        "type": "number"
+                        "type": "string"
                     },
                     {
                         "name": "after",
                         "in": "query",
-                        "description": "Filter results to only include entries that occured after a Unix timestamp.",
+                        "description": "Filter results to only include entries that occured after a certain ISO8601 time string.",
                         "required": false,
-                        "type": "number"
+                        "type": "string"
                     },
                     {
                         "name": "streets",
@@ -149,14 +156,14 @@
                     {
                         "name": "description",
                         "in": "query",
-                        "description": "Filter by searching entry uploader-provided description text for a given string.",
+                        "description": "Filter by searching uploader-provided entry description tests for a specific string.",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "max",
                         "in": "query",
-                        "description": "The maximum number of results to result. Defaults to CIBL's site-wide setting.",
+                        "description": "The maximum number of results to return. Defaults to CIBL's site-wide setting.",
                         "required": false,
                         "type": "number"
                     }
