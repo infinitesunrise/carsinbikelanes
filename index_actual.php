@@ -802,8 +802,9 @@ function limit_text() {
 
 function initialize_datetimepicker() {
 	var date = new Date();
+	date.setHours(date.getHours() - (date.getTimezoneOffset() / 60));
 	$('#datetimepicker').datetimepicker({ format:'n/j/Y g:iA' });
-	$('#datetimepicker').val(isotime_to_pretty(date.toString()));
+	$('#datetimepicker').val(isotime_to_pretty(date.toISOString()));
 	$('#datetimepicker').attr('isotime', pretty_to_isotime($('#datetimepicker').val()) );
 	$('#datetimepicker').on('change', function(){
 		$('#datetimepicker').attr('isotime', pretty_to_isotime($('#datetimepicker').val()) );
@@ -811,17 +812,24 @@ function initialize_datetimepicker() {
 }
 
 function isotime_to_pretty(isotime){
-	//console.log('incoming isotime to pretty-fy: ' + isotime);
-	var date = new Date(isotime);
-	var pretty = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ';
-	if (date.getHours() == 0){ pretty += '12:'; }
-	else if (date.getHours() <= 12){ pretty += date.getHours() + ':'; }
-	else { pretty += (date.getHours()-12) + ':'; }
-	if (date.getMinutes() < 10){ pretty += '0' + date.getMinutes(); }
-	else { pretty += date.getMinutes(); }
-	if (date.getHours() < 12){ pretty += 'AM'; }
+	if (isotime.indexOf('T') !== -1){ iso_split = isotime.split('T'); }
+	else { iso_split = isotime.split(' '); }
+	iso_date = iso_split[0].split('-');
+	iso_time = iso_split[1].split(':');
+	var year = iso_date[0];
+	var month = iso_date[1];
+	var day = iso_date[2];
+	var hour = iso_time[0];
+	var minute = iso_time[1];
+	
+	var pretty = month + '/' + day + '/' + year + ' ';
+	if (hour == 0){ pretty += '12:'; }
+	else if (hour <= 12){ pretty += hour + ':'; }
+	else { pretty += (hour-12) + ':'; }
+	if (minute < 10){ pretty += '0' + minute; }
+	else { pretty += minute; }
+	if (hour < 12){ pretty += 'AM'; }
 	else { pretty += 'PM' }
-	//console.log('resulting pretty: ' + pretty);
 	return pretty;
 }
 
