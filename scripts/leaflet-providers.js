@@ -95,56 +95,56 @@
 
 	L.TileLayer.Provider.providers = {
 		OpenStreetMap: {
-			url: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 			options: {
 				maxZoom: 19,
 				attribution:
-					'&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			},
 			variants: {
 				Mapnik: {},
 				BlackAndWhite: {
-					url: 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
+					url: 'https://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
 					options: {
 						maxZoom: 18
 					}
 				},
 				DE: {
-					url: 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
+					url: 'https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
 					options: {
 						maxZoom: 18
 					}
 				},
 				France: {
-					url: '//{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+					url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
 					options: {
 						maxZoom: 20,
 						attribution: '&copy; Openstreetmap France | {attribution.OpenStreetMap}'
 					}
 				},
 				HOT: {
-					url: '//{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+					url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
 					options: {
-						attribution: '{attribution.OpenStreetMap}, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+						attribution: '{attribution.OpenStreetMap}, Tiles courtesy of <a href="https://hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
 					}
 				}
 			}
 		},
 		OpenSeaMap: {
-			url: 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
+			url: 'https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
 			options: {
 				attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> contributors'
 			}
 		},
 		OpenTopoMap: {
-			url: '//{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+			url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
 			options: {
 				maxZoom: 17,
 				attribution: 'Map data: {attribution.OpenStreetMap}, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
 			}
 		},
 		Thunderforest: {
-			url: '//{s}.tile.thunderforest.com/{variant}/{z}/{x}/{y}.png',
+			url: 'https://{s}.tile.thunderforest.com/{variant}/{z}/{x}/{y}.png',
 			options: {
 				attribution:
 					'&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, {attribution.OpenStreetMap}',
@@ -199,7 +199,7 @@
 			}
 		},
 		Hydda: {
-			url: '//{s}.tile.openstreetmap.se/hydda/{variant}/{z}/{x}/{y}.png',
+			url: 'https://{s}.tile.openstreetmap.se/hydda/{variant}/{z}/{x}/{y}.png',
 			options: {
 				variant: 'full',
 				attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data {attribution.OpenStreetMap}'
@@ -392,12 +392,12 @@
 			 * envirionments.
 			 */
 			url:
-				'//{s}.{base}.maps.cit.api.here.com/maptile/2.1/' +
+				'https://{s}.{base}.maps.cit.api.here.com/maptile/2.1/' +
 				'{type}/{mapID}/{variant}/{z}/{x}/{y}/{size}/{format}?' +
 				'app_id={app_id}&app_code={app_code}&lg={language}',
 			options: {
 				attribution:
-					'Map &copy; 1987-2014 <a href="http://developer.here.com">HERE</a>',
+					'Map &copy; 1987-2014 <a href="https://developer.here.com">HERE</a>',
 				subdomains: '1234',
 				mapID: 'newest',
 				'app_id': '<insert your app_id here>',
