@@ -8,7 +8,7 @@ $(document).ready(function() {
 });
 </script>
 
-<div class="flex_container_nav">
+<div class="flex_container_nav  box_shadow2">
 <button id="queue">QUEUE</button>
 <?php
 if (isset($_SESSION['admin'])){

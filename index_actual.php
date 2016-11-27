@@ -83,11 +83,12 @@ config = {
 	mobile: '<?php echo $mobile; ?>',
 	site_name: '<?php echo $config['site_name']; ?>',
 	disqus: '<?php echo $config['disqus']; ?>',
-	comments: '<?php echo $config['comments']; ?>',
+	get: <?php echo json_encode($_GET); ?>,
+	//comments: '<?php echo $config['comments']; ?>',
 	max_default: <?php echo $config['max_view']; ?>,
 	max_view: <?php if (isset($_GET['max'])){ echo $_GET['max']; } else { echo $config['max_view']; } ?>,
-	id: <?php if (isset($_GET['id'])){ echo $_GET['id']; } else { echo 'null'; } ?>,
-	plate: <?php if (isset($_GET['plate'])){ echo '"' . $_GET['plate'] . '"'; } else { echo '""'; } ?>,
+	//id: <?php if (isset($_GET['id'])){ echo $_GET['id']; } else { echo 'null'; } ?>,
+	//plate: <?php if (isset($_GET['plate'])){ echo '"' . $_GET['plate'] . '"'; } else { echo '""'; } ?>,
 	zoom: <?php if (isset($_GET['zoom'])){ echo $_GET['zoom']; } else { echo '12'; } ?>,
 	openalpr_api_key: '<?php echo $config['openalpr_api_key']; ?>',
 	north_bounds: <?php echo $config['north_bounds']; ?>,
@@ -124,10 +125,13 @@ windows = {
 	results_view: false,
 	submit_link_clicked: true,
 	about_link_clicked: true,
-	stop_load_entries: false,
-	auto_view_change: false,
 	nav_loaded: false,
-	upload_view_loaded: false
+	upload_view_loaded: false,
+	single_view_loaded: false,
+	last_move: 0,
+	loading: false,
+	load_queued: false,
+	dont_queue: true
 }
 //entry map icon
 if (!config.use_mapboxgljs){
@@ -150,6 +154,8 @@ auto_complete = {
 }
 current_entries = {}; 					//collection of currently loaded database entries
 var markers, body_map, submit_map;		//markers layer for leaflet, empty vars for body and upload map
+borough_abbr = ['M', 'BX', 'BK', 'Q', 'ST'];
+borough_full = ['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island'];
 
 $(document).ready(function() {
 	//set up body and submit maps ASAP, deal with navigating all the map config possibilities
@@ -162,12 +168,13 @@ $(document).ready(function() {
 	$("#results_view").hide();
 	$('#entry_view').hide();
 	$("#single_view").hide();
-	$('#entry_template').hide();
+	$('#entry_template').hide();	
 	
+	//if (config.id > 0){ setTimeout(function(){ zoom_to_entry(config.id); }, 250); }
+	//else if (config.plate) { setTimeout(function(){ plate_search(config.plate); }, 250); }
 	
-	if (config.id > 0){ setTimeout(function(){ zoom_to_entry(config.id); }, 250); }
-	else if (config.plate) { setTimeout(function(){ plate_search(config.plate); }, 250); }
-	else { load_entries(); }
+	if (Object.keys(config.get).length > 0) { load_entries(config.get); }
+	else { load_entries({ max: config.max_view }); }
 	
 	//upload form loading actions
 	$("#submit_link").click( function() { 
@@ -180,16 +187,18 @@ $(document).ready(function() {
 	$("#feedback").click( function(e) { showEmail(e) } );
 	$("#dismiss_success_dialog").click ( function() { $("#success_dialog").hide() } );
 	
-	
 	//disqus comments initialization
 	if (config.disqus){
 		(function() {
 			var d = document, s = d.createElement('script');
 			s.src = '//' + config.disqus + '.disqus.com/embed.js';
-			s.setAttribute('data-timestamp', +new Date());
+			s.setAttribute('data-timestamp', + new Date());
 			(d.head || d.body).appendChild(s);
 		})();
 	}
+	
+	//$('#body_map').mousedown( function(){ windows.mousedown = true; });
+	//$('#body_map').mouseup( function(){ windows.mousedown = false; });
 });
 
 //There are two totally gnarly open_window functions depending on desktop or mobile,
@@ -406,27 +415,158 @@ function auto_scroll(autofilled){
 }
 
 //The meat and potatoes of CIBL's front page - handles dynamic loading and unloading of data onto the page
-function load_entries(plate) {
+//Accepts a 'search' object consisting of search values with data types as keys.
+function load_entries(search) {
 	
-	if (windows.stop_load_entries == false) {
+	console.log('search:');
+	console.log(search);
+	
+	if (windows.loading == true){
+		
+		console.log('blocked due to loading, seeing if can be queued...');
+		
+		if (windows.load_queued == false && windows.dont_queue == false){
+			
+			console.log('not queued and queue allowed, so queueing');
+			
+			windows.load_queued = true;
+			loading_queue(true);
+		}
+		else if (windows.load_queued) { console.log('load already queued, so blocked.'); }
+		else if (windows.dont_queue) { console.log('windows.dont_queue active, so blocked.'); }
+	}
+	else {
+		
+		console.log('not loading, beginning load');
+		
+		windows.loading = true;
+		windows.last_move = Date.now();
+		
 		//block any other calls to load_entries, engage loading animation
-		windows.stop_load_entries = true;
+		//windows.stop_load_entries = true;
 		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
 		
-		//load up dat query
+		//console.log('search:');
+		//console.log(search);
+		
+		//Translate search values to API-compatible values
 		var query = {};
-		if (plate){ query = { plate: plate }; }
-		else {
-			var west = body_map.getBounds().getWest();
-			var east = body_map.getBounds().getEast();
-			var south = body_map.getBounds().getSouth();
-			var north = body_map.getBounds().getNorth();
-			var box_array = [north, south, east, west];
-			query = {
-				box: box_array,
-				max: config.max_view
-			}
+		var query_string = '/index.php?';
+		var adjust_view = true;
+		if (search.none == 0 || search.center || search.zoom || search.box){
+			//console.log('queue_ok!');
+			//windows.queue_ok = true;
+			adjust_view = false;
+			query.box = [
+				body_map.getBounds().getNorth().toFixed(3),
+				body_map.getBounds().getSouth().toFixed(3),
+				body_map.getBounds().getEast().toFixed(3),
+				body_map.getBounds().getWest().toFixed(3)
+			];
+			var center = [body_map.getCenter().lat.toFixed(3),
+					      body_map.getCenter().lng.toFixed(3)];
+			var max = (config.max_default == config.max_view) ? '' : '&max=' + config.max_view;
+			var zoom = (config.use_mapboxgljs) ? '&zoom=' + body_map.getZoom().toFixed(3) : '&zoom=' + body_map.getZoom();
+			query_string += 'center=' + center + zoom + max + '&';
 		}
+		/*
+		if (search.center){
+			console.log('blocking for center');
+			windows.load_entries_blocked = true;
+			query_string += 'center=' + search.center + '&';
+			//if (config.use_mapboxgljs){ body_map.jumpTo([search.center[1], search.center[0]]); }
+			//else { body_map.panTo([search.center[0], search.center[1]]); }
+		}
+		if (search.zoom){
+			windows.load_entries_blocked = true;
+			query_string += 'zoom=' + search.zoom + '&';
+			//body_map.setZoom(search.zoom);
+		}*/
+		if (search.plate){
+			query.plate = search.plate;
+			query_string += 'plate=' + query.plate + '&';
+		}
+		if (search.state){
+			query.state = search.state;
+			query_string += 'state=' + query.state + '&';
+		}
+		if (search.streets) {
+			query.streets = (search.streets + '').split(',');
+			query_string += 'streets=' + query.streets + '&';
+		}
+		if (search.day) {
+			query.after = search.day[0];
+			query.before = search.day[1];
+			query_string += 'after=' + query.after + '&' + 'before=' + query.before + '&';
+		}
+		if (search.after){
+			query.after = search.after;
+			query_string += 'after=' + query.after + '&';
+		}
+		if (search.before){
+			query.before = search.before;
+			query_string += 'before=' + query.before + '&';
+		}
+		if (search.gps) {
+			query.around = [(search.gps[0]*1).toFixed(3), (search.gps[1]*1).toFixed(3), .001];
+			query_string += 'around=' + query.around + '&';
+		}
+		if (search.council_district || search.cd) {
+			if (search.council_district) { query.council_district = search.council_district; }
+			if (search.cd) { query.council_district = search.cd; }
+			query_string += 'cd=' + query.council_district + '&';
+		}
+		if (search.precinct) {
+			query.precinct = search.precinct;
+			query_string += 'pr=' + query.precinct + '&';
+		}
+		if (search.community_board || search.cb) {
+			if (search.community_board) { query.community_board = search.community_board; }
+			if (search.cb){ query.community_board = search.cb; }
+			query_string += 'cb=' + query.community_board + '&';
+		}
+		/*if (search.box) {
+			//windows.load_entries_blocked = true;
+			adjust_view = false;
+			query.box = [
+				body_map.getBounds().getNorth().toFixed(3),
+				body_map.getBounds().getSouth().toFixed(3),
+				body_map.getBounds().getEast().toFixed(3),
+				body_map.getBounds().getWest().toFixed(3)
+			];
+			query_string += 'box=' + query.box + '&';
+		}*/
+		if (search.max) {
+			//windows.load_entries_blocked = true;
+			//console.log('queue_ok!');
+			//windows.queue_ok = true;
+			query.max = search.max;
+			query_string += 'max=' + query.max + '&';
+		}
+		else { 
+			query.max = config.max_view; 
+			//windows.load_entries_blocked = true;
+		}
+		if(query.box){ //expand box boundaries if zero
+			if (query.box[0] == query.box[1]){ query.box[0] += .001; query.box[1] -= .001 }
+			if (query.box[2] == query.box[3]){ query.box[2] += .001; query.box[3] -= .001 }
+		}
+		
+		//if (windows.load_entries_blocked == true){ windows.load_entries_queued = false; }
+		query_string = query_string.substring(0, query_string.length - 1);
+		
+		//console.log('query:');
+		//console.log(query);
+		
+		//console.log('query_string:');
+		//console.log(query_string);
+		
+		//update page history dependent on search type
+		history.pushState(
+			{query: query},
+			config.site_name,
+			query_string
+		);
 		
 		var url_string = document.location.origin + '/api/search';
 		
@@ -441,35 +581,10 @@ function load_entries(plate) {
 				var response = a;
 				//console.log(response);
 				
-				if (plate){
-					//body_map.fitBounds([
-					//	[config.south_bounds, config.west_bounds-0.05],
-					//	[config.north_bounds, config.east_bounds-0.05]
-					//]);
-					//body_map.setView([config.center_lat, config.center_long], config.zoom);
-					body_map.jumpTo([config.center_long,config.center_lat]).setZoom(config.zoom);
-					windows.auto_view_change = true;
-				}
-				
-				//update page history dependent on search type
-				if (box_array){
-					//round gps fields to 3 decimal places
-					var center = [Math.round(body_map.getCenter().lat * 1000) / 1000,
-								Math.round(body_map.getCenter().lng * 1000) / 1000];
-					var max = (config.max_default == config.max_view) ? '' : '&max=' + config.max_view;
-					var zoom = (config.use_mapboxgljs) ? '&zoom=' + Math.round(body_map.getZoom() * 1000) / 1000 : '&zoom=' + body_map.getZoom();
-					history.pushState(
-						{box: box_array},
-						config.site_name,
-						'/index.php?center=' + center + zoom + max
-					);
-				}
-				else if (plate){
-					history.pushState(
-						{plate: plate},
-						config.site_name,
-						'/index.php?plate=' + plate
-					);
+				if (windows.single_view_loaded){
+					if (!config.use_mapboxgljs){ markers.clearLayers(); }
+					else { $('.map_marker').remove(); }
+					windows.single_view_loaded = false;
 				}
 				
 				//build temporary reference array of current entries sorted by ID descending to determine where to load any new entries
@@ -487,7 +602,7 @@ function load_entries(plate) {
 						$('#column_entry_nav_template').clone()
 						.appendTo('#entry_list_content')
 						.attr('id', 'column_entry_nav');
-						$('#column_entry_nav').attr('class','column_entry');
+						$('#column_entry_nav').attr('class','column_entry box_shadow');
 						$('#column_entry_nav').css('display','flex');
 						$('#column_entry_nav').find('#max_view').val(config.max_view);
 						$('#column_entry_nav').find('#column_entry_nav_message').html(
@@ -495,13 +610,13 @@ function load_entries(plate) {
 						);
 						$('#column_entry_nav').find('#max_view').on('change', function(){
 							config.max_view = $(this).val();
-							load_entries();
+							load_entries({ none: 0 });
 						});
 						config.nav_loaded = true;
 					}
 					else {
 						$('#column_entry_nav').find('#column_entry_nav_message').html(
-							response.entries.length + ' most recent entires within view returned. '
+							response.entries.length + ' most recent entries within view returned. '
 						);
 					}
 				}
@@ -516,9 +631,10 @@ function load_entries(plate) {
 						//copy the column entry template to appropriate place in entry list
 						var insert = -1;
 						for (var j = 0; j < current_entries_sorted.length; j++){
-							if (entry.id / 1 > current_entries_sorted[j] / 1){
+							if (entry.id*1 > current_entries_sorted[j]*1){
 								$('#column_entry_template').clone()
 								.insertBefore('#column_entry' + current_entries_sorted[j])
+								.attr('id_number', entry.id)
 								.attr('id', 'column_entry' + entry.id);
 								insert = j;
 								break;
@@ -528,6 +644,7 @@ function load_entries(plate) {
 							insert = current_entries_sorted.length;
 							$('#column_entry_template').clone()
 							.appendTo('#entry_list_content')
+							.attr('id_number', entry.id)
 							.attr('id', 'column_entry' + entry.id); 
 						}
 						
@@ -537,12 +654,27 @@ function load_entries(plate) {
 						//load data into the new clone
 						var new_entry = $('#column_entry' + entry.id);
 						new_entry.css('display', 'flex');
-						new_entry.attr('class', 'column_entry');
-						new_entry.attr('onClick', 'zoom_to_entry(' + entry.id + ')');
+						new_entry.attr('class', 'column_entry box_shadow');
+						new_entry.attr('data', entry.id);
+						new_entry.on('click', function(event){
+							if (event.target.className == 'column_entry' ||
+										event.target.className == 'parameters' ||
+										event.target.className == 'column_entry_thumbnail' ||
+										event.target.className == 'thumbnail' ||
+										event.target.className == 'id_text'){
+								zoom_to_entry( $(this).attr('data') /*entry.id*/);
+							}
+						});//'zoom_to_entry(' + entry.id + '); console.log(event);');
+						
+						//THUMBNAIL
 						new_entry.find('.thumbnail').attr( 'src', location.protocol + '//' + entry.thumb_url );
+						
+						//ID
 						new_entry.find('#id_text').html('#' + entry.id);
+						
+						//PLATE
 						new_entry.find('.plate_link').attr('id', 'plate' + entry.id);
-						new_entry.find('.plate_link').attr('onClick', 'javascript:plate_search(\'' + entry.plate + '\')');
+						new_entry.find('.plate_link').attr('data', entry.plate);
 						switch (entry.state){
 							case 'NYPD':
 								var first = ''; var second = '';
@@ -557,16 +689,119 @@ function load_entries(plate) {
 								new_entry.find('#plate_text').html(entry.plate).attr('class', 'plate ' + entry.state);
 								break;
 						}
-						new_entry.find('#date_text').html('DATE: ' + isotime_to_pretty(entry.date_occurrence));
-						var streets = entry.street1;
-						if (entry.street2){ streets += ' & ' + entry.street2 }
-						streets = streets.toUpperCase();
-						new_entry.find('#streets_text').html('STREETS: ' + streets);
-						new_entry.find('#gps_text').html('GPS: ' + entry.gps_latitude + ' / ' + entry.gps_longitude);
-						if (entry.description){ new_entry.find('#description_text').html(entry.description); }
-						else { new_entry.find('#description_text_label').remove(); }
-						new_entry.find('.disqus-comment-count').attr('data-disqus-url', 'http://carsinbikelanes.nyc/index.php?id=' + entry.id);
+						
+						//STATE
+						if (entry.state) {
+							new_entry.find('#state_text')
+							.attr('data', entry.state)
+							.html('STATE: ' + entry.state);
+						}
+							
+						//DATE
+						if (entry.date_occurrence) {
+							new_entry.find('#date_text')
+							.attr('data', entry.date_occurrence)
+							.html('DATE: ' + isotime_to_pretty(entry.date_occurrence));
+						}
+						
+						//STREETS
+						if (entry.street1) {
+							var streets = entry.street1;
+							if (entry.street2){ streets += ' & ' + entry.street2 }
+							streets = streets.toUpperCase();
+							new_entry.find('#streets_text')
+							.attr('data', streets)
+							.html('STREETS: ' + streets);
+						}
+						
+						//GPS
+						if (entry.gps_latitude && entry.gps_longitude) {
+							new_entry.find('#gps_text')
+							.attr('data', [entry.gps_latitude, entry.gps_longitude])
+							.html('GPS: ' + (entry.gps_latitude*1).toFixed(3) + ' / ' + (entry.gps_longitude*1).toFixed(3));
+						}
+						
+						//COUNCIL DISTRICT
+						if (entry.council_district) { 
+							new_entry.find('#council_district_text')
+							.attr('data', entry.council_district)
+							.html('COUNCIL DISTRICT: ' + entry.council_district); 
+						}
+						
+						//PRECINCT
+						if (entry.precinct) { 
+							new_entry.find('#precinct_text')
+							.attr('data', entry.precinct)
+							.html('PRECINCT: ' + entry.precinct);
+						}
+						
+						//COMMUNITY BOARD
+						if (entry.community_board) { 
+							new_entry.find('#community_board_text')
+							.attr('data', entry.community_board)
+							.html('COMMUNITY BOARD: ' + entry.community_board); 
+						}
+						
+						//COMMENTS
+						new_entry.find('.disqus-comment-count')
+						.attr('data-disqus-url', 'http://carsinbikelanes.nyc/index.php?id=' + entry.id)
+						.parent().hide();
+						
+						//DESCRIPTION
+						if (entry.description){ new_entry.find('#description_text').html('DESCRIPTION: ' + entry.description); }
+						else { new_entry.find('.description').remove(); }
 						//fade in completed column entry
+						
+						//new_entry.find('.edit_date').attr('data', entry.date_occurrence);
+						//new_entry.find('.edit_streets').attr('data', [entry.street1, entry.street2]);
+						
+						//BIND EVENT HANDLERS
+						new_entry.find('.plate_link').on('click', function(event){
+							event.preventDefault;
+							load_entries({ plate: $(this).attr('data') });
+						});
+						new_entry.find('.state').on('click', function(event){
+							event.preventDefault;
+							load_entries({ state: $(this).attr('data') });
+						});
+						new_entry.find('.edit_date').on('click', function(event){
+							event.preventDefault;
+							var day = $(this).children().attr('data').split(' ')[0];
+							var start_of_day = day + ' 00:00:00';
+							var end_of_day = day + ' 23:59:59';
+							load_entries({ day: [start_of_day, end_of_day] });
+						});
+						new_entry.find('.edit_streets').on('click', function(event){
+							event.preventDefault;
+							var exclusion_array = [' AVE',' AVENUE',' ST',' STREET',' ROAD',' RD',' BLVD',' BOULEVARD',' COURT',' CT',' PARKWAY',' PKWY',' TER',' TERRACE', ' LN',' LANE',' DR',' DRIVE',' WAY',' CIRCLE',' CR',' HWY',' HIGHWAY'];
+							var street_array = $(this).children().attr('data').split(' & ');
+							street_array.forEach( function(street, index){
+								exclusion_array.forEach( function(exclusion){
+									street = street.replace(exclusion, '');
+									street_array[index] = street;
+								});
+							});
+							load_entries({ streets: street_array });
+						});
+						new_entry.find('.edit_gps').on('click', function(event){
+							event.preventDefault;
+							load_entries({ gps: $(this).children().attr('data').split(',') });
+						});
+						new_entry.find('.council_district').on('click', function(event){
+							//console.log(event);
+							event.preventDefault;
+							load_entries({ council_district: $(this).children().attr('data') });
+						});
+						new_entry.find('.precinct').on('click', function(event){
+							event.preventDefault;
+							load_entries({ precinct: $(this).children().attr('data') });
+						});
+						new_entry.find('.community_board').on('click', function(event){
+							event.preventDefault;
+							load_entries({ community_board: $(this).children().attr('data') });
+						});
+						
+						//Fade in the new entry
 						new_entry.hide();
 						new_entry.fadeIn();
 						
@@ -597,8 +832,40 @@ function load_entries(plate) {
 						current_entries[entry.id] = { 
 							id: entry.id,
 							column_entry: new_entry,
-							marker: entry_marker
+							marker: entry_marker,
+							latitude: entry.gps_latitude,
+							longitude: entry.gps_longitude
 						};
+					}
+				}
+				
+				if (adjust_view && response.entries.length != 0){
+					windows.dont_queue = true; console.log('new data requires window move to display, blocking load queue.');
+					var max_lat = max_long = -500;
+					var min_lat = min_long = 500;
+					var total_lat = total_long = 0;
+					var count = 0;
+					for (var entry in current_entries){
+						count++;
+						total_lat += current_entries[entry].latitude*1;
+						total_long += current_entries[entry].longitude*1;
+						if (current_entries[entry].latitude*1 > max_lat){ max_lat = current_entries[entry].latitude*1 }
+						if (current_entries[entry].longitude*1 > max_long){ max_long = current_entries[entry].longitude*1 }
+						if (current_entries[entry].latitude*1 < min_lat){ min_lat = current_entries[entry].latitude*1 }
+						if (current_entries[entry].longitude*1 < min_long){ min_long = current_entries[entry].longitude*1 }
+					}
+					var avg_lat = total_lat / count;
+					var avg_long = total_long / count;
+					if (min_lat == max_lat){ min_lat -= .001; max_lat += .001; }
+					if (min_long == max_long){ min_long -= .001; max_long += .001; }
+					if (config.use_mapboxgljs){ //mapbox gl
+						var bounds = new mapboxgl.LngLatBounds([min_long, min_lat], [max_long, max_lat]);
+						if (config.mobile) { body_map.fitBounds(bounds, { padding: 100, offset: [0,-100] }, function(){}); }
+						else { body_map.fitBounds(bounds, { padding: 100, offset: [300,0] }, function(){}); }
+					}
+					else { //leaflet
+						var bounds = L.latLngBounds([min_lat, min_long - .05], [max_lat, max_long - .05]);
+						body_map.fitBounds(bounds).setView([avg_lat, avg_long - .05]);
 					}
 				}
 				
@@ -631,25 +898,72 @@ function load_entries(plate) {
 				
 				//unblock other calls to load entries, disengage loading animation, other post-load cleanups
 				open_window('entry_view');
-				if(config.disqus){ DISQUSWIDGETS.getCount({reset: true}); }
+				if(config.disqus){
+					DISQUSWIDGETS.getCount({reset: true});
+					setTimeout( function(){
+						if ($(disqus-comment-count).html().includes('COMMENT')){ $(this).parent().show(); };
+					}, 500);
+				}
 				$('#entry_list_content').css('overflow-y','scroll'); //fixes bug where firefox doesn't scroll on first list loaded
-				setTimeout(function(){ resize_entry_view(); }, 500);
-				windows.stop_load_entries = false;
+				
+				setTimeout(function(){ 
+					resize_entry_view();
+					//windows.stop_load_entries = false;
+					//console.log('queue_NOT_ok!');
+					//windows.queue_ok = false;
+					//windows.load_entries_blocked = false;
+					//if (windows.load_entries_queued == true){
+					//	windows.load_entries_queued = false;
+					//	load_entries({ none: 0 });
+					//}
+				}, 500);
+				//windows.stop_load_entries = false;
+				//windows.auto_view_change = false;
 				$('#loading').css('background', 'none');
 			},
 			
 			//placeholder, should probably add to this
 			error: function(a){
 				var response = a;
-				console.log(response);	
+				console.log(response);
+				//windows.stop_load_entries = false;				
 			}
 		});
 	}
+
 }
 
-function zoom_to_entry(id) {	
-	if (windows.stop_load_entries == false) {
-		windows.stop_load_entries = true;
+function loading_queue(){
+	if (windows.load_queued = true && windows.loading == false && Date.now() > windows.last_move + 500){
+		
+		console.log('loading finished, 500ms passed, running queue and resetting blocks.');
+		
+		load_entries({ none: 0 });
+		windows.load_queued = false;
+		windows.dont_queue == false;
+	}
+	else if (windows.load_queued = false && windows.loading == false && Date.now() > windows.last_move + 500){
+		
+		console.log('loading finished, 500ms passed, resetting blocks.');
+		
+		windows.load_queued = false;
+		windows.dont_queue == false;
+	}
+	else if (windows.load_queued = true){
+		setTimeout( function(){
+			loading_queue();
+		}, 100);
+	}
+}
+
+function zoom_to_entry(id) {
+
+	console.log('zoom_to_entry(' + id + ')');
+	
+	if (/*windows.stop_load_entries == false*/ true) {
+		windows.loading = true;
+		windows.dont_queue = true;
+		//windows.stop_load_entries = true;
 		$('#loading').css('background', 'url(\'css/loader.svg\') 100% no-repeat');
 		
 		var url_string = document.location.origin + '/api/search';
@@ -665,6 +979,7 @@ function zoom_to_entry(id) {
 			success: function(a){
 				var entry = a.entries[0];
 				//console.log(entry);
+				windows.single_view_loaded = true;
 
 				history.pushState(
 					{id: entry.id},
@@ -714,9 +1029,147 @@ function zoom_to_entry(id) {
 				$('#single_view').find('#fullsize')
 				.one('load', function(){
 					open_window('single_view');
+					$('#loading').css('background', 'none');
+					defer_loading_clear();
 				})
 				.attr('src', location.protocol + '//' + entry.image_url);
-				$('#single_view').find('#id_single').html('#' + entry.id);
+				
+				$('#single_view').find('#column_entry_placeholder').html($('#column_entry_template').html());
+				var new_entry = $('#single_view').find('#column_entry_placeholder'); //$('#single_view').find('#column_entry_template');
+				new_entry.css('display', 'flex');
+				new_entry.css('background', 'none');
+				new_entry.attr('class', 'column_entry');
+				
+				//THUMBNAIL
+				new_entry.find('.column_entry_thumbnail').remove();
+				
+				//ID
+				new_entry.find('#id_text').html('#' + entry.id);
+				
+				//PLATE
+				new_entry.find('.plate_link').attr('id', 'plate' + entry.id);
+				new_entry.find('.plate_link').attr('data', entry.plate);
+				switch (entry.state){
+					case 'NYPD':
+						var first = ''; var second = '';
+						for (var j = 0; j < entry.plate.length; j++){
+							if (j <  entry.plate.length - 2){ first += entry.plate[j]; }
+							else { second += entry.plate[j]; }
+						}
+						var plate_string = first + '<span class="NYPDsuffix">' + second + '</span>';
+						new_entry.find('#plate_text').html(plate_string).attr('class', 'plate NYPD');
+						break;
+					default:
+						new_entry.find('#plate_text').html(entry.plate).attr('class', 'plate ' + entry.state);
+						break;
+				}
+				
+				//STATE
+				if (entry.state) {
+					new_entry.find('#state_text')
+					.attr('data', entry.state)
+					.html('STATE: ' + entry.state);
+				}
+					
+				//DATE
+				if (entry.date_occurrence) {
+					new_entry.find('#date_text')
+					.attr('data', entry.date_occurrence)
+					.html('DATE: ' + isotime_to_pretty(entry.date_occurrence));
+				}
+				
+				//STREETS
+				if (entry.street1) {
+					var streets = entry.street1;
+					if (entry.street2){ streets += ' & ' + entry.street2 }
+					streets = streets.toUpperCase();
+					new_entry.find('#streets_text')
+					.attr('data', streets)
+					.html('STREETS: ' + streets);
+				}
+				
+				//GPS
+				if (entry.gps_latitude && entry.gps_longitude) {
+					new_entry.find('#gps_text')
+					.attr('data', [entry.gps_latitude, entry.gps_longitude])
+					.html('GPS: ' + (entry.gps_latitude*1).toFixed(3) + ' / ' + (entry.gps_longitude*1).toFixed(3));
+				}
+				
+				//COUNCIL DISTRICT
+				if (entry.council_district) { 
+					new_entry.find('#council_district_text')
+					.attr('data', entry.council_district)
+					.html('COUNCIL DISTRICT: ' + entry.council_district); 
+				}
+				
+				//PRECINCT
+				if (entry.precinct) { 
+					new_entry.find('#precinct_text')
+					.attr('data', entry.precinct)
+					.html('PRECINCT: ' + entry.precinct);
+				}
+				
+				//COMMUNITY BOARD
+				if (entry.community_board) { 
+					new_entry.find('#community_board_text')
+					.attr('data', entry.community_board)
+					.html('COMMUNITY BOARD: ' + entry.community_board); 
+				}
+				
+				//COMMENTS
+				new_entry.find('.comment_count').remove();
+				
+				//DESCRIPTION
+				if (entry.description){ new_entry.find('#description_text').html('DESCRIPTION: ' + entry.description); }
+				else { new_entry.find('.description').remove(); }
+				
+				//BIND EVENT HANDLERS
+				new_entry.find('.plate_link').on('click', function(event){
+					event.preventDefault;
+					load_entries({ plate: $(this).attr('data') });
+				});
+				new_entry.find('.state').on('click', function(event){
+					event.preventDefault;
+					load_entries({ state: $(this).attr('data') });
+				});
+				new_entry.find('.edit_date').on('click', function(event){
+					event.preventDefault;
+					var day = $(this).children().attr('data').split(' ')[0];
+					var start_of_day = day + ' 00:00:00';
+					var end_of_day = day + ' 23:59:59';
+					load_entries({ day: [start_of_day, end_of_day] });
+				});
+				new_entry.find('.edit_streets').on('click', function(event){
+					event.preventDefault;
+					var exclusion_array = [' AVE',' AVENUE',' ST',' STREET',' ROAD',' RD',' BLVD',' BOULEVARD',' COURT',' CT',' PARKWAY',' PKWY',' TER',' TERRACE', ' LN',' LANE',' DR',' DRIVE',' WAY',' CIRCLE',' CR',' HWY',' HIGHWAY'];
+					var street_array = $(this).children().attr('data').split(' & ');
+					street_array.forEach( function(street, index){
+						exclusion_array.forEach( function(exclusion){
+							street = street.replace(exclusion, '');
+							street_array[index] = street;
+						});
+					});
+					load_entries({ streets: street_array });
+				});
+				new_entry.find('.edit_gps').on('click', function(event){
+					event.preventDefault;
+					load_entries({ gps: $(this).children().attr('data').split(',') });
+				});
+				new_entry.find('.council_district').on('click', function(event){
+					//console.log(event);
+					event.preventDefault;
+					load_entries({ council_district: $(this).children().attr('data') });
+				});
+				new_entry.find('.precinct').on('click', function(event){
+					event.preventDefault;
+					load_entries({ precinct: $(this).children().attr('data') });
+				});
+				new_entry.find('.community_board').on('click', function(event){
+					event.preventDefault;
+					load_entries({ community_board: $(this).children().attr('data') });
+				});
+				
+				/*$('#single_view').find('#id_single').html('#' + entry.id);
 				$('#single_view').find('#plate_single_link').attr('onClick', 'plate_search(\'' + entry.plate + '\')');
 				switch (entry.state){
 					case 'NYPD':
@@ -741,9 +1194,13 @@ function zoom_to_entry(id) {
 				if (!entry.description){ $('#single_view').find('#description_div_single').hide(); }
 				else { $('#single_view').find('#description_div_single').show(); }
 				if (entry.description){ $('#single_view').find('#description_single').html(entry.description); }
-				else { $('#single_view').find('#description_single_label').remove(); }
-				setTimeout(function() { windows.stop_load_entries = false; }, 500);
-				$('#loading').css('background', 'none');
+				else { $('#single_view').find('#description_single_label').remove(); } */
+				
+				
+				//$('#loading').css('background', 'none');
+				//setTimeout(function() {
+				//	defer_loading_clear();
+				//}, 500);
 				
 				DISQUS.reset({
 					reload: true,
@@ -763,7 +1220,7 @@ function zoom_to_entry(id) {
 	}
 }
 
-function plate_search(plate) { load_entries(plate); }
+//function plate_search(plate) { load_entries({ plate: plate }); }
 
 function resize_entry_view(){
 	if (config.mobile){
@@ -775,17 +1232,34 @@ function resize_entry_view(){
 			}
 		});
 		if (count < 3){
-			$('#entry_view').animate({ height: total_height, bottom: '0' });
+			$('#entry_view').animate({ height: total_height, bottom: '0' }, defer_loading_clear());
 		}
 		else { 
-			$('#entry_view').animate({ height: '33vh', bottom: '0vh' });
+			$('#entry_view').animate({ height: '33vh', bottom: '0vh' }, defer_loading_clear());
 		}
 	}
 	else {
-		total_height = -25;
+		total_height = -5;
 		$('.column_entry').map( function(){ total_height += $(this).outerHeight() + 10; });
-		if (total_height < document.body.clientHeight){ $('#entry_view').animate({ height: total_height }); }
-		else { $('#entry_view').animate({ height: '96vh' }); }
+		if (total_height < document.body.clientHeight){ $('#entry_view').animate({ height: total_height }, defer_loading_clear()); }
+		else { $('#entry_view').animate({ height: '96vh' }, defer_loading_clear()); }
+	}
+}
+
+function defer_loading_clear(){
+	
+	//console.log('at top of defer_loading_clear loop.');
+	
+	if (Date.now() > windows.last_move + 500){
+		console.log('ending load and allowing queues.');
+		windows.loading = false;
+		windows.dont_queue = false;
+	}
+	else {
+		console.log('move too recent(' + (Date.now() - windows.last_move) + '), deferring 100ms...');
+		setTimeout( function(){
+			defer_loading_clear();
+		}, 100);
 	}
 }
 
@@ -824,25 +1298,26 @@ function isotime_to_pretty(isotime){
 	
 	var pretty = month + '/' + day + '/' + year + ' ';
 	if (hour == 0){ pretty += '12:'; }
-	else if (hour <= 12){ pretty += hour + ':'; }
+	else if (hour <= 12){
+		if (hour.charAt(0) == '0') { hour = hour.slice(1); }
+		pretty += hour + ':';
+	}
 	else { pretty += (hour-12) + ':'; }
-	if (minute < 10){ pretty += '0' + minute; }
-	else { pretty += minute; }
+	pretty += minute;
 	if (hour < 12){ pretty += 'AM'; }
 	else { pretty += 'PM' }
 	return pretty;
 }
 
 function pretty_to_isotime(pretty){
-	//console.log('incoming pretty to iso-fy: ' + pretty);
 	var old_date_order = pretty.split(' ')[0].split('/');
+	var extra_hours = 0;
 	if ( pretty.split(" ")[1].includes('PM') ) { var extra_hours = 12; }
-	else { var extra_hours = 0; }
 	var new_date_order = old_date_order[2] + "-" + old_date_order[0] + "-" + old_date_order[1];
 	var old_time_order = pretty.split(" ")[1].split(':');
+	if (old_time_order[0].length == 1) { old_time_order[0] = '0' + old_time_order[0]; }
 	var new_time_order = (old_time_order[0]*1 + extra_hours*1) + ':' + old_time_order[1].replace('AM','').replace('PM','') + ':00';
 	var isotime = new_date_order + 'T' + new_time_order;
-	//console.log('resulting isotime: ' + isotime);
 	return isotime;
 }
 
@@ -919,6 +1394,8 @@ function fill_date_and_gps(e) {
 				//If OpenALPR active, auto-enter streets here by reverse geocoding gps coords
 				fill_streets();
 				
+				fill_districts(gps_lat, gps_lng);
+				
 				if (config.use_mapboxgljs){
 					$('#upload_marker').remove();
 					$('#upload_marker').remove();
@@ -945,23 +1422,13 @@ function fill_date_and_gps(e) {
 				document.getElementById("map_prompt").innerHTML = "Could not auto-detect location, please fill out manually!";
 			}
 		}
-		//Auto-enter time and date
-		/*if(EXIF.getTag(this, "DateTimeOriginal")){
-			var capturetime = EXIF.getTag(this, "DateTimeOriginal");
-			var isotime = capturetime.split(" ")[0].replace(/:/g,'-') + 'T' + capturetime.split(" ")[1];
-			console.log('initial isotime: ' + isotime);
-			var unixtime = Date.parse(isotime)/1000;
-			console.log('initial unixtime: ' + isotime);
-			$('#datetimepicker').val(unixtime_to_pretty(unixtime, true));
-			$('#datetimepicker').attr('unixtime', unixtime );
-		}*/
 		if(EXIF.getTag(this, "DateTimeOriginal")){
 			var capturetime = EXIF.getTag(this, "DateTimeOriginal");
 			var isotime = capturetime.split(" ")[1].split(':')[0] + ':' + capturetime.split(" ")[1].split(':')[1] + ':00';
 			var isodate = capturetime.split(" ")[0].replace(/:/g,'-');
 			var iso_date_time = isodate + 'T' + isotime;
 			//console.log('initial isotime: ' + iso_date_time);
-			$('#datetimepicker').val(isotime_to_pretty(iso_date_time, true));
+			$('#datetimepicker').val(isotime_to_pretty(iso_date_time));
 			$('#datetimepicker').attr('isotime', iso_date_time );
 		}
 	});
@@ -978,6 +1445,7 @@ function fill_streets(){
 	var reply;
 	function listener() {
 		var response = JSON.parse(this.responseText);
+		//console.log(response);
 		var intersection = response['address']['Address'].split(" & ");
 		$('#street1').val(intersection[0]);
 		$('#street2').val(intersection[1]);
@@ -989,7 +1457,64 @@ function fill_streets(){
 	request.send(data);
 }
 
+function fill_districts(latitude, longitude){
+	$.ajax(
+		'//geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode',
+		{
+			type: 'GET',
+			data: {
+				location: '{x:' + $('#longitude').val() + ',y:' + $('#latitude').val() + '}',
+				f: 'pjson',
+				distance: 150,
+				returnIntersection: false
+			},
+			success: function(a){
+				//console.log('get_address() success');
+				//console.log(a);
+				var address_data = JSON.parse(a);
+				var address = address_data['address']['Address'];
+				var houseNumber = address.substr(0,address.indexOf(' '));
+				var street = address.substr(address.indexOf(' ')+1);
+				var zip = address_data['address']['Postal'];
+				
+				//console.log(houseNumber + ' / ' + street + ' / ' + zip);
+				
+				$.ajax(
+					'https://api.cityofnewyork.us/geoclient/v1/address.json',
+					{
+						dataType:'jsonp',
+						data: {
+							houseNumber: houseNumber,
+							street: street,
+							zip: zip,
+							app_id: 'b1b997d1',
+							app_key: 'a603e788b1c61d38d8c8b74772006831'
+						},
+						success: function(a){
+							//console.log('success');
+							//console.log(a);
+							$('#council_district').val(parseInt(a.address.cityCouncilDistrict, 10) * 1);
+							$('#precinct').val(parseInt(a.address.policePrecinct, 10) * 1);
+							$('#community_board').val(borough_abbr[a.address.communityDistrictBoroughCode - 1] + parseInt(a.address.communityDistrictNumber, 10));
+						},
+						error: function(a){
+							console.log('error');
+							console.log(a);
+						}
+					}
+				);
+			},
+			error: function(a){
+				console.log('get_address() error');
+				console.log(a);
+			}
+		}
+	)
+}
+
 function submit_form() {
+	//console.log('beginning submit_form()');
+	
 	$('#upload_prompt').empty();
 	$('#upload_button').css('background', 'url(\'css/loader.svg\') 50% no-repeat');
 	$('#upload_button').css('background-size', '10%');
@@ -1004,9 +1529,16 @@ function submit_form() {
 	formData.append( 'gps_longitude', $('#longitude').val() );
 	formData.append( 'street1', $('#street1').val() );
 	formData.append( 'street2', $('#street2').val() );
+	formData.append( 'council_district', $('#council_district').val() );
+	formData.append( 'precinct', $('#precinct').val() );
+	formData.append( 'community_board', $('#community_board').val() );
 	formData.append( 'description', $('#comments').val() );
 	
+	//console.log('formData: ' + formData);
+	
 	var url_string = document.location.origin + '/api/upload';
+	
+	//console.log('url_string: ' + url_string);
 	
 	$.ajax({
 		url: url_string,
@@ -1018,6 +1550,7 @@ function submit_form() {
 		mimeType: 'multipart/form-data',
 		
 		success: function (a) {
+			//console.log('success');
 			//console.log(a);
 			var response = a;
 			$('#results_header').html('Success!');
@@ -1035,6 +1568,9 @@ function submit_form() {
 										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
 										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
 										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
+										+ 'council district: ' + response['upload']['council_district'] + '<br/>'
+										+ 'precinct: ' + response['upload']['precinct'] + '<br/>'
+										+ 'community_board: ' + response['upload']['community_board'] + '<br/>'
 										+ 'description: ' + response['upload']['description']);
 			$('#results_back').html('Submit Another');
 			$('#upload_button').css('background', 'none');
@@ -1050,8 +1586,10 @@ function submit_form() {
 		},
 		
 		error: function(a) {
+			console.log('error');
 			console.log(a);
 			var response = JSON.parse(a.responseText);
+			console.log(response);
 			$('#results_header').html('Error');
 			$('#results_message').html(response['result']['error']);
 			$('#results_details').html('<b>Upload details:</b><br/>'
@@ -1067,11 +1605,15 @@ function submit_form() {
 										+ 'gps: ' + response['upload']['gps_latitude'] + ' / ' + response['upload']['gps_longitude'] + '<br/>'
 										+ 'street 1: ' + response['upload']['street1'] + '<br/>'
 										+ 'street 2: ' + response['upload']['street2'] + '<br/>'
+										+ 'council district: ' + response['upload']['council_district'] + '<br/>'
+										+ 'precinct: ' + response['upload']['precinct'] + '<br/>'
+										+ 'community_board: ' + response['upload']['community_board'] + '<br/>'
 										+ 'description: ' + response['upload']['description']);
 			$('#results_back').html('Back');
 			$('#upload_button').css('background', 'none');
 			$('#upload_button').css('background-color', 'lightgray');
 			$('#upload_prompt').append('UPLOAD!');
+			//console.log('opening error panel');
 			open_window('results_view');
 		}
 	});
@@ -1137,11 +1679,22 @@ function initialize_body_map(){
 			zoom: config.zoom
 		});
 		body_map.on('moveend', function() {
-			if (windows.auto_view_change){ windows.auto_view_change = false; }
-			else { load_entries(); } 
+			console.log('moveend');
+			load_entries({ none: 0 });
+			//if (Date.now() > windows.last_move + 500){
+			//	load_entries({ none: 0 });
+			//}
 		});
 		body_map.on('click', function() {
-			load_entries(); 
+			console.log('click');
+			if (Date.now() > last_move + 500){
+				load_entries({ none: 0 });
+			}
+		});
+		body_map.on('move', function() {
+			console.log('move');
+			if (windows.loading){ windows.last_move = Date.now(); }
+			//if (windows.mousedown == false){ windows.last_move = Date.now(); }
 		});
 		return;
 	}
@@ -1160,11 +1713,24 @@ function initialize_body_map(){
 	//note: these are idential to Mapbox GL JS events in 'else if (config.use_mapboxgljs) above',
 	//but keeping seperate for simplicity and in case APIs diverge
 	body_map.on('moveend', function(e) {
-		if (windows.auto_view_change){ windows.auto_view_change = false; }
-		else { load_entries(); } 
+		//load_entries({ none: 0 });
+		//if (windows.auto_view_change){ windows.auto_view_change = false; }
+		//else { load_entries({ none: 0 }); }
+		//if (Date.now() > windows.last_move + 500){
+		//	load_entries({ none: 0 });
+		//}
+		console.log('moveend');
+		load_entries({ none: 0 });
 	});
 	body_map.on('click', function(e) {
-		load_entries(); 
+		if (Date.now() > last_move + 500){
+			load_entries({ none: 0 });
+		}
+	});
+	body_map.on('move', function() {
+		console.log('move');
+		if (windows.loading){ windows.last_move = Date.now(); }
+		//if (windows.mousedown == false){ windows.last_move = Date.now(); }
 	});
 }
 
@@ -1266,15 +1832,15 @@ if (!$mobile){
 echo <<< DESKTOPNAV
 <!-- RIGHT MENU -->
 <div class="right_menu">
-<div class="right_menu_item">
+<div class="right_menu_item box_shadow">
 <span>{$config['site_name']}</span>
 </div>
 <br>
-<div class="right_menu_item" id="submit_link">
+<div class="right_menu_item box_shadow" id="submit_link">
 <span>SUBMIT</span>
 </div>
 <br>
-<div class="right_menu_item" id="about_link">
+<div class="right_menu_item box_shadow" id="about_link">
 <span>ABOUT</span>
 </div>
 <br>
@@ -1407,8 +1973,6 @@ echo <<< DESKTOPUPLOADVIEW
     <span id="map_prompt">Click to mark location:</span>
 	<div id="submit_map"></div>
 	<span id="gps_coords">Latitude: ... Longitude: ...</span>
-	<input type="hidden" name="lat" id="latitude">
-	<input type="hidden" name="lng" id="longitude">
 
 	<div class="submit_form_row">
 	<span class="submit_form_item">Any additional info (
@@ -1417,6 +1981,12 @@ echo <<< DESKTOPUPLOADVIEW
 
 	<textarea name="description" onKeyDown="limit_text();" onKeyUp="limit_text();" class="description" id="comments"></textarea>
 
+	<input type="hidden" name="lat" id="latitude">
+	<input type="hidden" name="lng" id="longitude">
+	<input type='hidden' name='council_district' id='council_district' value=''/>
+	<input type='hidden' name='precinct' id='precinct' value=''/>
+	<input type='hidden' name='community_board' id='community_board' value=''/>
+	
 	<label id='upload_button' class='upload_button'>
 	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
 	<input type="submit" name="upload" id="upload"/>
@@ -1523,7 +2093,10 @@ echo <<< MOBILEUPLOADVIEW
 
 	<input type="hidden" name="lat" id="latitude">
 	<input type="hidden" name="lng" id="longitude">
-
+	<input type='hidden' name='council_district' id='council_district' value=''/>
+	<input type='hidden' name='precinct' id='precinct' value=''/>
+	<input type='hidden' name='community_board' id='community_board' value=''/>
+	
 	<label id='upload_button' class='upload_button'>
 	<span id='upload_prompt' class='v-centered'>UPLOAD!</span>
 	<input type="submit" name="upload" id="upload"/>
@@ -1550,7 +2123,7 @@ MOBILEUPLOADVIEW;
 
 <!-- RESULTS VIEW -->
 <div class='results_view' id='results_view'>
-<div class='top_dialog_button' id='results_close' onClick='javascript:open_window("entry_view"); load_entries();'>
+<div class='top_dialog_button' id='results_close' onClick='javascript:open_window("entry_view"); load_entries({ none: 0 });'>
 <span>&#x2A09</span>
 </div>
 <div class='results_view_container' id='results_view_container'>
@@ -1578,34 +2151,39 @@ MOBILEUPLOADVIEW;
 </div>
 
 <!-- COLUMN ENTRY TEMPLATE -->
-<div id='column_entry_template' class="column_entry_template" onclick="zoom_to_entry($_ID);" style='display:none;'>
+<div id='column_entry_template' class="column_entry_template" style='display:none;'>
+
+
+<div class='parameters' style='margin: 5px 0px 0px 5px;'>
+
+<div class='thumb_and_plate'>
 <div class="column_entry_thumbnail">
 <img class="thumbnail" src="">
 </div>
-<div class="moderation_queue_details">
-<div class="details_top">
-<div class="details_plate">
-<div class="plate_name">
-<div><br><h2 id='id_text'>$_ID</h2></div>
-<div class="info plate_container plate_link" id="plate$_ID" onClick="event.stopPropagation();plate_search(&quot;$PLATE&quot;)">
+<h2 id='id_text' class='id_text'>$_ID</h2>
+<div class="plate_container plate_link" id="plate$_ID">
 <div class="plate $_STATE" id='plate_text'>$_PLATE</div></div>
 </div>
-</div><div class="details_timeplace">
-<div class="info edit_date"><span id='date_text'>$_DATE</span></div><br>
-<div class="info edit_streets"><span id='streets_text'>$_STREETS</span></div><br>
-<div class="info edit_gps"><span id='gps_text'>$_GPS_LATITUDE / $_GPS_LONGITUDE</span></div>
+
+<div class="entry_parameter edit_date"><span id='date_text'>$_DATE</span></div>
+<div class="entry_parameter edit_gps"><span id='gps_text'>$_GPS_LATITUDE / $_GPS_LONGITUDE</span></div>
+<div class="entry_parameter state"><span id='state_text'>$_STATE</span></div>
+<div class="entry_parameter edit_streets"><span id='streets_text'>$_STREETS</span></div>
+<div class='entry_parameter council_district'><span id='council_district_text'></span></div>
+<div class='entry_parameter precinct'><span id='precinct_text'></span></div>
+<div class='entry_parameter community_board'><span id='community_board_text'></span></div>
+<div class='entry_parameter comment_count'><span class="disqus-comment-count" data-disqus-url="http://carsinbikelanes.nyc/index.php?single_view=$_ID"><wbr></span></div>
+<div class='entry_parameter description'><span id='description_text'>DESCRIPTION:</span></div>
 </div>
-</div>
-<div id='description_text_div'>
-<span  id='description_text_label'>DESCRIPTION:</span>
-<div><span id='description_text'></span><span class="disqus-comment-count" data-disqus-url="http://carsinbikelanes.nyc/index.php?single_view=$_ID"><wbr></span></div>
-</div>
-</div>
+
 </div>
 
 <!-- SINGLE VIEW -->
 <div id='single_view' class='single_view'>
 <img src="" id="fullsize" class="fullsize" />
+
+<div id='column_entry_placeholder'></div>
+<!--
 <div class='column_entry single_view_column_entry' style='background: transparent'>
 <div class='moderation_queue_details'>
 <div class='details_top'>
@@ -1639,6 +2217,8 @@ MOBILEUPLOADVIEW;
 </div>
 </div>
 </div>
+-->
+
 <div id='disqus_thread' class='disqus_thread'>
 </div>
 </div>

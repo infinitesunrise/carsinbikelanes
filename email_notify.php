@@ -7,6 +7,9 @@ if ($email_op == 'new_submission'){
 				"\nDate Occurred: " . $submission_details['date_occurrence'] .
 				"\nDate Added: " . $submission_details['date_added'];
 				if($submission_details['street1'] != ''){ $message .= "\nStreets: " . $submission_details['street1'] . " & " . $submission_details['street2']; }
+				if($submission_details['council_district'] != '') { $message .= "\nCouncil District: " . $submission_details['council_district']; }
+				if($submission_details['precinct'] != '') { $message .= "\nPrecinct: " . $submission_details['precinct']; }
+				if($submission_details['community_board'] != '') { $message .= "\nCommunity Board: " . $submission_details['community_board']; }
 				$message .= "\nCoordinates: " . $submission_details['lat'] . ", " . $submission_details['lon'] .
 				"\nDescription: " . $submission_details['description'] .
 				"\n\n" .

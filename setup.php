@@ -56,6 +56,9 @@ gps_lat float(10,6) NOT NULL,
 gps_long float(10,6) NOT NULL,
 street1 text NOT NULL,
 street2 text NOT NULL,
+council_district int NOT NULL,
+precinct int NOT NULL,
+community_board text NOT NULL,
 description text NOT NULL
 )";
 if ($connection->query($query) === TRUE) {
@@ -76,6 +79,9 @@ gps_lat float(10,6) NOT NULL,
 gps_long float(10,6) NOT NULL,
 street1 text NOT NULL,
 street2 text NOT NULL,
+council_district int NOT NULL,
+precinct int NOT NULL,
+community_board text NOT NULL,
 description text NOT NULL
 )";
 if ($connection->query($query) === TRUE) {

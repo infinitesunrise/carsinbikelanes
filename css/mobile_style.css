@@ -84,12 +84,20 @@ body {
 
 .column_entry {
 	padding: 5px;
-	min-height: 150px;
+	/*min-height: 150px;*/
 	margin: 0px 0px 10px 0px;
 	background-color:rgba(255, 255, 255, 0.8);
-	display: flex;
+	/*display: flex;*/
 	justify-content: flex-start;
 	flex-wrap: nowrap;
+}
+
+.thumb_and_plate{
+	display: flex;
+	flex-wrap: nowrap;
+	vertical-align: top;
+	float: left;
+	margin-right: 5px;
 }
 
 .column_entry a:hover {
@@ -99,8 +107,141 @@ body {
 .column_entry_thumbnail {
 	display: flex;
 	align-items: center;
+	vertical-align: middle;
 	justify-content: center;
-	min-width: 200px;
+	width: 100px;
+	background: none;
+}
+
+.entry_parameter {
+	display: inline-block;
+	padding: 0px;
+	margin: 2px;
+	font-size: 16px;
+	vertical-align: top;
+}
+
+.state {
+	background-color: rgba(0, 128, 255, .2);
+	box-shadow: 1px 1px 0px 0px rgba(0, 128, 204, .2),
+            2px 2px 0px 0px rgba(0, 128, 204, .2),
+            3px 3px 0px 0px rgba(0, 128, 204, .2);
+}
+
+.state:hover {
+	background-color: rgba(0, 102, 255, .4);
+	box-shadow: 1px 1px 0px 0px rgba(0, 102, 204, .4),
+            2px 2px 0px 0px rgba(0, 102, 204, .4),
+            3px 3px 0px 0px rgba(0, 102, 204, .4);
+}
+
+.edit_date {
+	background-color: rgba(0, 255, 0, .2);
+	box-shadow: 1px 1px 0px 0px rgba(0, 204, 0, .2),
+            2px 2px 0px 0px rgba(0, 204, 0, .2),
+            3px 3px 0px 0px rgba(0, 204, 0, .2);
+}
+
+.edit_date:hover {
+	background-color: rgba(0, 255, 0, .4);
+	box-shadow: 1px 1px 0px 0px rgba(0, 204, 0, .4),
+            2px 2px 0px 0px rgba(0, 204, 0, .4),
+            3px 3px 0px 0px rgba(0, 204, 0, .4);
+}
+
+.edit_streets {
+	background-color: rgba(255, 0, 0, .2);
+	box-shadow: 1px 1px 0px 0px rgba(204, 0, 0, .2),
+            2px 2px 0px 0px rgba(204, 0, 0, .2),
+            3px 3px 0px 0px rgba(204, 0, 0, .2);
+}
+
+.edit_streets:hover {
+	background-color: rgba(255, 0, 0, .4);
+	box-shadow: 1px 1px 0px 0px rgba(204, 0, 0, .4),
+            2px 2px 0px 0px rgba(204, 0, 0, .4),
+            3px 3px 0px 0px rgba(204, 0, 0, .4);
+}
+
+.edit_gps {
+	background-color: rgba(0, 255, 255, .2);
+	box-shadow: 1px 1px 0px 0px rgba(0, 204, 204, .2),
+            2px 2px 0px 0px rgba(0, 204, 204, .2),
+            3px 3px 0px 0px rgba(0, 204, 204, .2);
+}
+
+.edit_gps:hover {
+	background-color: rgba(0, 255, 255, .4);
+	box-shadow: 1px 1px 0px 0px rgba(0, 204, 204, .4),
+            2px 2px 0px 0px rgba(0, 204, 204, .4),
+            3px 3px 0px 0px rgba(0, 204, 204, .4);
+}
+
+.council_district {
+	background-color: rgba(255, 105, 180, .2);
+	box-shadow: 1px 1px 0px 0px rgba(204, 84, 144, .2),
+            2px 2px 0px 0px rgba(204, 84, 144, .2),
+            3px 3px 0px 0px rgba(2204, 84, 144, .2);
+}
+
+.council_district:hover {
+	background-color: rgba(255, 105, 180, .4);
+	box-shadow: 1px 1px 0px 0px rgba(204, 84, 144, .4),
+            2px 2px 0px 0px rgba(204, 84, 144, .4),
+            3px 3px 0px 0px rgba(2204, 84, 144, .4);
+}
+
+.precinct {
+	background-color: rgba(0, 0, 255, .2);
+	box-shadow: 1px 1px 0px 0px rgba(0, 0, 204, .2),
+            2px 2px 0px 0px rgba(0, 0, 204, .2),
+            3px 3px 0px 0px rgba(0, 0, 204, .2);
+}
+
+.precinct:hover {
+	background-color: rgba(0, 0, 255, .4);
+	box-shadow: 1px 1px 0px 0px rgba(0, 0, 204, .4),
+            2px 2px 0px 0px rgba(0, 0, 204, .4),
+            3px 3px 0px 0px rgba(0, 0, 204, .4);
+}
+
+.community_board {
+	background-color: rgba(255, 155, 0, .2);
+	box-shadow: 1px 1px 0px 0px rgba(204, 132, 0, .2),
+            2px 2px 0px 0px rgba(204, 132, 0, .2),
+            3px 3px 0px 0px rgba(204, 132, 0, .2);
+}
+
+.community_board:hover {
+	background-color: rgba(255, 155, 0, .4);
+	box-shadow: 1px 1px 0px 0px rgba(204, 132, 0, .4),
+            2px 2px 0px 0px rgba(204, 132, 0, .4),
+            3px 3px 0px 0px rgba(204, 132, 0, .4);
+}
+
+.comment_count {
+	background-color: rgba(255, 0, 0, .5);
+	box-shadow: 1px 1px 0px 0px rgba(204, 0, 0, .5),
+            2px 2px 0px 0px rgba(204, 0, 0, .5),
+            3px 3px 0px 0px rgba(204, 0, 0, .5);
+}
+
+.comment_count:hover {
+	background-color: rgba(255, 0, 0, .7);
+	box-shadow: 1px 1px 0px 0px rgba(204, 0, 0, .7),
+            2px 2px 0px 0px rgba(204, 0, 0, .7),
+            3px 3px 0px 0px rgba(204, 0, 0, .7);
+}
+
+.description {
+	background-color: rgba(255, 255, 0, .2);
+	box-shadow: 1px 1px 0px 0px rgba(200, 200, 0, .2),
+            2px 2px 0px 0px rgba(200, 200, 0, .2),
+            3px 3px 0px 0px rgba(200, 200, 0, .2);
+}
+
+.plate_container {
+	padding-top: 10px;
 }
 
 .submit_view {

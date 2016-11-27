@@ -8,14 +8,20 @@ function new_upload($image,
 					$gps_latitude, 
 					$gps_longitude, 
 					$street1, 
-					$street2, 
+					$street2,
+					$council_district,
+					$precinct,
+					$community_board,
 					$description)
 {
 	require 'admin/config_pointer.php';
 	date_default_timezone_set('UTC');
 	
-	error_log('submission.php - $date_occurrence inbound: ' . $date_occurrence);
-	error_log('submission.php - $date_added inbound: ' . $date_added);
+	error_log('in submission.new_upload()');
+	
+	//error_log('submission.php - $date_occurrence inbound: ' . $date_occurrence);
+	//error_log('submission.php - $date_added inbound: ' . $date_added);
+	//error_log('new upload: ' . $council_district . ' / ' . $precinct . ' / ' . $community_board);
 	
 	if (empty($image))
 	{ return array('error' => 'Submissions without an image attached are currently not accepted.'); }
@@ -74,6 +80,15 @@ function new_upload($image,
 		if (!is_string($street2))
 		{ return array('error' => 'Street fields must be strings.'); }
 	}
+	
+	//error_log(is_int($council_district));
+	
+	//if (!is_int($council_district) && $council_district != '')
+	//{ return array('error' => 'Council district must be a whole number.'); }
+
+	//if (!is_int($precinct * 1) && $precinct != '')
+	//{ return array('error' => 'Precinct must be a whole number.'); }
+
 	if ($description){
 		if (!is_string($description))
 		{ return array('error' => 'Description field must be a string.'); }
@@ -98,11 +113,17 @@ function new_upload($image,
 		return array('error' => 'Server error, please alert the site administrator.');
 	}
 	
-	$stmt = $connection->prepare("INSERT INTO cibl_queue (
-		increment, url, plate, state, date_occurrence, date_added, gps_lat, gps_long, street1, street2, description)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-	$stmt->bind_param('isssssddsss', $increment, $url, $plate, $state, $date_occurrence, $date_added, $gps_latitude, $gps_longitude, $street1, $street2, $description);
-	$result = $stmt->execute();
+	if($stmt = $connection->prepare("INSERT INTO cibl_queue (
+		increment, url, plate, state, date_occurrence, date_added, gps_lat, gps_long, street1, street2, council_district, precinct, community_board, description)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")){
+		$stmt->bind_param('isssssddssiiss', $increment, $url, $plate, $state, $date_occurrence, $date_added, $gps_latitude, $gps_longitude, $street1, $street2, $council_district, $precinct, $community_board, $description);
+		$result = $stmt->execute();
+	}
+	else {
+		$error = $mysqli->errno . ' ' . $mysqli->error;
+		error_log($error);
+	}
+	error_log($result);
 	$stmt->close();
 	
 	if (!$result) {
@@ -120,6 +141,9 @@ function new_upload($image,
 		'lon' => $gps_longitude,
 		'street1' => $street1,
 		'street2' => $street2,
+		'council_district' => $council_district,
+		'precinct' => $precinct,
+		'community_board' => $community_board,
 		'description' => $description
 	);
 	$email_op = 'new_submission';
