@@ -11,16 +11,21 @@
 	border: 3px solid;
 	border-radius: 5px;
 	padding: 7px 0px 5px 0px;
-	/*margin-left: 15px;*/
 	font-size: 42px;
 	font-family: 'License-Plate';
+	box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, .2),
+				2px 2px 0px 0px rgba(0, 0, 0, .2),
+				3px 3px 0px 0px rgba(0, 0, 0, .2);
 }
 
 .CT {
 	background: linear-gradient(#0099ff, white);
 	border-color: #003399;
 	color: #003399;
-	box-shadow: 0px 0px 0px 3px white;
+	box-shadow: 0px 0px 0px 3px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 }
 .CT:before {
 	content: "Connecticut";
@@ -48,6 +53,41 @@
 	color: #003399;
 	margin-bottom: -5px;
 	width: 100%;
+}
+
+.DE {
+	background-color: #000099;
+	color: yellow;
+	border: 2px solid yellow;
+	box-shadow: 0px 0px 0px 2px #000099,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
+}
+.DE:before{
+	content: "THE FIRST STATE";
+	color: yellow;
+	font-family: Verdana;
+	font-size: 8px;
+	font-weight: 400;
+	position: relative;
+	display: block;
+	width: 100%;
+	margin-top: -6px;
+	margin-bottom: -3px;
+}
+.DE:after{
+	content: "DELAWARE";
+	color: yellow;
+	font-family: Arial;
+	font-size: 10px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	height: 8px;
+	width: 100%;
+	margin-top: -9px;
+	margin-bottom: 2px;
 }
 
 .NONE, .UNKNOWN {
@@ -98,7 +138,10 @@
 .NJ {
 	background: linear-gradient(yellow, white);
 	border-color: white;
-	box-shadow: 0px 0px 0px 1px gray;
+	box-shadow: 0px 0px 0px 1px gray,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 }
 .NJ:before {
 	content: "New Jersey";
@@ -134,7 +177,10 @@
 	padding: 0px 5px 0px 5px;
 	border: 4px solid #f1f3f3;
 	background-color: white;
-	box-shadow: 0px 0px 0px 1px gray;
+	box-shadow: 0px 0px 0px 1px gray,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 }
 
 .NYPDsuffix {
@@ -147,7 +193,89 @@
 	color: white;
 	border-color: white;
 	background-color: red;
-	box-shadow: 0px 0px 0px 1px gray;
+	box-shadow: 0px 0px 0px 1px gray,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
+}
+
+.FL {
+	color: green;
+	border: 3px solid #eee;
+	background-color: white;
+	background: 
+				radial-gradient(
+					circle at 52% 68%,
+					yellow 0%,
+					yellow 2%,
+					transparent 2%
+				),
+				radial-gradient(
+					circle at 55% 60%,
+					yellow 0%,
+					yellow 2%,
+					transparent 2%
+				),
+				radial-gradient(
+					circle at 50% 55%,
+					yellow 0%,
+					yellow 2%,
+					transparent 2%
+				),
+				radial-gradient(
+					circle at 52% 68%,
+					white 0%,
+					white 6%,
+					transparent 6%
+				),
+				radial-gradient(
+					circle at 55% 60%,
+					white 0%,
+					white 6%,
+					transparent 6%
+				),
+				radial-gradient(
+					circle at 50% 55%,
+					white 0%,
+					white 6%,
+					transparent 6%
+				),
+				radial-gradient(
+					circle at 52% 60%,
+					green 0%,
+					green 10%,
+					transparent 10%
+				),
+				radial-gradient(
+					circle at 45% 65%,
+					orange 0%,
+					orange 13%,
+					transparent 13%
+				),
+				radial-gradient(
+					circle at 52% 42%,
+					orange 0%,
+					orange 11%,
+					transparent 11%
+				),
+				white;
+}
+.FL:before {
+	content: "MYFLORIDA.COM";
+	font-family: 'Georgia';
+	font-weight: 800;
+	font-size: 12px;
+	display: block;
+	margin-top: -6px;
+	margin-bottom: -4px;
+}
+.FL:after {
+	content: "SUNSHINE STATE";
+	font-family: 'License-Plate';
+	font-size: 11px;
+	display: block;
+	margin-top: -9px;
+	margin-bottom: -5px;
 }
 
 .PA {
@@ -164,7 +292,10 @@
 	background-repeat: no-repeat;
 	color: #0000b3;
 	border: 1px solid #0000b3;
-	box-shadow: 0px 0px 0px 3px white;
+	box-shadow: 0px 0px 0px 3px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 }
 .PA:before {
 	content: "PENNSYLVANIA";
@@ -193,7 +324,10 @@
 .MA {
 	background-color: white;
 	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px white;
+	box-shadow: 0px 0px 0px 3px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: #d80808;
 }
 .MA:before{
@@ -268,7 +402,10 @@
 	background-position: 0 0, 0 15, 62 -25, 15 -35, 0 0;
 	background-repeat: no-repeat;
 	border: 3px solid white;
-	box-shadow: 0px 0px 0px 1px gray;
+	box-shadow: 0px 0px 0px 1px gray,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: #004d00;
 }
 .NH:before {
@@ -302,7 +439,10 @@
 	background-repeat: repeat-x;
 	background-size: 10px 30px;
 	border: 2px solid black;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: black;
 }
 .ME:before{
@@ -331,18 +471,14 @@
 	margin-top: -7px;
 }
 
-.DE {
-	background-color: #000099;
-	color: yellow;
-	border: 2px solid yellow;
-	box-shadow: 0px 0px 0px 2px #000099;
-}
-
 .GA {
 	background-color: white;
 	color: black;
 	border: 1px solid #cccccc;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	background: radial-gradient(circle, white 0%, white 10%, #ffb26d 20%, #ffb26d 24%, white 12%, white 100%);
 	
 }
@@ -374,18 +510,82 @@
 
 .IA {
 	background: linear-gradient(
-	  180deg,
-	  #00b8e6,
-	  #ffffff 25px,
-	  #ffffff 38px,
-	  #e6e6e6 48px,
-	  #e6e6e6 53px,
-	  #ffffff 53px,
-	  #ffffff 60px
-	);
+					180deg,
+					#eee,
+					#eee
+				),
+				linear-gradient(
+					180deg,
+					#eee,
+					#eee
+				),
+				linear-gradient(
+					180deg,
+					#eee,
+					#eee
+				),
+				linear-gradient(
+					180deg,
+					white,
+					white
+				),
+				linear-gradient(
+					180deg,
+					white,
+					white
+				),
+				linear-gradient(
+					180deg,
+					white,
+					white
+				),
+				linear-gradient(
+					180deg,
+					white,
+					white
+				),
+				linear-gradient(
+					180deg,
+					#00b8e6 0px,
+					#ffffff 20px,
+					#ffffff 38px,
+					#e6e6e6 48px,
+					#e6e6e6 55px,
+					#ffffff 60px,
+					#ffffff 65px
+				);
+	background-size: 40% 20%, 7% 40%, 7% 40%, 10% 30%, 13% 50%, 12% 40%, 15% 55%, 100%;
+	background-position: 10% 60%, 90% 43%, 100% 40%, 45% 30%, 31% 18%, 85% 25%, 65% 12%, 0 0;
+	background-repeat: no-repeat;
 	color: #0047b3;
 	border: 1px solid #e6f0ff;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
+}
+.IA:before {
+	content: "Iowa";
+	font-family: "Times New Roman";
+	font-size: 20px;
+	font-style: bold;
+	font-weight: 800;
+	color: #0047b3;
+	position: relative;
+	display: block;
+	margin-top: -10px;
+	margin-bottom: -10px;
+}
+.IA:after {
+	content: "COUNTY NAME";
+	font-family: "Arial";
+	font-size: 8px;
+	font-weight: 400;
+	color: #0047b3;
+	position: relative;
+	display: block;
+	margin-top: -8px;
+	margin-bottom: -4px;
 }
 
 .IL {
@@ -399,7 +599,10 @@
 	);
 	color: #dd0000;
 	border: 1px solid #cccccc;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	box-sizing: border-box;
 }
 .IL:before {
@@ -429,7 +632,10 @@
 .IN {
 	background-color: white;
 	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px white;
+	box-shadow: 0px 0px 0px 3px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: black;
 }
 .IN:before{
@@ -457,6 +663,46 @@
 	background-position: top;
 }
 
+.MI {
+	color: dodgerblue;
+	background: white;
+	border: 3px solid #eeeeee;
+}
+.MI:before{
+	content: "";
+	font-family: arial;
+	font-size: 8px;
+	font-weight: 800;
+	background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='23px' width='100px'><text x='0' y='15' fill='dodgerblue' font-size='8' font-family='arial' textLength='30'>PURE</text><text x='28' y='20' fill='dodgerblue' font-size='30' font-style='Oblique' style='font-family:Comic Sans MS, Comic Sans;'>m</text><text x='54' y='15' fill='dodgerblue' font-size='8' font-family='arial' textLength='45'>ICHIGAN</text></svg>") no-repeat 50% top;
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 23px;
+	margin-top: -10px;
+	margin-bottom: -5px;
+}
+.MI:after{
+	content: "michigan.org";
+	background:   radial-gradient(white 0%, white 50%, transparent 50%, transparent 100%),
+				  linear-gradient(transparent 0%, transparent 20px, dodgerblue 20px, dodgerblue 100%),
+				  radial-gradient(dodgerblue 0%, dodgerblue 50%, transparent 50%, transparent 100%);
+	background-position: -25% 60%, 0 0, 20% 0%;
+	background-size: 70% 30%, 100% 100%, 200% 350%;
+	background-repeat: no-repeat;
+	color: white;
+	font-family: arial;
+	font-size: 8px;
+	font-weight: 800;
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 12px;
+	margin-top: -25px;
+	padding-top: 20px;
+	margin-bottom: -5px;
+	padding-bottom: -40px;
+}
+
 .NC {
 	background: linear-gradient(
 					0deg,
@@ -478,7 +724,10 @@
 	z-index: 1;
 	color: #4444ff;
 	border: 1px solid #e6f0ff;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 }
 .NC:before {
 	content: "First in Flight";
@@ -584,7 +833,10 @@
 
 .RI {
 	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px #fafafa;
+	box-shadow: 0px 0px 0px 3px #fafafa,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: #074ab7;
 	background:   radial-gradient(#97afc9 0%, #97afc9 80%, transparent 80%, transparent 100%),
 		          linear-gradient(#fafafa 0%, #fafafa 100%),
@@ -625,7 +877,10 @@
 
 .SC {
 	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px #ffffff;
+	box-shadow: 0px 0px 0px 3px #ffffff,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: #386ec5;
 	background:	radial-gradient(circle, #1e0ad1 0%, #1e0ad1 6%, transparent 14%),
 				linear-gradient(#1e0ad1 0%, #1e0ad1 100%),
@@ -672,7 +927,10 @@
 	background-position: 5px -3px;
 	background-color: white;
 	border: 1px solid #cccccc;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	
 }
 .TX:before{
@@ -696,11 +954,27 @@
 	margin-bottom: -4px;
 }
 
+.USPS{
+	border: 1px solid #ddd;
+	background-color: white;
+	padding: 0px;
+	font-size: 42px;
+	font-family: 'Arial';
+	font-weight: 800;
+	color: blue;
+	box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, .2),
+				2px 2px 0px 0px rgba(0, 0, 0, .2),
+				3px 3px 0px 0px rgba(0, 0, 0, .2);
+}
+
 .VA{
 	background: white;
 	border: 1px solid #eeeeee;
 	color: #000080;
-	box-shadow: 0px 0px 0px 2px white;
+	box-shadow: 0px 0px 0px 2px white,
+			3px 3px 0px 0px rgba(0, 0, 0, .2),
+            4px 4px 0px 0px rgba(0, 0, 0, .2),
+            5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 }
 .VA:before{
 	content: "VIRGINIA";
@@ -729,7 +1003,10 @@
 	  #006600 60px
 	);
 	border: 2px solid #006600;
-	box-shadow: 0px 0px 0px 1px gray;
+	box-shadow: 0px 0px 0px 1px gray,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: white;
 }
 
@@ -745,7 +1022,10 @@
 	overflow: hidden;
 	color: #0c2e63;
 	border: 1px solid #eeeeee;
-	box-shadow: 0px 0px 0px 3px white;
+	box-shadow: 0px 0px 0px 3px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	
 }
 .WA:before {
@@ -809,6 +1089,9 @@
 	  #ffffff 60px
 	);
 	border: 1px solid gray;
-	box-shadow: 0px 0px 0px 3px white;
+	box-shadow: 0px 0px 0px 3px white,
+				3px 3px 0px 0px rgba(0, 0, 0, .2),
+				4px 4px 0px 0px rgba(0, 0, 0, .2),
+				5px 5px 0px 0px rgba(0, 0, 0, .2) !important;
 	color: #000099;
 }
